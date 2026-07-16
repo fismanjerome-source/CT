@@ -1,0 +1,295 @@
+'use client';
+
+import { useEffect, useState, use } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+function todayISO(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+
+export default function CentrePage({ params }) {
+  const { id } = use(params);
+  const router = useRouter();
+
+  const [centre, setCentre] = useState(null);
+  const [dispoParJour, setDispoParJour] = useState({});
+  const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
+  const [creneaux, setCreneaux] = useState(null);
+  const [chargementCreneaux, setChargementCreneaux] = useState(true);
+  const [modalCreneau, setModalCreneau] = useState(null); // { heure } | null
+  const [confirmation, setConfirmation] = useState(null);
+  const [erreurChargement, setErreurChargement] = useState(false);
+
+  // Chargement initial : centre + disponibilités des 14 prochains jours
+  useEffect(() => {
+    let annule = false;
+    async function charger() {
+      try {
+        const [centreRes, dispoRes] = await Promise.all([
+          fetch(`/api/centres/${id}`),
+          fetch(`/api/centres/${id}/disponibilites?debut=${todayISO()}&jours=13`),
+        ]);
+        if (!centreRes.ok) throw new Error('Centre introuvable');
+        const centreData = await centreRes.json();
+        const dispoData = await dispoRes.json();
+        if (annule) return;
+
+        setCentre(centreData.centre);
+        const map = Object.fromEntries(dispoData.disponibilites.map((d) => [d.date, d.n]));
+        setDispoParJour(map);
+
+        const premierJourDispo = Array.from({ length: 14 }, (_, i) => todayISO(i)).find((d) => map[d] > 0);
+        setDateSelectionnee(premierJourDispo || todayISO());
+      } catch {
+        if (!annule) setErreurChargement(true);
+      }
+    }
+    charger();
+    return () => { annule = true; };
+  }, [id]);
+
+  // Chargement des créneaux à chaque changement de date
+  useEffect(() => {
+    let annule = false;
+    async function chargerCreneaux() {
+      setChargementCreneaux(true);
+      try {
+        const res = await fetch(`/api/centres/${id}/creneaux?date=${dateSelectionnee}`);
+        const data = await res.json();
+        if (!annule) setCreneaux(data.creneaux);
+      } catch {
+        if (!annule) setCreneaux([]);
+      } finally {
+        if (!annule) setChargementCreneaux(false);
+      }
+    }
+    if (dateSelectionnee) chargerCreneaux();
+    return () => { annule = true; };
+  }, [id, dateSelectionnee]);
+
+  function rafraichirApresReservation() {
+    fetch(`/api/centres/${id}/creneaux?date=${dateSelectionnee}`)
+      .then((r) => r.json())
+      .then((d) => setCreneaux(d.creneaux));
+  }
+
+  if (erreurChargement) {
+    return (
+      <div className="container" style={{ padding: 40 }}>
+        <div className="message-banner error">Impossible de charger ce centre.</div>
+        <Link href="/" className="back-link">← Retour à la recherche</Link>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <header className="site-header">
+        <div className="container">
+          <Link href="/" className="brand"><span className="brand-mark">CT</span> RDV Contrôle Technique</Link>
+          <nav>
+            <Link href="/suivi">Suivre un RDV</Link>
+            <Link href="/pro/login">Espace professionnel</Link>
+          </nav>
+        </div>
+      </header>
+
+      <section className="centre-header">
+        <div className="container">
+          <Link href="/" className="back-link">← Retour à la recherche</Link>
+          {centre ? (
+            <>
+              <h1>{centre.nom}</h1>
+              <p className="help-text">
+                {centre.adresse}, {centre.code_postal} {centre.ville}
+                {centre.telephone ? ` · ${centre.telephone}` : ''}
+              </p>
+            </>
+          ) : (
+            <p className="help-text">Chargement…</p>
+          )}
+        </div>
+      </section>
+
+      <section className="container">
+        <div className="day-picker">
+          {Array.from({ length: 14 }, (_, i) => todayISO(i)).map((dateStr) => {
+            const d = new Date(dateStr + 'T00:00:00');
+            const n = dispoParJour[dateStr] || 0;
+            return (
+              <div
+                key={dateStr}
+                className={`day-chip ${dateStr === dateSelectionnee ? 'selected' : ''}`}
+                onClick={() => setDateSelectionnee(dateStr)}
+              >
+                <span className="dow">{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</span>
+                <span className="num">{d.getDate()}</span>
+                <span className={`count ${n === 0 ? 'zero' : ''}`}>{n === 0 ? '—' : `${n} libre${n > 1 ? 's' : ''}`}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        <h2 style={{ marginTop: 20 }}>
+          Créneaux du {new Date(dateSelectionnee + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+        </h2>
+
+        <div className="slots-grid">
+          {chargementCreneaux ? (
+            <p className="help-text">Chargement des créneaux…</p>
+          ) : !creneaux || creneaux.length === 0 ? (
+            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
+              Aucun créneau disponible ce jour-là. Essayez une autre date dans le calendrier ci-dessus.
+            </div>
+          ) : (
+            creneaux.map((c) => (
+              <button key={c.id} className="slot-btn" onClick={() => setModalCreneau(c)}>
+                {c.heure}
+              </button>
+            ))
+          )}
+        </div>
+      </section>
+
+      <footer className="site-footer">
+        <div className="container">Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.</div>
+      </footer>
+
+      {modalCreneau && centre && (
+        <ReservationModal
+          centre={centre}
+          creneau={modalCreneau}
+          dateSelectionnee={dateSelectionnee}
+          onClose={() => setModalCreneau(null)}
+          onSuccess={(rdv) => {
+            setModalCreneau(null);
+            setConfirmation(rdv);
+            rafraichirApresReservation();
+          }}
+        />
+      )}
+
+      {confirmation && (
+        <ConfirmationModal rdv={confirmation} onClose={() => router.push('/')} />
+      )}
+    </>
+  );
+}
+
+function ReservationModal({ centre, creneau, dateSelectionnee, onClose, onSuccess }) {
+  const [nom, setNom] = useState('');
+  const [email, setEmail] = useState('');
+  const [telephone, setTelephone] = useState('');
+  const [immatriculation, setImmatriculation] = useState('');
+  const [typeVehicule, setTypeVehicule] = useState('');
+  const [envoi, setEnvoi] = useState(false);
+  const [erreur, setErreur] = useState(null);
+
+  const dateLisible = new Date(dateSelectionnee + 'T00:00:00').toLocaleDateString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  });
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setEnvoi(true);
+    setErreur(null);
+    try {
+      const res = await fetch('/api/rdv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creneau_id: creneau.id,
+          client_nom: nom.trim(),
+          client_email: email.trim(),
+          client_telephone: telephone.trim(),
+          immatriculation: immatriculation.trim(),
+          type_vehicule: typeVehicule,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErreur(data.erreur);
+        setEnvoi(false);
+        return;
+      }
+      onSuccess(data.rdv);
+    } catch {
+      setErreur('Erreur réseau. Réessayez.');
+      setEnvoi(false);
+    }
+  }
+
+  return (
+    <div className="overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal">
+        <h2>Confirmer le rendez-vous</h2>
+        <div className="modal-recap">
+          <strong>{centre.nom}</strong><br />
+          {dateLisible} à {creneau.heure}
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label htmlFor="client_nom">Nom complet</label>
+            <input id="client_nom" type="text" required value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="name" />
+          </div>
+          <div className="form-row">
+            <label htmlFor="client_email">Email</label>
+            <input id="client_email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          </div>
+          <div className="form-row">
+            <label htmlFor="client_telephone">Téléphone</label>
+            <input id="client_telephone" type="tel" required value={telephone} onChange={(e) => setTelephone(e.target.value)} autoComplete="tel" />
+          </div>
+          <div className="form-row">
+            <label htmlFor="immatriculation">Immatriculation du véhicule</label>
+            <input
+              id="immatriculation" type="text" required placeholder="AA-123-BB"
+              style={{ textTransform: 'uppercase' }}
+              value={immatriculation} onChange={(e) => setImmatriculation(e.target.value)}
+            />
+          </div>
+          <div className="form-row">
+            <label htmlFor="type_vehicule">Type de véhicule (optionnel)</label>
+            <select id="type_vehicule" value={typeVehicule} onChange={(e) => setTypeVehicule(e.target.value)}>
+              <option value="">Non précisé</option>
+              <option value="citadine">Citadine</option>
+              <option value="berline">Berline</option>
+              <option value="suv">SUV / 4x4</option>
+              <option value="utilitaire">Utilitaire</option>
+            </select>
+          </div>
+          {erreur && <div className="message-banner error">{erreur}</div>}
+          <div className="modal-actions">
+            <button type="button" className="btn-secondary" onClick={onClose}>Annuler</button>
+            <button type="submit" disabled={envoi}>{envoi ? 'Réservation en cours…' : 'Confirmer le rendez-vous'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ConfirmationModal({ rdv, onClose }) {
+  const d = new Date(rdv.date + 'T00:00:00');
+  return (
+    <div className="overlay">
+      <div className="modal">
+        <div className="confirmation-box">
+          <h2 style={{ color: 'var(--color-success)' }}>Rendez-vous confirmé</h2>
+          <p>
+            {rdv.centre.nom}<br />
+            {d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} à {rdv.heure}
+          </p>
+          <div className="ref">{rdv.reference}</div>
+          <p className="help-text">Conservez cette référence pour consulter ou annuler votre rendez-vous depuis la page « Suivre un RDV ».</p>
+        </div>
+        <div className="modal-actions">
+          <button type="button" onClick={onClose}>Retour à l'accueil</button>
+        </div>
+      </div>
+    </div>
+  );
+}

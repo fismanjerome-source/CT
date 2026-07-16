@@ -1,0 +1,22 @@
+import { NextResponse } from 'next/server';
+import { get } from '@/lib/db';
+import { verifyPassword, setSessionCookie } from '@/lib/auth';
+import { jsonError } from '@/lib/utils';
+
+export async function POST(request) {
+  const body = await request.json().catch(() => ({}));
+  const { email, password } = body;
+  if (!email || !password) return jsonError(400, 'Email et mot de passe requis.');
+
+  const controleur = await get('SELECT * FROM controleurs WHERE email = ?', [email.toLowerCase()]);
+  if (!controleur || !verifyPassword(password, controleur.password_hash)) {
+    return jsonError(401, 'Identifiants incorrects.');
+  }
+
+  await setSessionCookie(controleur.id);
+
+  return NextResponse.json({
+    message: 'Connecté.',
+    controleur: { id: controleur.id, nom: controleur.nom, email: controleur.email },
+  });
+}
