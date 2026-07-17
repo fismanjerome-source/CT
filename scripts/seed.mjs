@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS creneaux (
   id INTEGER PRIMARY KEY AUTOINCREMENT, centre_id INTEGER NOT NULL REFERENCES centres(id) ON DELETE CASCADE,
   controleur_id INTEGER NOT NULL REFERENCES controleurs(id) ON DELETE CASCADE,
   date TEXT NOT NULL, heure TEXT NOT NULL, duree_minutes INTEGER NOT NULL DEFAULT 30,
-  statut TEXT NOT NULL DEFAULT 'disponible', UNIQUE(controleur_id, date, heure)
+  statut TEXT NOT NULL DEFAULT 'disponible', promo_pourcentage INTEGER, UNIQUE(controleur_id, date, heure)
 );
 CREATE TABLE IF NOT EXISTS rdv (
   id INTEGER PRIMARY KEY AUTOINCREMENT, creneau_id INTEGER NOT NULL REFERENCES creneaux(id) ON DELETE CASCADE,

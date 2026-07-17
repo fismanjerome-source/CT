@@ -30,15 +30,15 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date, heure, duree_minutes } = body;
+  const { date, heure, duree_minutes, promo_pourcentage } = body;
   if (!date || !heure) return jsonError(400, 'Date et heure requises.');
 
   const controleur = await get('SELECT centre_id FROM controleurs WHERE id = ?', [session.controleurId]);
 
   try {
     const result = await run(
-      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut) VALUES (?, ?, ?, ?, ?, 'disponible')`,
-      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30]
+      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, promo_pourcentage) VALUES (?, ?, ?, ?, ?, 'disponible', ?)`,
+      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30, promo_pourcentage || null]
     );
     return NextResponse.json({ id: Number(result.lastInsertRowid) }, { status: 201 });
   } catch {

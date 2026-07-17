@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
   if (!date) return jsonError(400, 'Paramètre "date" requis (YYYY-MM-DD).');
 
   const creneaux = await all(
-    `SELECT c.id, c.heure, c.duree_minutes, ctrl.nom AS controleur_nom
+    `SELECT c.id, c.heure, c.duree_minutes, c.promo_pourcentage, ctrl.nom AS controleur_nom
      FROM creneaux c JOIN controleurs ctrl ON ctrl.id = c.controleur_id
      WHERE c.centre_id = ? AND c.date = ? AND c.statut = 'disponible'
      ORDER BY c.heure`,

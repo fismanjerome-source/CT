@@ -37,11 +37,11 @@ export default function DashboardPage() {
   const [comblerForm, setComblerForm] = useState({
     date_debut: todayISO(), date_fin: todayISO(6),
     heure_debut: '09:00', heure_fin: '12:00',
-    intervalle_minutes: 30, duree_minutes: 30,
+    intervalle_minutes: 30, duree_minutes: 30, promo_pourcentage: '',
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
 
-  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00' });
+  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', promo_pourcentage: '' });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
 
   const chargerPlanning = useCallback(async () => {
@@ -87,6 +87,7 @@ export default function DashboardPage() {
           ...comblerForm,
           intervalle_minutes: Number(comblerForm.intervalle_minutes),
           duree_minutes: Number(comblerForm.duree_minutes),
+          promo_pourcentage: comblerForm.promo_pourcentage ? Number(comblerForm.promo_pourcentage) : null,
         }),
       });
       setMessage({ type: 'success', text: data.message });
@@ -102,7 +103,13 @@ export default function DashboardPage() {
     e.preventDefault();
     setSingleEnvoi(true);
     try {
-      await api('/api/pro/creneaux', { method: 'POST', body: JSON.stringify(singleForm) });
+      await api('/api/pro/creneaux', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...singleForm,
+          promo_pourcentage: singleForm.promo_pourcentage ? Number(singleForm.promo_pourcentage) : null,
+        }),
+      });
       setMessage({ type: 'success', text: 'Créneau ajouté.' });
       chargerPlanning();
     } catch (e) {
@@ -205,6 +212,11 @@ export default function DashboardPage() {
                 </select>
               </div>
             </div>
+            <div className="form-row">
+              <label htmlFor="combler_promo">Promotion sur ces créneaux (optionnel, en %)</label>
+              <input id="combler_promo" type="number" min="1" max="90" placeholder="ex: 20" value={comblerForm.promo_pourcentage}
+                onChange={(e) => setComblerForm({ ...comblerForm, promo_pourcentage: e.target.value })} />
+            </div>
             <p className="help-text">Les créneaux existants ne sont jamais dupliqués ni écrasés — seuls les horaires encore vides sont ouverts.</p>
             <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture…' : 'Ouvrir les créneaux'}</button>
           </form>
@@ -224,6 +236,11 @@ export default function DashboardPage() {
                 onChange={(e) => setSingleForm({ ...singleForm, heure: e.target.value })} />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+              <label htmlFor="s_promo">Promotion (optionnel, en %)</label>
+              <input id="s_promo" type="number" min="1" max="90" placeholder="ex: 20" value={singleForm.promo_pourcentage}
+                onChange={(e) => setSingleForm({ ...singleForm, promo_pourcentage: e.target.value })} />
+            </div>
+            <div className="form-row" style={{ gridColumn: '1 / -1' }}>
               <button type="submit" disabled={singleEnvoi}>{singleEnvoi ? 'Ajout…' : 'Ajouter ce créneau'}</button>
             </div>
           </form>
@@ -237,13 +254,14 @@ export default function DashboardPage() {
             <div className="empty-state">Aucun créneau programmé. Utilisez le formulaire ci-dessus pour en ouvrir.</div>
           ) : (
             <table>
-              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Client</th><th></th></tr></thead>
+              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Promo</th><th>Client</th><th></th></tr></thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
                     <td className="mono">{formatDate(c.date)}</td>
                     <td className="mono">{c.heure}</td>
                     <td><span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>{c.statut === 'disponible' ? 'Disponible' : 'Réservé'}</span></td>
+                    <td>{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
                     <td>{c.statut === 'disponible' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}</td>
                   </tr>

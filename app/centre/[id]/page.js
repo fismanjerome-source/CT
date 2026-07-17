@@ -161,7 +161,8 @@ export default function CentrePage({ params }) {
             </div>
           ) : (
             creneaux.map((c) => (
-              <button key={c.id} className="slot-btn" onClick={() => setModalCreneau(c)}>
+              <button key={c.id} className={`slot-btn ${c.promo_pourcentage ? 'promo' : ''}`} onClick={() => setModalCreneau(c)}>
+                {c.promo_pourcentage ? <span className="promo-flag">-{c.promo_pourcentage}%</span> : null}
                 {c.heure}
               </button>
             ))
@@ -244,6 +245,11 @@ function ReservationModal({ centre, creneau, dateSelectionnee, onClose, onSucces
         <div className="modal-recap">
           <strong>{centre.nom}</strong><br />
           {dateLisible} à {creneau.heure}
+          {creneau.promo_pourcentage ? (
+            <div style={{ marginTop: 6 }}>
+              <span className="promo-badge-inline">-{creneau.promo_pourcentage}% sur ce créneau</span>
+            </div>
+          ) : null}
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-row">

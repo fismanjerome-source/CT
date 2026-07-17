@@ -15,6 +15,8 @@
   --color-success-bg: #E5F1E7;
   --color-danger: #B3402E;
   --color-danger-bg: #FBEAE6;
+  --color-promo: #C1611E;
+  --color-promo-bg: #FBEEE1;
   --color-border: #DDE2DA;
 
   /* --font-display, --font-body, --font-mono sont injectées par next/font
@@ -322,6 +324,7 @@ button:disabled {
   padding: 20px 0 48px;
 }
 .slot-btn {
+  position: relative;
   font-family: var(--font-mono);
   font-size: 0.95rem;
   font-weight: 600;
@@ -335,6 +338,36 @@ button:disabled {
 }
 .slot-btn:hover { background: var(--color-success); color: #fff; }
 .slot-btn.selected { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.slot-btn.promo { border-color: var(--color-promo); background: var(--color-promo-bg); color: var(--color-promo); }
+.slot-btn.promo:hover { background: var(--color-promo); color: #fff; }
+
+.promo-flag {
+  position: absolute;
+  top: -9px;
+  right: -8px;
+  background: var(--color-promo);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.promo-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-promo);
+  background: var(--color-promo-bg);
+  border: 1px solid var(--color-promo);
+  border-radius: 20px;
+  padding: 1px 8px;
+}
 
 /* ---------- Modale de réservation ---------- */
 .overlay {
