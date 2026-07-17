@@ -103,10 +103,24 @@ export default function CentrePage({ params }) {
           <Link href="/" className="back-link">← Retour à la recherche</Link>
           {centre ? (
             <>
-              <h1>{centre.nom}</h1>
+              <div className="centre-title-row">
+                <h1 style={{ margin: 0 }}>{centre.nom}</h1>
+                <span className={`enseigne-badge ${centre.enseigne ? '' : 'independant'}`}>
+                  {centre.enseigne || 'Centre indépendant'}
+                </span>
+              </div>
               <p className="help-text">
                 {centre.adresse}, {centre.code_postal} {centre.ville}
                 {centre.telephone ? ` · ${centre.telephone}` : ''}
+                {' · '}
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${centre.adresse}, ${centre.code_postal} ${centre.ville}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="maps-link"
+                >
+                  Voir sur Google Maps
+                </a>
               </p>
             </>
           ) : (

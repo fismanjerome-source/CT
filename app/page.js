@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Logo from './components/Logo';
 
 function formatDateCourte(dateStr) {
@@ -106,12 +107,35 @@ export default function HomePage() {
 }
 
 function CentreCard({ centre }) {
+  const router = useRouter();
   const vide = centre.creneaux_disponibles_7j === 0;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${centre.adresse}, ${centre.code_postal} ${centre.ville}`
+  )}`;
+
   return (
-    <Link href={`/centre/${centre.id}`} className="centre-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+    <div
+      className="centre-card"
+      style={{ cursor: 'pointer' }}
+      role="link"
+      tabIndex={0}
+      onClick={() => router.push(`/centre/${centre.id}`)}
+      onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/centre/${centre.id}`); }}
+    >
       <div className="infos">
-        <h3>{centre.nom}</h3>
-        <div className="adresse">{centre.adresse}, {centre.code_postal} {centre.ville}</div>
+        <div className="centre-title-row">
+          <h3 style={{ margin: 0 }}>{centre.nom}</h3>
+          <span className={`enseigne-badge ${centre.enseigne ? '' : 'independant'}`}>
+            {centre.enseigne || 'Centre indépendant'}
+          </span>
+        </div>
+        <div className="adresse">
+          {centre.adresse}, {centre.code_postal} {centre.ville}
+          {' · '}
+          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="maps-link" onClick={(e) => e.stopPropagation()}>
+            Voir sur Google Maps
+          </a>
+        </div>
         {centre.telephone && <div className="tel">{centre.telephone}</div>}
         <p className="help-text" style={{ marginTop: 8 }}>
           {centre.prochain_creneau
@@ -123,6 +147,6 @@ function CentreCard({ centre }) {
         <span className="n">{centre.creneaux_disponibles_7j}</span>
         <span className="label">créneaux<br />sous 7 jours</span>
       </div>
-    </Link>
+    </div>
   );
 }

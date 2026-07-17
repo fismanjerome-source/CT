@@ -19,7 +19,7 @@ function hashPassword(password) {
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS centres (
   id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT NOT NULL, adresse TEXT NOT NULL,
-  code_postal TEXT NOT NULL, ville TEXT NOT NULL, telephone TEXT
+  code_postal TEXT NOT NULL, ville TEXT NOT NULL, telephone TEXT, enseigne TEXT
 );
 CREATE TABLE IF NOT EXISTS controleurs (
   id INTEGER PRIMARY KEY AUTOINCREMENT, centre_id INTEGER NOT NULL REFERENCES centres(id) ON DELETE CASCADE,
@@ -51,15 +51,15 @@ async function main() {
   console.log('Insertion des données de démonstration...');
 
   const centres = [
-    ['Auto Sécurité Bastille', '12 rue de Charonne', '75011', 'Paris', '01 43 55 12 34'],
-    ['Contrôle Plus Montreuil', '5 avenue de la République', '93100', 'Montreuil', '01 48 57 22 10'],
-    ['Sécuritest Boulogne', '48 rue Gallieni', '92100', 'Boulogne-Billancourt', '01 46 21 09 88'],
-    ['Autovision Créteil', '3 rue Juliette Savar', '94000', 'Créteil', '01 43 99 44 55'],
+    ['Auto Sécurité Bastille', '12 rue de Charonne', '75011', 'Paris', '01 43 55 12 34', null],
+    ['Contrôle Plus Montreuil', '5 avenue de la République', '93100', 'Montreuil', '01 48 57 22 10', 'Dekra'],
+    ['Sécuritest Boulogne', '48 rue Gallieni', '92100', 'Boulogne-Billancourt', '01 46 21 09 88', 'Sécuritest'],
+    ['Autovision Créteil', '3 rue Juliette Savar', '94000', 'Créteil', '01 43 99 44 55', 'Autovision'],
   ];
   const centreIds = [];
   for (const c of centres) {
     const res = await db.execute({
-      sql: 'INSERT INTO centres (nom, adresse, code_postal, ville, telephone) VALUES (?, ?, ?, ?, ?)',
+      sql: 'INSERT INTO centres (nom, adresse, code_postal, ville, telephone, enseigne) VALUES (?, ?, ?, ?, ?, ?)',
       args: c,
     });
     centreIds.push(Number(res.lastInsertRowid));

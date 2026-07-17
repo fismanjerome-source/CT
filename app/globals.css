@@ -216,6 +216,35 @@ button:disabled {
 .centre-card .adresse { color: var(--color-text-muted); font-size: 0.92rem; }
 .centre-card .tel { color: var(--color-text-muted); font-size: 0.88rem; font-family: var(--font-mono); }
 
+.centre-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+
+.enseigne-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 2px 9px;
+  white-space: nowrap;
+  color: var(--color-primary);
+  background: #EEF1EC;
+  border: 1px solid var(--color-primary);
+}
+.enseigne-badge.independant {
+  color: #3D6B52;
+  background: #E7F0EA;
+  border-color: #3D6B52;
+}
+
+.maps-link {
+  font-size: 0.82rem;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.maps-link:hover { text-decoration: underline; }
+
 /* Tampon de disponibilité — élément signature, évoque le cachet d'un centre agréé */
 .stamp {
   border: 2px dashed var(--color-accent);

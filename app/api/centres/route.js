@@ -7,7 +7,7 @@ export async function GET(request) {
   const ville = (searchParams.get('ville') || '').trim();
   const cp = (searchParams.get('cp') || '').trim();
 
-  let sql = 'SELECT id, nom, adresse, code_postal, ville, telephone FROM centres WHERE 1=1';
+  let sql = 'SELECT id, nom, adresse, code_postal, ville, telephone, enseigne FROM centres WHERE 1=1';
   const args = [];
   if (ville) { sql += ' AND ville LIKE ?'; args.push(`%${ville}%`); }
   if (cp) { sql += ' AND code_postal LIKE ?'; args.push(`${cp}%`); }
