@@ -1,5 +1,5 @@
 /* ============================================================
-   Design tokens — RDV Contrôle Technique
+   Design tokens — Créneau CT
    Palette : vert technique / bureau officiel, sobre et fiable
    Typo : Fraunces (titres) + IBM Plex Sans (texte) + IBM Plex Mono (données)
    ============================================================ */
@@ -7,7 +7,7 @@
   --color-bg: #F4F5F1;
   --color-surface: #FFFFFF;
   --color-primary: #0F3D3E;
-  --color-primary: #1B3A5C;
+  --color-primary-light: #1E5F5A;
   --color-accent: #C8952A;
   --color-text: #1A2420;
   --color-text-muted: #5B665F;

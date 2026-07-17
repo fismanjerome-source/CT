@@ -23,7 +23,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata = {
-  title: 'RDV Contrôle Technique',
+  title: 'Créneau CT',
   description: 'Réservez un créneau de contrôle technique en ligne, y compris de dernière minute.',
 };
 

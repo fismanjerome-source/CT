@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Logo from '../../components/Logo';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -89,7 +90,7 @@ export default function CentrePage({ params }) {
     <>
       <header className="site-header">
         <div className="container">
-          <Link href="/" className="brand"><span className="brand-mark">CT</span> RDV Contrôle Technique</Link>
+          <Link href="/" className="brand"><Logo /> Créneau CT</Link>
           <nav>
             <Link href="/suivi">Suivre un RDV</Link>
             <Link href="/pro/login">Espace professionnel</Link>

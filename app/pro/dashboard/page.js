@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Logo from '../../components/Logo';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -134,7 +135,7 @@ export default function DashboardPage() {
   return (
     <div className="pro-shell">
       <aside className="pro-sidebar">
-        <div className="brand"><span className="brand-mark" style={{ borderColor: '#fff' }}>CT</span> Espace pro</div>
+        <div className="brand"><Logo /> Espace pro</div>
         <nav>
           <a href="#combler" className="active">Combler des horaires vides</a>
           <a href="#planning">Mon planning</a>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Logo from '../../components/Logo';
 
 export default function ProLoginPage() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function ProLoginPage() {
     <div className="login-shell">
       <div className="login-card">
         <div className="brand" style={{ color: 'var(--color-primary)', marginBottom: 24 }}>
-          <span className="brand-mark" style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}>CT</span>
+          <Logo size={40} />
           Espace professionnel
         </div>
         <p className="help-text" style={{ marginBottom: 20 }}>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Logo from './components/Logo';
 
 function formatDateCourte(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -38,8 +39,8 @@ export default function HomePage() {
       <header className="site-header">
         <div className="container">
           <Link href="/" className="brand">
-            <span className="brand-mark">CT</span>
-            RDV Contrôle Technique
+            <Logo />
+            Créneau CT
           </Link>
           <nav>
             <Link href="/suivi">Suivre un RDV</Link>
@@ -51,10 +52,10 @@ export default function HomePage() {
       <section className="hero">
         <div className="container">
           <div className="eyebrow">Réservation en ligne</div>
-          <h1>Trouvez un créneau de contrôle technique, même à la dernière minute</h1>
+          <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
           <p className="lead">
-            Nous connectons les particuliers aux créneaux qui se libèrent chez les contrôleurs
-            agréés autour de chez vous — y compris les disponibilités de dernière minute.
+            Créneau CT vous permet de réserver facilement votre contrôle technique, où et quand
+            ça vous arrange — y compris les disponibilités de dernière minute près de chez vous.
           </p>
 
           <form className="search-box" onSubmit={handleSubmit}>

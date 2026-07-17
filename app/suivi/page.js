@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Logo from '../components/Logo';
 
 export default function SuiviPage() {
   const [reference, setReference] = useState('');
@@ -50,7 +51,7 @@ export default function SuiviPage() {
     <>
       <header className="site-header">
         <div className="container">
-          <Link href="/" className="brand"><span className="brand-mark">CT</span> RDV Contrôle Technique</Link>
+          <Link href="/" className="brand"><Logo /> Créneau CT</Link>
           <nav><Link href="/pro/login">Espace professionnel</Link></nav>
         </div>
       </header>
