@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import { CarIcon, MotoIcon } from './components/VehiculeIcons';
+import { IconeVehicule } from './components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 function formatDateCourte(dateStr) {
@@ -258,8 +258,9 @@ function CentreCard({ centre, dateRecherchee }) {
 
         <div className="vehicule-badges">
           {TYPES_VEHICULES.filter((t) => parseTypes(centre.types_vehicules_acceptes).includes(t.value)).map((t) => (
-            <span key={t.value} className="vehicule-badge" style={{ borderColor: t.couleur, color: t.couleur }} title={t.label}>
-              {t.categorie === 'moto' ? <MotoIcon size={14} /> : <CarIcon size={14} />}
+            <span key={t.value} className="vehicule-badge" style={{ background: t.couleur }}>
+              <IconeVehicule icone={t.icone} size={13} color="#fff" />
+              {t.label}
             </span>
           ))}
         </div>

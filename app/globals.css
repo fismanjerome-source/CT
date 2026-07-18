@@ -274,15 +274,17 @@ button:disabled {
 
 .centre-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 
-.vehicule-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.vehicule-badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
 .vehicule-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1.5px solid;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .enseigne-badge {

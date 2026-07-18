@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
-import { CarIcon, MotoIcon } from '../../components/VehiculeIcons';
+import { IconeVehicule } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 function todayISO(offset = 0) {
@@ -245,7 +245,7 @@ function DashboardPageInner() {
                   style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
                   onClick={() => toggleTypeVehiculeCentre(t.value)}
                 >
-                  {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                  <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
                   {t.label}
                 </button>
               );
@@ -348,7 +348,7 @@ function DashboardPageInner() {
                             : [...comblerForm.types_vehicules, t.value],
                         })}
                       >
-                        {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                        <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
                         {t.label}
                       </button>
                     );
@@ -411,7 +411,7 @@ function DashboardPageInner() {
                           : [...singleForm.types_vehicules, t.value],
                       })}
                     >
-                      {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                      <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
                       {t.label}
                     </button>
                   );

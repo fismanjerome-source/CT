@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
-import { CarIcon, MotoIcon } from '../../components/VehiculeIcons';
+import { IconeVehicule } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 function todayISO(offset = 0) {
@@ -147,7 +147,7 @@ export default function CentrePage({ params }) {
                   style={typeVehicule === t.value ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
                   onClick={() => setTypeVehicule(t.value)}
                 >
-                  {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                  <IconeVehicule icone={t.icone} size={16} color={typeVehicule === t.value ? '#fff' : t.couleur} />
                   {t.label}
                 </button>
               ))}
