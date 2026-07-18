@@ -11,6 +11,7 @@ export default function Header() {
           Créneau CT
         </Link>
         <nav>
+          <Link href="/guide">Le contrôle technique, c'est quoi ?</Link>
           <Link href="/suivi">Suivre un RDV</Link>
           <Link href="/faq-clients">FAQ</Link>
           <Link href="/pro/login">Espace professionnel</Link>

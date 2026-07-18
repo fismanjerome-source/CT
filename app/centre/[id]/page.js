@@ -7,6 +7,7 @@ import Footer from '../../components/Footer';
 import Header from '../../components/Header';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
+import { couleurEnseigne } from '@/lib/enseignes';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -108,9 +109,21 @@ export default function CentrePage({ params }) {
           <Link href="/" className="back-link">← Retour à la recherche</Link>
           {centre ? (
             <>
+              {centre.image_data && (
+                <div className="centre-page-image">
+                  <img src={`data:${centre.image_mime};base64,${centre.image_data}`} alt={centre.nom} />
+                </div>
+              )}
               <div className="centre-title-row">
                 <h1 style={{ margin: 0 }}>{centre.nom}</h1>
-                <span className={`enseigne-badge ${centre.enseigne ? '' : 'independant'}`}>
+                <span
+                  className="enseigne-badge"
+                  style={
+                    couleurEnseigne(centre.enseigne).degrade
+                      ? { background: couleurEnseigne(centre.enseigne).degrade, color: couleurEnseigne(centre.enseigne).texte, border: `1px solid ${couleurEnseigne(centre.enseigne).bordure || 'transparent'}` }
+                      : { background: couleurEnseigne(centre.enseigne).fond, color: couleurEnseigne(centre.enseigne).texte, border: '1px solid transparent' }
+                  }
+                >
                   {centre.enseigne || 'Centre indépendant'}
                 </span>
               </div>

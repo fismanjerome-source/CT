@@ -59,6 +59,7 @@ export default function MesCentresPage() {
         <nav>
           <Link href="/pro/dashboard">Tableau de bord</Link>
           <Link href="/pro/centres" className="active">Mes centres</Link>
+          <Link href="/pro/contact">Contact Créneau CT</Link>
         </nav>
       </aside>
 

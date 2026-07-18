@@ -59,6 +59,21 @@ export function MotoIcon({ size = 16, color = 'currentColor' }) {
   );
 }
 
+export function SuvIcon({ size = 16, color = 'currentColor' }) {
+  // 4x4 / SUV — carrosserie surélevée avec barres de toit
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2.5 14 4 7.5A2 2 0 0 1 6 6h12a2 2 0 0 1 2 1.7L21 14" />
+      <rect x="2" y="14" width="20" height="5.5" rx="1.5" />
+      <circle cx="7" cy="20" r="1.7" />
+      <circle cx="17" cy="20" r="1.7" />
+      <line x1="6" y1="4.5" x2="18" y2="4.5" />
+      <line x1="6" y1="4.5" x2="6" y2="6" />
+      <line x1="18" y1="4.5" x2="18" y2="6" />
+    </svg>
+  );
+}
+
 // Icône voiture générique, conservée pour d'éventuels usages neutres
 // (n'est plus utilisée pour représenter un carburant précis).
 export function CarIcon({ size = 16, color = 'currentColor' }) {
@@ -77,6 +92,7 @@ const ICONES = {
   gpl: GplIcon,
   hybride: HybrideIcon,
   electrique: ElectriqueIcon,
+  suv: SuvIcon,
   moto: MotoIcon,
 };
 

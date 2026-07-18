@@ -53,16 +53,20 @@ function DashboardPageInner() {
 
   const [typesVehiculesCentre, setTypesVehiculesCentre] = useState([]);
   const [typesVehiculesEnvoi, setTypesVehiculesEnvoi] = useState(false);
+  const [semaineOffset, setSemaineOffset] = useState(0);
+  const [imagePreview, setImagePreview] = useState(null); // { data, mime } en attente d'enregistrement
+  const [imageEnvoi, setImageEnvoi] = useState(false);
+  const [imageErreur, setImageErreur] = useState(null);
 
   const chargerPlanning = useCallback(async () => {
     if (!centre) return;
     try {
-      const { creneaux } = await api(`/api/pro/creneaux?debut=${todayISO()}&jours=14&centre=${centre.id}`);
+      const { creneaux } = await api(`/api/pro/creneaux?debut=${todayISO(semaineOffset * 7)}&jours=7&centre=${centre.id}`);
       setPlanning(creneaux);
     } catch (e) {
       if (e.status === 401) router.push('/pro/login');
     }
-  }, [router, centre]);
+  }, [router, centre, semaineOffset]);
 
   const chargerRdvs = useCallback(async () => {
     if (!centre) return;
@@ -101,6 +105,68 @@ function DashboardPageInner() {
     setTypesVehiculesCentre((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
+  }
+
+  function handleImageChange(e) {
+    const fichier = e.target.files?.[0];
+    if (!fichier) return;
+    setImageErreur(null);
+
+    if (!fichier.type.startsWith('image/')) {
+      setImageErreur('Merci de choisir un fichier image (JPG, PNG, WebP...).');
+      return;
+    }
+    if (fichier.size > 1_500_000) {
+      setImageErreur('Image trop volumineuse (1,5 Mo maximum). Choisissez une image plus légère.');
+      return;
+    }
+
+    const lecteur = new FileReader();
+    lecteur.onload = () => {
+      const dataUrl = lecteur.result; // "data:image/png;base64,...."
+      const [entete, donnees] = dataUrl.split(',');
+      const mime = entete.match(/data:(.*);base64/)?.[1] || fichier.type;
+      setImagePreview({ data: donnees, mime, apercu: dataUrl });
+    };
+    lecteur.readAsDataURL(fichier);
+  }
+
+  async function handleSaveImage() {
+    if (!imagePreview) return;
+    setImageEnvoi(true);
+    setImageErreur(null);
+    try {
+      await api('/api/pro/centre', {
+        method: 'PATCH',
+        body: JSON.stringify({ image_data: imagePreview.data, image_mime: imagePreview.mime, centre_id: centre.id }),
+      });
+      setMessage({ type: 'success', text: 'Image du centre mise à jour.' });
+      setImagePreview(null);
+      const { centre: centreMisAJour } = await api(`/api/pro/me?centre=${centre.id}`);
+      setCentre(centreMisAJour);
+    } catch (e) {
+      setImageErreur(e.message);
+    } finally {
+      setImageEnvoi(false);
+    }
+  }
+
+  async function handleRemoveImage() {
+    setImageEnvoi(true);
+    try {
+      await api('/api/pro/centre', {
+        method: 'PATCH',
+        body: JSON.stringify({ image_data: null, image_mime: null, centre_id: centre.id }),
+      });
+      setMessage({ type: 'success', text: 'Image retirée.' });
+      setImagePreview(null);
+      const { centre: centreMisAJour } = await api(`/api/pro/me?centre=${centre.id}`);
+      setCentre(centreMisAJour);
+    } catch (e) {
+      setImageErreur(e.message);
+    } finally {
+      setImageEnvoi(false);
+    }
   }
 
   async function handleSaveTypesVehicules() {
@@ -205,12 +271,14 @@ function DashboardPageInner() {
         )}
 
         <nav>
-          <a href="#vehicules" className="active">Véhicules acceptés</a>
+          <a href="#image" className="active">Image du centre</a>
+          <a href="#vehicules">Véhicules acceptés</a>
           <a href="#combler">Combler des horaires vides</a>
           <a href="#planning">Mon planning</a>
           <a href="#rdv">Mes rendez-vous</a>
           <Link href={`/pro/factures?centre=${centre.id}`}>Mes factures</Link>
           <Link href="/pro/centres">Mes centres</Link>
+          <Link href="/pro/contact">Contact Créneau CT</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <p style={{ fontSize: '0.85rem', color: '#cfe0d2', marginBottom: 10 }}>{controleur.nom}</p>
@@ -227,6 +295,43 @@ function DashboardPageInner() {
         {message && (
           <div className={`message-banner ${message.type}`} style={{ marginTop: 16 }}>{message.text}</div>
         )}
+
+        <section id="image" className="card" style={{ marginTop: 24 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Image de mon centre</h2></div>
+          <p className="help-text">
+            Une photo de votre centre ou le logo de votre enseigne — elle sera mise en avant sur la page d'accueil
+            et partout où votre centre apparaît. Format JPG, PNG ou WebP, 1,5 Mo maximum.
+          </p>
+
+          {imageErreur && <div className="message-banner error">{imageErreur}</div>}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div className="centre-image-apercu">
+              {imagePreview ? (
+                <img src={imagePreview.apercu} alt="Aperçu" />
+              ) : centre.image_data ? (
+                <img src={`data:${centre.image_mime};base64,${centre.image_data}`} alt={centre.nom} />
+              ) : (
+                <span className="help-text" style={{ fontSize: '0.72rem', textAlign: 'center' }}>Aucune image</span>
+              )}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <input type="file" accept="image/*" onChange={handleImageChange} />
+              <div style={{ display: 'flex', gap: 8 }}>
+                {imagePreview && (
+                  <button type="button" onClick={handleSaveImage} disabled={imageEnvoi}>
+                    {imageEnvoi ? 'Enregistrement…' : 'Enregistrer cette image'}
+                  </button>
+                )}
+                {(centre.image_data || imagePreview) && (
+                  <button type="button" className="btn-danger" onClick={handleRemoveImage} disabled={imageEnvoi}>
+                    Retirer l'image
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section id="vehicules" className="card" style={{ marginTop: 24 }}>
           <div className="card-header"><h2 style={{ margin: 0 }}>Types de véhicules acceptés</h2></div>
@@ -245,6 +350,13 @@ function DashboardPageInner() {
                   style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
                   onClick={() => toggleTypeVehiculeCentre(t.value)}
                 >
+                  <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : t.couleur}`, background: coche ? '#fff' : 'transparent' }}>
+                    {coche && (
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 12l6 6L20 6" />
+                      </svg>
+                    )}
+                  </span>
                   <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
                   {t.label}
                 </button>
@@ -273,8 +385,15 @@ function DashboardPageInner() {
                 <label htmlFor="date_fin">Au</label>
                 <input id="date_fin" type="date" required value={comblerForm.date_fin}
                   onChange={(e) => setComblerForm({ ...comblerForm, date_fin: e.target.value })} />
-                <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                  {[{ label: '1 semaine', jours: 7 }, { label: '2 semaines', jours: 14 }, { label: '3 semaines', jours: 21 }].map((opt) => (
+                <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+                  {[
+                    { label: '1 semaine', jours: 7 },
+                    { label: '2 semaines', jours: 14 },
+                    { label: '3 semaines', jours: 21 },
+                    { label: '1 mois', jours: 30 },
+                    { label: '2 mois', jours: 60 },
+                    { label: '3 mois', jours: 90 },
+                  ].map((opt) => (
                     <button
                       key={opt.jours}
                       type="button"
@@ -348,7 +467,21 @@ function DashboardPageInner() {
                             : [...comblerForm.types_vehicules, t.value],
                         })}
                       >
-                        <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
+                        <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : t.couleur}`, background: coche ? '#fff' : 'transparent' }}>
+                          {coche && (
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 12l6 6L20 6" />
+                            </svg>
+                          )}
+                        </span>
+                        <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : t.couleur}`, background: coche ? '#fff' : 'transparent' }}>
+                        {coche && (
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 12l6 6L20 6" />
+                          </svg>
+                        )}
+                      </span>
+                      <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
                         {t.label}
                       </button>
                     );
@@ -426,11 +559,37 @@ function DashboardPageInner() {
         </section>
 
         <section id="planning" className="card">
-          <div className="card-header"><h2 style={{ margin: 0 }}>Mon planning (14 prochains jours)</h2></div>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Mon planning</h2></div>
+
+          <div className="semaine-pagination">
+            <button type="button" className="btn-secondary" onClick={() => setSemaineOffset((s) => Math.max(0, s - 1))} disabled={semaineOffset === 0}>
+              ← Précédente
+            </button>
+            <span className="semaine-label">
+              Semaine du {new Date(todayISO(semaineOffset * 7) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+              {' '}au {new Date(todayISO(semaineOffset * 7 + 6) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+            </span>
+            <button type="button" className="btn-secondary" onClick={() => setSemaineOffset((s) => s + 1)}>
+              Suivante →
+            </button>
+          </div>
+          <div className="semaine-numeros">
+            {[0, 1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={`semaine-numero ${semaineOffset === n ? 'active' : ''}`}
+                onClick={() => setSemaineOffset(n)}
+              >
+                {n + 1}
+              </button>
+            ))}
+          </div>
+
           {planning === null ? (
             <p className="help-text">Chargement…</p>
           ) : planning.length === 0 ? (
-            <div className="empty-state">Aucun créneau programmé. Utilisez le formulaire ci-dessus pour en ouvrir.</div>
+            <div className="empty-state">Aucun créneau programmé cette semaine-là. Utilisez le formulaire ci-dessus pour en ouvrir.</div>
           ) : (
             <div className="table-scroll">
             <table>

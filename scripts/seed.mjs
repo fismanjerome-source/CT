@@ -65,9 +65,9 @@ async function main() {
 
   const centres = [
     ['Auto Sécurité Bastille', '12 rue de Charonne', '75011', 'Paris', '01 43 55 12 34', null, 48.8532, 2.3746, 'essence,diesel,hybride,electrique,moto'],
-    ['Contrôle Plus Montreuil', '5 avenue de la République', '93100', 'Montreuil', '01 48 57 22 10', 'Dekra', 48.8638, 2.4432, 'essence,diesel,gpl,hybride,electrique'],
+    ['Contrôle Plus Montreuil', '5 avenue de la République', '93100', 'Montreuil', '01 48 57 22 10', 'Dekra', 48.8638, 2.4432, 'essence,diesel,gpl,hybride,electrique,4x4'],
     ['Sécuritest Boulogne', '48 rue Gallieni', '92100', 'Boulogne-Billancourt', '01 46 21 09 88', 'Sécuritest', 48.8352, 2.2432, 'essence,diesel,hybride,electrique'],
-    ['Autovision Créteil', '3 rue Juliette Savar', '94000', 'Créteil', '01 43 99 44 55', 'Autovision', 48.7904, 2.4556, 'essence,diesel,gpl,hybride,electrique,moto'],
+    ['Autovision Créteil', '3 rue Juliette Savar', '94000', 'Créteil', '01 43 99 44 55', 'Autovision', 48.7904, 2.4556, 'essence,diesel,gpl,hybride,electrique,4x4,moto'],
   ];
   const centreIds = [];
   for (const c of centres) {
@@ -109,7 +109,7 @@ async function main() {
       const controleurId = controleurIds[idx];
       const centreId = centreIds[idx];
       const prixDemo = [72, 78, 76, 81][idx] || 78; // prix indicatif variable par centre
-      const typesAcceptesCentre = ['essence,diesel,hybride,electrique,moto', 'essence,diesel,gpl,hybride,electrique', 'essence,diesel,hybride,electrique', 'essence,diesel,gpl,hybride,electrique,moto'][idx].split(',');
+      const typesAcceptesCentre = ['essence,diesel,hybride,electrique,moto', 'essence,diesel,gpl,hybride,electrique,4x4', 'essence,diesel,hybride,electrique', 'essence,diesel,gpl,hybride,electrique,4x4,moto'][idx].split(',');
       let hour = 8, minute = 30;
       while (hour < 18) {
         const heureStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;

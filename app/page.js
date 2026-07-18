@@ -7,6 +7,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { IconeVehicule } from './components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
+import { couleurEnseigne } from '@/lib/enseignes';
+import { PhoneIcon, MailIcon } from './components/ContactIcons';
 
 function formatDateCourte(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -23,6 +25,7 @@ export default function HomePage() {
   const [ville, setVille] = useState('');
   const [cp, setCp] = useState('');
   const [date, setDate] = useState('');
+  const [vehicule, setVehicule] = useState('');
   const [centres, setCentres] = useState(null); // null = chargement initial
   const [totalRdv, setTotalRdv] = useState(null);
 
@@ -34,11 +37,12 @@ export default function HomePage() {
     fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
   }, []);
 
-  const rechercher = useCallback(async (villeQ = '', cpQ = '', dateQ = '') => {
+  const rechercher = useCallback(async (villeQ = '', cpQ = '', dateQ = '', vehiculeQ = '') => {
     const params = new URLSearchParams();
     if (villeQ) params.set('ville', villeQ);
     if (cpQ) params.set('cp', cpQ);
     if (dateQ) params.set('date', dateQ);
+    if (vehiculeQ) params.set('vehicule', vehiculeQ);
     try {
       const res = await fetch(`/api/centres?${params.toString()}`);
       const data = await res.json();
@@ -53,7 +57,7 @@ export default function HomePage() {
   function handleSubmit(e) {
     e.preventDefault();
     setResultatProche(null);
-    rechercher(ville.trim(), cp.trim(), date);
+    rechercher(ville.trim(), cp.trim(), date, vehicule);
   }
 
   function trouverProche() {
@@ -103,6 +107,20 @@ export default function HomePage() {
             ça vous arrange — y compris les disponibilités de dernière minute près de chez vous.
           </p>
 
+          <div className="contact-humain">
+            <span className="contact-humain-label">Une question ? Un vrai contact, toujours disponible :</span>
+            <div className="contact-humain-boutons">
+              <a href="tel:+33186761234" className="contact-btn">
+                <PhoneIcon size={16} />
+                01 86 76 12 34
+              </a>
+              <a href="mailto:contact@creneauct.com" className="contact-btn">
+                <MailIcon size={16} />
+                contact@creneauct.com
+              </a>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={trouverProche}
@@ -150,6 +168,22 @@ export default function HomePage() {
             <div className="field">
               <label htmlFor="date">Date souhaitée (optionnel)</label>
               <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="vehicule">Mon véhicule (optionnel)</label>
+              <select id="vehicule" value={vehicule} onChange={(e) => setVehicule(e.target.value)}>
+                <option value="">Tous véhicules</option>
+                <optgroup label="Voiture">
+                  {TYPES_VEHICULES.filter((t) => t.categorie === 'voiture').map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Moto">
+                  {TYPES_VEHICULES.filter((t) => t.categorie === 'moto').map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </optgroup>
+              </select>
             </div>
             <div className="field" style={{ flex: 0, alignSelf: 'flex-end' }}>
               <button type="submit">Rechercher</button>
@@ -199,9 +233,14 @@ export default function HomePage() {
               la main sur vos prix, vos disponibilités et vos remises — aucun engagement, aucun abonnement.
             </p>
           </div>
-          <Link href="/contact" className="btn" style={{ background: '#fff', color: 'var(--color-primary)', borderColor: '#fff', whiteSpace: 'nowrap' }}>
-            Devenir centre partenaire
-          </Link>
+          <div className="pro-cta-boutons">
+            <Link href="/pro/register" className="btn" style={{ background: '#fff', color: 'var(--color-primary)', borderColor: '#fff', whiteSpace: 'nowrap' }}>
+              Créer mon compte centre
+            </Link>
+            <Link href="/contact" className="btn-secondary" style={{ borderColor: 'rgba(255,255,255,0.6)', color: '#fff', whiteSpace: 'nowrap' }}>
+              Une question avant ? Contactez-nous
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -213,6 +252,7 @@ export default function HomePage() {
 function CentreCard({ centre, dateRecherchee }) {
   const router = useRouter();
   const vide = centre.creneaux_disponibles_7j === 0;
+  const couleur = couleurEnseigne(centre.enseigne);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${centre.adresse}, ${centre.code_postal} ${centre.ville}`
   )}`;
@@ -226,10 +266,22 @@ function CentreCard({ centre, dateRecherchee }) {
       onClick={() => router.push(`/centre/${centre.id}`)}
       onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/centre/${centre.id}`); }}
     >
+      {centre.image_data && (
+        <div className="centre-card-image">
+          <img src={`data:${centre.image_mime};base64,${centre.image_data}`} alt={centre.nom} />
+        </div>
+      )}
       <div className="infos">
         <div className="centre-title-row">
           <h3 style={{ margin: 0 }}>{centre.nom}</h3>
-          <span className={`enseigne-badge ${centre.enseigne ? '' : 'independant'}`}>
+          <span
+            className="enseigne-badge"
+            style={
+              couleur.degrade
+                ? { background: couleur.degrade, color: couleur.texte, border: `1px solid ${couleur.bordure || 'transparent'}` }
+                : { background: couleur.fond, color: couleur.texte, border: '1px solid transparent' }
+            }
+          >
             {centre.enseigne || 'Centre indépendant'}
           </span>
         </div>

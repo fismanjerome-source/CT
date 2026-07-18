@@ -8,6 +8,7 @@ export default function Footer() {
           Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.
         </p>
         <nav className="footer-links">
+          <Link href="/guide">Contrôle technique : le guide</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/faq-clients">FAQ Clients</Link>
           <Link href="/faq-centres">FAQ Centres</Link>

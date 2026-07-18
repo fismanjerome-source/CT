@@ -38,6 +38,7 @@ function ProFactureDetailInner({ mois }) {
         <nav>
           <Link href="/pro/dashboard">Tableau de bord</Link>
           <Link href="/pro/factures" className={pathname.startsWith('/pro/factures') ? 'active' : ''}>Mes factures</Link>
+          <Link href="/pro/contact">Contact Créneau CT</Link>
         </nav>
       </aside>
 
