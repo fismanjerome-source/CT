@@ -90,6 +90,7 @@ async function main() {
     for (let idx = 0; idx < controleurIds.length; idx++) {
       const controleurId = controleurIds[idx];
       const centreId = centreIds[idx];
+      const prixDemo = [72, 78, 76, 81][idx] || 78; // prix indicatif variable par centre
       let hour = 8, minute = 30;
       while (hour < 18) {
         const heureStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
@@ -97,8 +98,8 @@ async function main() {
         const skip = Math.random() < 0.22;
         if (!isPause && !skip) {
           await db.execute({
-            sql: 'INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut) VALUES (?, ?, ?, ?, 30, ?)',
-            args: [centreId, controleurId, dateStr, heureStr, 'disponible'],
+            sql: 'INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix) VALUES (?, ?, ?, ?, 30, ?, ?)',
+            args: [centreId, controleurId, dateStr, heureStr, 'disponible', prixDemo],
           });
         }
         minute += 30;

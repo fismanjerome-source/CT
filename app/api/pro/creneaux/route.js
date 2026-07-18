@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { all, get, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { jsonError, todayISO } from '@/lib/utils';
+import { jsonError, todayISO, calculerRemise, calculerTauxCommission } from '@/lib/utils';
 
 export async function GET(request) {
   const session = await getSession();
@@ -22,7 +22,13 @@ export async function GET(request) {
     [session.controleurId, debut, fin]
   );
 
-  return NextResponse.json({ creneaux });
+  const creneauxAvecRemise = creneaux.map((c) => ({
+    ...c,
+    promo_pourcentage: calculerRemise(c.date),
+    commission_taux_estime: calculerTauxCommission(c.date),
+  }));
+
+  return NextResponse.json({ creneaux: creneauxAvecRemise });
 }
 
 export async function POST(request) {
@@ -30,15 +36,16 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date, heure, duree_minutes, promo_pourcentage } = body;
+  const { date, heure, duree_minutes, prix } = body;
   if (!date || !heure) return jsonError(400, 'Date et heure requises.');
+  if (!prix || Number(prix) <= 0) return jsonError(400, 'Le prix du contrôle technique est requis.');
 
   const controleur = await get('SELECT centre_id FROM controleurs WHERE id = ?', [session.controleurId]);
 
   try {
     const result = await run(
-      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, promo_pourcentage) VALUES (?, ?, ?, ?, ?, 'disponible', ?)`,
-      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30, promo_pourcentage || null]
+      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix) VALUES (?, ?, ?, ?, ?, 'disponible', ?)`,
+      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30, Number(prix)]
     );
     return NextResponse.json({ id: Number(result.lastInsertRowid) }, { status: 201 });
   } catch {

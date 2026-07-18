@@ -14,6 +14,11 @@ export default function HomePage() {
   const [ville, setVille] = useState('');
   const [cp, setCp] = useState('');
   const [centres, setCentres] = useState(null); // null = chargement initial
+  const [totalRdv, setTotalRdv] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
+  }, []);
 
   const rechercher = useCallback(async (villeQ = '', cpQ = '') => {
     const params = new URLSearchParams();
@@ -72,6 +77,15 @@ export default function HomePage() {
               <button type="submit">Rechercher</button>
             </div>
           </form>
+
+          {totalRdv > 0 && (
+            <p className="help-text" style={{ marginTop: 14 }}>
+              <span className="mono" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
+                {totalRdv.toLocaleString('fr-FR')}
+              </span>{' '}
+              contrôle{totalRdv > 1 ? 's' : ''} technique{totalRdv > 1 ? 's' : ''} déjà réservé{totalRdv > 1 ? 's' : ''} via Créneau CT
+            </p>
+          )}
         </div>
       </section>
 

@@ -148,6 +148,11 @@ export default function CentrePage({ params }) {
           })}
         </div>
 
+        <p className="help-text" style={{ marginTop: 10 }}>
+          <span className="promo-badge-inline" style={{ marginRight: 6 }}>Remise auto</span>
+          -25% dans les 7 prochains jours, -20% la semaine suivante, -15% au-delà — appliquée directement sur le créneau choisi.
+        </p>
+
         <h2 style={{ marginTop: 20 }}>
           Créneaux du {new Date(dateSelectionnee + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </h2>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, get, ensureSchema } from '@/lib/db';
-import { generateReference, jsonError } from '@/lib/utils';
+import { generateReference, jsonError, calculerTauxCommission } from '@/lib/utils';
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
@@ -18,6 +18,13 @@ export async function POST(request) {
   const reference = generateReference();
   const now = new Date().toISOString();
 
+  // La commission est figée au moment de la réservation : elle reflète le
+  // délai entre la prise de RDV et la date du contrôle, et ne doit pas
+  // changer ensuite même si la date se rapproche.
+  const prix = creneau.prix || null;
+  const commissionPourcentage = calculerTauxCommission(creneau.date);
+  const commissionMontant = prix != null ? Math.round(prix * commissionPourcentage) / 100 : null;
+
   const tx = await db.transaction('write');
   try {
     const updateResult = await tx.execute({
@@ -29,9 +36,9 @@ export async function POST(request) {
       return jsonError(409, "Ce créneau vient d'être réservé par quelqu'un d'autre. Merci d'en choisir un autre.");
     }
     await tx.execute({
-      sql: `INSERT INTO rdv (creneau_id, client_nom, client_email, client_telephone, immatriculation, type_vehicule, reference, statut, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'confirme', ?)`,
-      args: [creneau_id, client_nom, client_email, client_telephone, immatriculation.toUpperCase(), type_vehicule || null, reference, now],
+      sql: `INSERT INTO rdv (creneau_id, client_nom, client_email, client_telephone, immatriculation, type_vehicule, reference, statut, prix, commission_pourcentage, commission_montant, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'confirme', ?, ?, ?, ?)`,
+      args: [creneau_id, client_nom, client_email, client_telephone, immatriculation.toUpperCase(), type_vehicule || null, reference, prix, commissionPourcentage, commissionMontant, now],
     });
     await tx.commit();
   } catch (e) {

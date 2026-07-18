@@ -8,10 +8,13 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date_debut, date_fin, heure_debut, heure_fin, intervalle_minutes, duree_minutes, jours_semaine, promo_pourcentage } = body;
+  const { date_debut, date_fin, heure_debut, heure_fin, intervalle_minutes, duree_minutes, jours_semaine, prix } = body;
 
   if (!date_debut || !date_fin || !heure_debut || !heure_fin) {
     return jsonError(400, 'date_debut, date_fin, heure_debut et heure_fin sont requis.');
+  }
+  if (!prix || Number(prix) <= 0) {
+    return jsonError(400, 'Le prix du contrôle technique est requis.');
   }
 
   await ensureSchema();
@@ -38,8 +41,8 @@ export async function POST(request) {
           const h = String(Math.floor(minutesCursor / 60)).padStart(2, '0');
           const m = String(minutesCursor % 60).padStart(2, '0');
           const result = await tx.execute({
-            sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, promo_pourcentage) VALUES (?, ?, ?, ?, ?, 'disponible', ?)`,
-            args: [controleur.centre_id, session.controleurId, dateStr, `${h}:${m}`, duree, promo_pourcentage || null],
+            sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix) VALUES (?, ?, ?, ?, ?, 'disponible', ?)`,
+            args: [controleur.centre_id, session.controleurId, dateStr, `${h}:${m}`, duree, Number(prix)],
           });
           if (result.rowsAffected > 0) created += 1;
           minutesCursor += intervalle;

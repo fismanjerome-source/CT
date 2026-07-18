@@ -37,11 +37,11 @@ export default function DashboardPage() {
   const [comblerForm, setComblerForm] = useState({
     date_debut: todayISO(), date_fin: todayISO(6),
     heure_debut: '09:00', heure_fin: '12:00',
-    intervalle_minutes: 30, duree_minutes: 30, promo_pourcentage: '',
+    intervalle_minutes: 30, duree_minutes: 30, prix: '',
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
 
-  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', promo_pourcentage: '' });
+  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', prix: '' });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
 
   const chargerPlanning = useCallback(async () => {
@@ -87,7 +87,7 @@ export default function DashboardPage() {
           ...comblerForm,
           intervalle_minutes: Number(comblerForm.intervalle_minutes),
           duree_minutes: Number(comblerForm.duree_minutes),
-          promo_pourcentage: comblerForm.promo_pourcentage ? Number(comblerForm.promo_pourcentage) : null,
+          prix: Number(comblerForm.prix),
         }),
       });
       setMessage({ type: 'success', text: data.message });
@@ -105,10 +105,7 @@ export default function DashboardPage() {
     try {
       await api('/api/pro/creneaux', {
         method: 'POST',
-        body: JSON.stringify({
-          ...singleForm,
-          promo_pourcentage: singleForm.promo_pourcentage ? Number(singleForm.promo_pourcentage) : null,
-        }),
+        body: JSON.stringify({ ...singleForm, prix: Number(singleForm.prix) }),
       });
       setMessage({ type: 'success', text: 'Créneau ajouté.' });
       chargerPlanning();
@@ -181,6 +178,23 @@ export default function DashboardPage() {
                 <label htmlFor="date_fin">Au</label>
                 <input id="date_fin" type="date" required value={comblerForm.date_fin}
                   onChange={(e) => setComblerForm({ ...comblerForm, date_fin: e.target.value })} />
+                <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                  {[{ label: '1 semaine', jours: 7 }, { label: '2 semaines', jours: 14 }, { label: '3 semaines', jours: 21 }].map((opt) => (
+                    <button
+                      key={opt.jours}
+                      type="button"
+                      className="btn-secondary"
+                      style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                      onClick={() => {
+                        const debut = comblerForm.date_debut ? new Date(comblerForm.date_debut + 'T00:00:00') : new Date();
+                        debut.setDate(debut.getDate() + opt.jours);
+                        setComblerForm({ ...comblerForm, date_fin: debut.toISOString().slice(0, 10) });
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="form-row">
                 <label htmlFor="heure_debut">Heure de début</label>
@@ -211,13 +225,17 @@ export default function DashboardPage() {
                   <option value="60">60</option>
                 </select>
               </div>
+              <div className="form-row">
+                <label htmlFor="combler_prix">Prix du contrôle technique (€)</label>
+                <input id="combler_prix" type="number" min="1" step="0.01" required placeholder="ex: 78" value={comblerForm.prix}
+                  onChange={(e) => setComblerForm({ ...comblerForm, prix: e.target.value })} />
+              </div>
             </div>
-            <div className="form-row">
-              <label htmlFor="combler_promo">Promotion sur ces créneaux (optionnel, en %)</label>
-              <input id="combler_promo" type="number" min="1" max="90" placeholder="ex: 20" value={comblerForm.promo_pourcentage}
-                onChange={(e) => setComblerForm({ ...comblerForm, promo_pourcentage: e.target.value })} />
-            </div>
-            <p className="help-text">Les créneaux existants ne sont jamais dupliqués ni écrasés — seuls les horaires encore vides sont ouverts.</p>
+            <p className="help-text">
+              Les créneaux existants ne sont jamais dupliqués ni écrasés — seuls les horaires encore vides sont ouverts.
+              Une commission Créneau CT s'applique sur ce prix selon le délai de réservation (30% sous 7 jours, 25%
+              entre 7 et 14 jours, 20% au-delà), calculée automatiquement à chaque réservation.
+            </p>
             <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture…' : 'Ouvrir les créneaux'}</button>
           </form>
         </section>
@@ -236,9 +254,9 @@ export default function DashboardPage() {
                 onChange={(e) => setSingleForm({ ...singleForm, heure: e.target.value })} />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="s_promo">Promotion (optionnel, en %)</label>
-              <input id="s_promo" type="number" min="1" max="90" placeholder="ex: 20" value={singleForm.promo_pourcentage}
-                onChange={(e) => setSingleForm({ ...singleForm, promo_pourcentage: e.target.value })} />
+              <label htmlFor="s_prix">Prix du contrôle technique (€)</label>
+              <input id="s_prix" type="number" min="1" step="0.01" required placeholder="ex: 78" value={singleForm.prix}
+                onChange={(e) => setSingleForm({ ...singleForm, prix: e.target.value })} />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
               <button type="submit" disabled={singleEnvoi}>{singleEnvoi ? 'Ajout…' : 'Ajouter ce créneau'}</button>
