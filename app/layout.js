@@ -1,23 +1,23 @@
-import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { Space_Grotesk, Inter, Space_Mono } from 'next/font/google';
 import './globals.css';
 
-const fraunces = Fraunces({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   weight: ['500', '600', '700'],
   variable: '--font-display',
   display: 'swap',
 });
 
-const plexSans = IBM_Plex_Sans({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-body',
   display: 'swap',
 });
 
-const plexMono = IBM_Plex_Mono({
+const spaceMono = Space_Mono({
   subsets: ['latin'],
-  weight: ['500', '700'],
+  weight: ['400', '700'],
   variable: '--font-mono',
   display: 'swap',
 });
@@ -29,7 +29,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" className={`${fraunces.variable} ${plexSans.variable} ${plexMono.variable}`}>
+    <html lang="fr" className={`${spaceGrotesk.variable} ${inter.variable} ${spaceMono.variable}`}>
       <body>{children}</body>
     </html>
   );

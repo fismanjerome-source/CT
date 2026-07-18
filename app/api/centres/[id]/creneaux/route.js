@@ -9,14 +9,18 @@ export async function GET(request, { params }) {
   if (!date) return jsonError(400, 'Paramètre "date" requis (YYYY-MM-DD).');
 
   const creneaux = await all(
-    `SELECT c.id, c.heure, c.duree_minutes, ctrl.nom AS controleur_nom
+    `SELECT c.id, c.heure, c.duree_minutes, c.prix, ctrl.nom AS controleur_nom
      FROM creneaux c JOIN controleurs ctrl ON ctrl.id = c.controleur_id
      WHERE c.centre_id = ? AND c.date = ? AND c.statut = 'disponible'
      ORDER BY c.heure`,
     [id, date]
   );
 
-  const creneauxAvecRemise = creneaux.map((c) => ({ ...c, promo_pourcentage: calculerRemise(date) }));
+  const creneauxAvecRemise = creneaux.map((c) => {
+    const promo = calculerRemise(date);
+    const prixFinal = c.prix != null ? Math.round(c.prix * (1 - promo / 100) * 100) / 100 : null;
+    return { ...c, promo_pourcentage: promo, prix_final: prixFinal };
+  });
 
   return NextResponse.json({ creneaux: creneauxAvecRemise });
 }

@@ -319,15 +319,17 @@ button:disabled {
 
 .slots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
   gap: 10px;
   padding: 20px 0 48px;
 }
 .slot-btn {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 600;
   padding: 12px 8px;
   border-radius: 4px;
   border: 1px solid var(--color-success);
@@ -336,10 +338,16 @@ button:disabled {
   cursor: pointer;
   text-align: center;
 }
+.slot-btn .slot-heure { font-size: 0.95rem; font-weight: 600; }
+.slot-btn .slot-prix { font-size: 0.76rem; font-weight: 500; opacity: 0.9; }
 .slot-btn:hover { background: var(--color-success); color: #fff; }
 .slot-btn.selected { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
 .slot-btn.promo { border-color: var(--color-promo); background: var(--color-promo-bg); color: var(--color-promo); }
 .slot-btn.promo:hover { background: var(--color-promo); color: #fff; }
+
+.prix-barre { opacity: 0.65; text-decoration-thickness: 1.5px; }
+.prix-final { color: var(--color-promo); font-weight: 700; }
+.slot-btn:hover .prix-final, .slot-btn:hover .prix-barre { color: inherit; opacity: 0.85; }
 
 .promo-flag {
   position: absolute;

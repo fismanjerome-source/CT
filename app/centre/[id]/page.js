@@ -165,12 +165,27 @@ export default function CentrePage({ params }) {
               Aucun créneau disponible ce jour-là. Essayez une autre date dans le calendrier ci-dessus.
             </div>
           ) : (
-            creneaux.map((c) => (
-              <button key={c.id} className={`slot-btn ${c.promo_pourcentage ? 'promo' : ''}`} onClick={() => setModalCreneau(c)}>
-                {c.promo_pourcentage ? <span className="promo-flag">-{c.promo_pourcentage}%</span> : null}
-                {c.heure}
-              </button>
-            ))
+            creneaux.map((c) => {
+              const aPromo = c.promo_pourcentage && c.prix != null;
+              return (
+                <button key={c.id} className={`slot-btn ${aPromo ? 'promo' : ''}`} onClick={() => setModalCreneau(c)}>
+                  {aPromo ? <span className="promo-flag">-{c.promo_pourcentage}%</span> : null}
+                  <span className="slot-heure">{c.heure}</span>
+                  {c.prix != null && (
+                    <span className="slot-prix">
+                      {aPromo ? (
+                        <>
+                          <s className="prix-barre">{c.prix.toFixed(2)}€</s>{' '}
+                          <span className="prix-final">{c.prix_final.toFixed(2)}€</span>
+                        </>
+                      ) : (
+                        <span>{c.prix.toFixed(2)}€ TTC</span>
+                      )}
+                    </span>
+                  )}
+                </button>
+              );
+            })
           )}
         </div>
       </section>
@@ -250,11 +265,19 @@ function ReservationModal({ centre, creneau, dateSelectionnee, onClose, onSucces
         <div className="modal-recap">
           <strong>{centre.nom}</strong><br />
           {dateLisible} à {creneau.heure}
-          {creneau.promo_pourcentage ? (
+          {creneau.prix != null && (
             <div style={{ marginTop: 6 }}>
-              <span className="promo-badge-inline">-{creneau.promo_pourcentage}% sur ce créneau</span>
+              {creneau.promo_pourcentage ? (
+                <>
+                  <span className="promo-badge-inline" style={{ marginRight: 8 }}>-{creneau.promo_pourcentage}%</span>
+                  <s className="prix-barre">{creneau.prix.toFixed(2)}€</s>{' '}
+                  <span className="prix-final" style={{ fontWeight: 700 }}>{creneau.prix_final.toFixed(2)}€ TTC</span>
+                </>
+              ) : (
+                <span style={{ fontWeight: 700 }}>{creneau.prix.toFixed(2)}€ TTC</span>
+              )}
             </div>
-          ) : null}
+          )}
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-row">
