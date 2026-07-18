@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { all, get, run } from '@/lib/db';
+import { all, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError, todayISO, calculerTauxCommission } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
 
@@ -9,6 +10,9 @@ export async function GET(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const { searchParams } = new URL(request.url);
+  const centreId = await resoudreCentreActif(session.controleurId, searchParams.get('centre'));
+  if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
+
   const debut = searchParams.get('debut') || todayISO();
   const jours = Number(searchParams.get('jours')) || 14;
   const finDate = new Date(debut + 'T00:00:00');
@@ -18,9 +22,9 @@ export async function GET(request) {
   const creneaux = await all(
     `SELECT c.*, r.reference AS rdv_reference, r.client_nom, r.client_telephone, r.immatriculation
      FROM creneaux c LEFT JOIN rdv r ON r.creneau_id = c.id AND r.statut = 'confirme'
-     WHERE c.controleur_id = ? AND c.date BETWEEN ? AND ?
+     WHERE c.centre_id = ? AND c.date BETWEEN ? AND ?
      ORDER BY c.date, c.heure`,
-    [session.controleurId, debut, fin]
+    [centreId, debut, fin]
   );
 
   // Estimation de la commission à titre indicatif pour le centre, calculée
@@ -42,16 +46,17 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date, heure, duree_minutes, prix, promo_pourcentage, types_vehicules } = body;
+  const { date, heure, duree_minutes, prix, promo_pourcentage, types_vehicules, centre_id } = body;
   if (!date || !heure) return jsonError(400, 'Date et heure requises.');
   if (!prix || Number(prix) <= 0) return jsonError(400, 'Le prix du contrôle technique est requis.');
 
-  const controleur = await get('SELECT centre_id FROM controleurs WHERE id = ?', [session.controleurId]);
+  const centreId = await resoudreCentreActif(session.controleurId, centre_id);
+  if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
 
   try {
     const result = await run(
       `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
-      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
+      [centreId, session.controleurId, date, heure, duree_minutes || 30, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
     );
     return NextResponse.json({ id: Number(result.lastInsertRowid) }, { status: 201 });
   } catch {

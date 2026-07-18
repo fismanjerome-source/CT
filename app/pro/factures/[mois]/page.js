@@ -1,19 +1,25 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, use, Suspense } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import Logo from '../../../components/Logo';
 import FactureDocument from '../../../components/FactureDocument';
 
-export default function ProFactureDetailPage({ params }) {
-  const { mois } = use(params);
+function ProFactureDetailInner({ mois }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const centreId = searchParams.get('centre');
+
   const [data, setData] = useState(null);
   const [erreur, setErreur] = useState(null);
 
   useEffect(() => {
     async function charger() {
       try {
-        const res = await fetch(`/api/pro/factures/${mois}`);
+        const url = centreId ? `/api/pro/factures/${mois}?centre=${centreId}` : `/api/pro/factures/${mois}`;
+        const res = await fetch(url);
         if (res.status === 401) { router.push('/pro/login'); return; }
         const json = await res.json();
         if (!res.ok) { setErreur(json.erreur); return; }
@@ -23,19 +29,35 @@ export default function ProFactureDetailPage({ params }) {
       }
     }
     charger();
-  }, [router, mois]);
+  }, [router, mois, centreId]);
 
-  if (erreur) {
-    return (
-      <div className="container" style={{ padding: 40 }}>
-        <div className="message-banner error">{erreur}</div>
-      </div>
-    );
-  }
+  return (
+    <div className="pro-shell">
+      <aside className="pro-sidebar no-print">
+        <div className="brand"><Logo /> Espace pro</div>
+        <nav>
+          <Link href="/pro/dashboard">Tableau de bord</Link>
+          <Link href="/pro/factures" className={pathname.startsWith('/pro/factures') ? 'active' : ''}>Mes factures</Link>
+        </nav>
+      </aside>
 
-  if (!data) {
-    return <div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>;
-  }
+      <main className="pro-main">
+        {erreur && <div className="message-banner error">{erreur}</div>}
+        {!data ? (
+          <p className="help-text">Chargement…</p>
+        ) : (
+          <FactureDocument centre={data.centre} mois={data.mois} lignes={data.lignes} total={data.total} />
+        )}
+      </main>
+    </div>
+  );
+}
 
-  return <FactureDocument centre={data.centre} mois={data.mois} lignes={data.lignes} total={data.total} />;
+export default function ProFactureDetailPage({ params }) {
+  const { mois } = use(params);
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+      <ProFactureDetailInner mois={mois} />
+    </Suspense>
+  );
 }

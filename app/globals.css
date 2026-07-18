@@ -8,7 +8,8 @@
   --color-surface: #FFFFFF;
   --color-primary: #1B3A5C;
   --color-primary-light: #2E5077;
-  --color-accent: #C8952A;
+  --color-accent: #D9A62E;
+  --color-highlight: #E4572E;
   --color-text: #1A2420;
   --color-text-muted: #5B665F;
   --color-success: #2E7D45;
@@ -28,11 +29,45 @@
   --max-width: 1080px;
 }
 
+[data-theme="dark"] {
+  --color-bg: #10161C;
+  --color-surface: #182029;
+  --color-primary: #3C74A6;
+  --color-primary-light: #4F8AC0;
+  --color-accent: #E4B94A;
+  --color-highlight: #F06B45;
+  --color-text: #E7EAE4;
+  --color-text-muted: #9AA6A0;
+  --color-success: #4CAF6D;
+  --color-success-bg: #1B2E22;
+  --color-danger: #E0725C;
+  --color-danger-bg: #2E1E1B;
+  --color-promo: #E08A4C;
+  --color-promo-bg: #2E2118;
+  --color-border: #2A343D;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .centre-card,
+[data-theme="dark"] .search-box,
+[data-theme="dark"] .card,
+[data-theme="dark"] .facture-document,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .login-card {
+  background: var(--color-surface);
+}
+
+[data-theme="dark"] .day-chip,
+[data-theme="dark"] .slot-btn:not(.promo) {
+  background: var(--color-surface);
+}
+
 * { box-sizing: border-box; }
 
 html, body {
   margin: 0;
   padding: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
@@ -93,6 +128,10 @@ a { color: var(--color-primary); }
   font-weight: 700;
   flex-shrink: 0;
 }
+.site-header nav {
+  display: flex;
+  align-items: center;
+}
 .site-header nav a {
   color: #E8ECE6;
   text-decoration: none;
@@ -100,13 +139,28 @@ a { color: var(--color-primary); }
   margin-left: 22px;
 }
 .site-header nav a:hover { color: #fff; text-decoration: underline; }
+.theme-toggle {
+  margin-left: 20px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.18); }
 
 /* ---------- Hero ---------- */
 .hero {
   padding: 56px 0 44px;
   border-bottom: 1px solid var(--color-border);
 }
-.hero .eyebrow {
+.eyebrow {
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -491,7 +545,8 @@ button:disabled {
 }
 .footer-links {
   display: flex;
-  gap: 18px;
+  gap: 14px 18px;
+  flex-wrap: wrap;
 }
 .footer-links a {
   color: var(--color-text-muted);
@@ -553,6 +608,8 @@ button:disabled {
 }
 
 table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll table { min-width: 640px; }
 th { text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); padding: 8px 10px; border-bottom: 2px solid var(--color-border); }
 td { padding: 10px 10px; border-bottom: 1px solid var(--color-border); }
 td.mono, .mono { font-family: var(--font-mono); }
@@ -573,9 +630,41 @@ td.mono, .mono { font-family: var(--font-mono); }
 @media (max-width: 720px) {
   .pro-shell { flex-direction: column; }
   .pro-sidebar { width: 100%; }
-  .pro-main { padding: 24px; }
+  .pro-main { padding: 16px; }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }
+  .facture-shell { padding: 12px; }
+  .facture-document { padding: 20px 16px; }
+  .facture-header { flex-direction: column; gap: 14px; align-items: flex-start; }
+  .facture-parties { grid-template-columns: 1fr; gap: 14px; }
+  .facture-total { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .pro-cta-inner { flex-direction: column; align-items: flex-start; text-align: left; }
+  .pro-cta .btn { width: 100%; text-align: center; }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
 /* ---------- Factures ---------- */

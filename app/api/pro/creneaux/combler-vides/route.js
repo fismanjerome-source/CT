@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db, get, ensureSchema } from '@/lib/db';
+import { db, ensureSchema } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
 
@@ -9,7 +10,7 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date_debut, date_fin, heure_debut, heure_fin, intervalle_minutes, duree_minutes, jours_semaine, prix, promo_pourcentage, types_vehicules } = body;
+  const { date_debut, date_fin, heure_debut, heure_fin, intervalle_minutes, duree_minutes, jours_semaine, prix, promo_pourcentage, types_vehicules, centre_id } = body;
 
   if (!date_debut || !date_fin || !heure_debut || !heure_fin) {
     return jsonError(400, 'date_debut, date_fin, heure_debut et heure_fin sont requis.');
@@ -19,7 +20,8 @@ export async function POST(request) {
   }
 
   await ensureSchema();
-  const controleur = await get('SELECT centre_id FROM controleurs WHERE id = ?', [session.controleurId]);
+  const centreId = await resoudreCentreActif(session.controleurId, centre_id);
+  if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
 
   const intervalle = Number(intervalle_minutes) || 30;
   const duree = Number(duree_minutes) || 30;
@@ -43,7 +45,7 @@ export async function POST(request) {
           const m = String(minutesCursor % 60).padStart(2, '0');
           const result = await tx.execute({
             sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
-            args: [controleur.centre_id, session.controleurId, dateStr, `${h}:${m}`, duree, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
+            args: [centreId, session.controleurId, dateStr, `${h}:${m}`, duree, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
           });
           if (result.rowsAffected > 0) created += 1;
           minutesCursor += intervalle;

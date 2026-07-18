@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import Logo from '../components/Logo';
 import Footer from '../components/Footer';
+import Header from '../components/Header';
 
 export default function SuiviPage() {
   const [reference, setReference] = useState('');
@@ -50,12 +49,7 @@ export default function SuiviPage() {
 
   return (
     <>
-      <header className="site-header">
-        <div className="container">
-          <Link href="/" className="brand"><Logo /> Créneau CT</Link>
-          <nav><Link href="/pro/login">Espace professionnel</Link></nav>
-        </div>
-      </header>
+      <Header />
 
       <section className="hero">
         <div className="container">

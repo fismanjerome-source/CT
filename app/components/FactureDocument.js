@@ -47,30 +47,36 @@ export default function FactureDocument({ centre, mois, lignes, total }) {
           </div>
         </div>
 
-        <table style={{ marginTop: 24 }}>
-          <thead>
-            <tr>
-              <th>Réf. RDV</th>
-              <th>Date réservation</th>
-              <th>Date du contrôle</th>
-              <th>Prix client</th>
-              <th>Taux</th>
-              <th>Commission</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lignes.map((l) => (
-              <tr key={l.reference}>
-                <td className="mono">{l.reference}</td>
-                <td className="mono">{formatDateCourte(l.created_at)}</td>
-                <td className="mono">{formatDateCourte(l.date_creneau)} {l.heure}</td>
-                <td className="mono">{l.prix != null ? `${l.prix.toFixed(2)} €` : '—'}</td>
-                <td className="mono">{l.commission_pourcentage}%</td>
-                <td className="mono" style={{ fontWeight: 700 }}>{l.commission_montant != null ? `${l.commission_montant.toFixed(2)} €` : '—'}</td>
+        <div className="table-scroll">
+          <table style={{ marginTop: 24 }}>
+            <thead>
+              <tr>
+                <th>Réf. RDV</th>
+                <th>Date réservation</th>
+                <th>Date du contrôle</th>
+                <th>Prix client</th>
+                <th>Taux</th>
+                <th>Commission CT</th>
+                <th>Prix après commission pour le centre</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {lignes.map((l) => (
+                <tr key={l.reference}>
+                  <td className="mono">{l.reference}</td>
+                  <td className="mono">{formatDateCourte(l.created_at)}</td>
+                  <td className="mono">{formatDateCourte(l.date_creneau)} {l.heure}</td>
+                  <td className="mono">{l.prix != null ? `${l.prix.toFixed(2)} €` : '—'}</td>
+                  <td className="mono">{l.commission_pourcentage}%</td>
+                  <td className="mono" style={{ fontWeight: 700 }}>{l.commission_montant != null ? `${l.commission_montant.toFixed(2)} €` : '—'}</td>
+                  <td className="mono" style={{ fontWeight: 700, color: 'var(--color-success)' }}>
+                    {l.prix != null && l.commission_montant != null ? `${(l.prix - l.commission_montant).toFixed(2)} €` : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div className="facture-total">
           <span>Total dû pour {formatMois(mois)}</span>

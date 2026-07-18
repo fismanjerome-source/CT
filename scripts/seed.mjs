@@ -20,11 +20,16 @@ const SCHEMA = `
 CREATE TABLE IF NOT EXISTS centres (
   id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT NOT NULL, adresse TEXT NOT NULL,
   code_postal TEXT NOT NULL, ville TEXT NOT NULL, telephone TEXT, enseigne TEXT,
-  latitude REAL, longitude REAL, types_vehicules_acceptes TEXT
+  latitude REAL, longitude REAL, types_vehicules_acceptes TEXT, ical_url TEXT
 );
 CREATE TABLE IF NOT EXISTS controleurs (
   id INTEGER PRIMARY KEY AUTOINCREMENT, centre_id INTEGER NOT NULL REFERENCES centres(id) ON DELETE CASCADE,
-  nom TEXT NOT NULL, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL
+  nom TEXT NOT NULL, email TEXT NOT NULL UNIQUE, telephone TEXT, password_hash TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS controleur_centres (
+  controleur_id INTEGER NOT NULL REFERENCES controleurs(id) ON DELETE CASCADE,
+  centre_id     INTEGER NOT NULL REFERENCES centres(id) ON DELETE CASCADE,
+  PRIMARY KEY (controleur_id, centre_id)
 );
 CREATE TABLE IF NOT EXISTS creneaux (
   id INTEGER PRIMARY KEY AUTOINCREMENT, centre_id INTEGER NOT NULL REFERENCES centres(id) ON DELETE CASCADE,
@@ -74,18 +79,23 @@ async function main() {
   }
 
   const controleurs = [
-    [centreIds[0], 'Karim Belhadj', 'karim@autosecurite-bastille.fr'],
-    [centreIds[1], 'Sophie Nguyen', 'sophie@controleplus-montreuil.fr'],
-    [centreIds[2], 'Marc Dutronc', 'marc@securitest-boulogne.fr'],
-    [centreIds[3], 'Fatima Rahmani', 'fatima@autovision-creteil.fr'],
+    [centreIds[0], 'Karim Belhadj', 'karim@autosecurite-bastille.fr', '06 12 34 56 78'],
+    [centreIds[1], 'Sophie Nguyen', 'sophie@controleplus-montreuil.fr', '06 23 45 67 89'],
+    [centreIds[2], 'Marc Dutronc', 'marc@securitest-boulogne.fr', '06 34 56 78 90'],
+    [centreIds[3], 'Fatima Rahmani', 'fatima@autovision-creteil.fr', '06 45 67 89 01'],
   ];
   const controleurIds = [];
-  for (const [centreId, nom, email] of controleurs) {
+  for (const [centreId, nom, email, telephone] of controleurs) {
     const res = await db.execute({
-      sql: 'INSERT INTO controleurs (centre_id, nom, email, password_hash) VALUES (?, ?, ?, ?)',
-      args: [centreId, nom, email, hashPassword('demo1234')],
+      sql: 'INSERT INTO controleurs (centre_id, nom, email, telephone, password_hash) VALUES (?, ?, ?, ?, ?)',
+      args: [centreId, nom, email, telephone, hashPassword('demo1234')],
     });
-    controleurIds.push(Number(res.lastInsertRowid));
+    const controleurId = Number(res.lastInsertRowid);
+    controleurIds.push(controleurId);
+    await db.execute({
+      sql: 'INSERT INTO controleur_centres (controleur_id, centre_id) VALUES (?, ?)',
+      args: [controleurId, centreId],
+    });
   }
 
   const today = new Date();

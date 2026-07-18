@@ -30,6 +30,18 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr" className={`${spaceGrotesk.variable} ${inter.variable} ${spaceMono.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try {
+              var t = localStorage.getItem('creneau-ct-theme');
+              if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.dataset.theme = 'dark';
+              }
+            } catch (e) {}`,
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { get, run } from '@/lib/db';
+import { run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { verifierAccesCentre } from '@/lib/pro';
 import { jsonError } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
 
@@ -9,16 +10,18 @@ export async function PATCH(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { types_vehicules_acceptes } = body;
+  const { types_vehicules_acceptes, centre_id } = body;
 
   if (!Array.isArray(types_vehicules_acceptes) || types_vehicules_acceptes.length === 0) {
     return jsonError(400, 'Sélectionnez au moins un type de véhicule accepté par votre centre.');
   }
 
-  const controleur = await get('SELECT centre_id FROM controleurs WHERE id = ?', [session.controleurId]);
+  const centreId = await verifierAccesCentre(session.controleurId, centre_id);
+  if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
+
   await run('UPDATE centres SET types_vehicules_acceptes = ? WHERE id = ?', [
     serializeTypes(types_vehicules_acceptes),
-    controleur.centre_id,
+    centreId,
   ]);
 
   return NextResponse.json({ message: 'Types de véhicules mis à jour.' });

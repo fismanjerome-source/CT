@@ -3,8 +3,8 @@
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Logo from '../../components/Logo';
 import Footer from '../../components/Footer';
+import Header from '../../components/Header';
 import { CarIcon, MotoIcon } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
@@ -101,15 +101,7 @@ export default function CentrePage({ params }) {
 
   return (
     <>
-      <header className="site-header">
-        <div className="container">
-          <Link href="/" className="brand"><Logo /> Créneau CT</Link>
-          <nav>
-            <Link href="/suivi">Suivre un RDV</Link>
-            <Link href="/pro/login">Espace professionnel</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <section className="centre-header">
         <div className="container">

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
 import { CarIcon, MotoIcon } from '../../components/VehiculeIcons';
@@ -29,10 +29,14 @@ async function api(path, options = {}) {
   return data;
 }
 
-export default function DashboardPage() {
+function DashboardPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const centreActifId = searchParams.get('centre');
+
   const [controleur, setControleur] = useState(null);
   const [centre, setCentre] = useState(null);
+  const [mesCentres, setMesCentres] = useState([]);
   const [message, setMessage] = useState(null);
   const [planning, setPlanning] = useState(null);
   const [rdvs, setRdvs] = useState(null);
@@ -51,38 +55,47 @@ export default function DashboardPage() {
   const [typesVehiculesEnvoi, setTypesVehiculesEnvoi] = useState(false);
 
   const chargerPlanning = useCallback(async () => {
+    if (!centre) return;
     try {
-      const { creneaux } = await api(`/api/pro/creneaux?debut=${todayISO()}&jours=14`);
+      const { creneaux } = await api(`/api/pro/creneaux?debut=${todayISO()}&jours=14&centre=${centre.id}`);
       setPlanning(creneaux);
     } catch (e) {
       if (e.status === 401) router.push('/pro/login');
     }
-  }, [router]);
+  }, [router, centre]);
 
   const chargerRdvs = useCallback(async () => {
+    if (!centre) return;
     try {
-      const { rdvs } = await api('/api/pro/rdv');
+      const { rdvs } = await api(`/api/pro/rdv?centre=${centre.id}`);
       setRdvs(rdvs);
     } catch (e) {
       if (e.status === 401) router.push('/pro/login');
     }
-  }, [router]);
+  }, [router, centre]);
 
   useEffect(() => {
     async function init() {
       try {
-        const { controleur, centre } = await api('/api/pro/me');
+        const url = centreActifId ? `/api/pro/me?centre=${centreActifId}` : '/api/pro/me';
+        const { controleur, centre, mesCentres } = await api(url);
         setControleur(controleur);
         setCentre(centre);
+        setMesCentres(mesCentres || []);
         setTypesVehiculesCentre(parseTypes(centre.types_vehicules_acceptes));
-        chargerPlanning();
-        chargerRdvs();
       } catch (e) {
         router.push('/pro/login');
       }
     }
     init();
-  }, [router, chargerPlanning, chargerRdvs]);
+  }, [router, centreActifId]);
+
+  useEffect(() => {
+    if (centre) {
+      chargerPlanning();
+      chargerRdvs();
+    }
+  }, [centre, chargerPlanning, chargerRdvs]);
 
   function toggleTypeVehiculeCentre(value) {
     setTypesVehiculesCentre((prev) =>
@@ -95,7 +108,7 @@ export default function DashboardPage() {
     try {
       await api('/api/pro/centre', {
         method: 'PATCH',
-        body: JSON.stringify({ types_vehicules_acceptes: typesVehiculesCentre }),
+        body: JSON.stringify({ types_vehicules_acceptes: typesVehiculesCentre, centre_id: centre.id }),
       });
       setMessage({ type: 'success', text: 'Types de véhicules mis à jour.' });
     } catch (e) {
@@ -117,6 +130,7 @@ export default function DashboardPage() {
           duree_minutes: Number(comblerForm.duree_minutes),
           prix: Number(comblerForm.prix),
           promo_pourcentage: comblerForm.promo_pourcentage ? Number(comblerForm.promo_pourcentage) : null,
+          centre_id: centre.id,
         }),
       });
       setMessage({ type: 'success', text: data.message });
@@ -138,6 +152,7 @@ export default function DashboardPage() {
           ...singleForm,
           prix: Number(singleForm.prix),
           promo_pourcentage: singleForm.promo_pourcentage ? Number(singleForm.promo_pourcentage) : null,
+          centre_id: centre.id,
         }),
       });
       setMessage({ type: 'success', text: 'Créneau ajouté.' });
@@ -173,12 +188,29 @@ export default function DashboardPage() {
     <div className="pro-shell">
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace pro</div>
+
+        {mesCentres.length > 1 && (
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: '0.72rem', color: '#cfe0d2', display: 'block', marginBottom: 4 }}>Centre géré</label>
+            <select
+              value={centre.id}
+              onChange={(e) => router.push(`/pro/dashboard?centre=${e.target.value}`)}
+              style={{ width: '100%' }}
+            >
+              {mesCentres.map((c) => (
+                <option key={c.id} value={c.id}>{c.nom}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <nav>
           <a href="#vehicules" className="active">Véhicules acceptés</a>
           <a href="#combler">Combler des horaires vides</a>
           <a href="#planning">Mon planning</a>
           <a href="#rdv">Mes rendez-vous</a>
-          <Link href="/pro/factures">Mes factures</Link>
+          <Link href={`/pro/factures?centre=${centre.id}`}>Mes factures</Link>
+          <Link href="/pro/centres">Mes centres</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <p style={{ fontSize: '0.85rem', color: '#cfe0d2', marginBottom: 10 }}>{controleur.nom}</p>
@@ -400,24 +432,33 @@ export default function DashboardPage() {
           ) : planning.length === 0 ? (
             <div className="empty-state">Aucun créneau programmé. Utilisez le formulaire ci-dessus pour en ouvrir.</div>
           ) : (
+            <div className="table-scroll">
             <table>
-              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client</th><th>Commission CT</th><th>Client</th><th></th></tr></thead>
+              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th></th></tr></thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
                     <td className="mono">{formatDate(c.date)}</td>
                     <td className="mono">{c.heure}</td>
-                    <td><span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>{c.statut === 'disponible' ? 'Disponible' : 'Réservé'}</span></td>
+                    <td>
+                      <span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>
+                        {c.statut === 'disponible' ? 'Disponible' : c.statut === 'bloque' ? 'Bloqué (agenda)' : 'Réservé'}
+                      </span>
+                    </td>
                     <td className="help-text">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
                     <td>{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
                     <td className="mono">{c.prix != null ? `${c.prix.toFixed(2)} €` : '—'}</td>
                     <td className="mono">{c.commission_montant_estime != null ? `${c.commission_montant_estime.toFixed(2)} €` : '—'}</td>
+                    <td className="mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
+                      {c.prix != null && c.commission_montant_estime != null ? `${(c.prix - c.commission_montant_estime).toFixed(2)} €` : '—'}
+                    </td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
-                    <td>{c.statut === 'disponible' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}</td>
+                    <td>{c.statut !== 'reserve' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </section>
 
@@ -428,6 +469,7 @@ export default function DashboardPage() {
           ) : rdvs.length === 0 ? (
             <div className="empty-state">Aucun rendez-vous confirmé pour le moment.</div>
           ) : (
+            <div className="table-scroll">
             <table>
               <thead><tr><th>Date</th><th>Heure</th><th>Client</th><th>Téléphone</th><th>Immatriculation</th><th>Référence</th></tr></thead>
               <tbody>
@@ -443,9 +485,18 @@ export default function DashboardPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </section>
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+      <DashboardPageInner />
+    </Suspense>
   );
 }

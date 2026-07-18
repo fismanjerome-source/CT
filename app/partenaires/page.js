@@ -1,6 +1,5 @@
-import Link from 'next/link';
-import Logo from '../components/Logo';
 import Footer from '../components/Footer';
+import Header from '../components/Header';
 
 export const metadata = {
   title: 'Partenaires — Créneau CT',
@@ -18,18 +17,7 @@ const partenaires = [
 export default function PartenairesPage() {
   return (
     <>
-      <header className="site-header">
-        <div className="container">
-          <Link href="/" className="brand">
-            <Logo />
-            Créneau CT
-          </Link>
-          <nav>
-            <Link href="/suivi">Suivre un RDV</Link>
-            <Link href="/pro/login">Espace professionnel</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <section className="hero">
         <div className="container">

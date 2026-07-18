@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import Logo from '../components/Logo';
 import Footer from '../components/Footer';
+import Header from '../components/Header';
 
 export const metadata = {
   title: 'Mentions légales — Créneau CT',
@@ -9,18 +9,7 @@ export const metadata = {
 export default function MentionsLegalesPage() {
   return (
     <>
-      <header className="site-header">
-        <div className="container">
-          <Link href="/" className="brand">
-            <Logo />
-            Créneau CT
-          </Link>
-          <nav>
-            <Link href="/suivi">Suivre un RDV</Link>
-            <Link href="/pro/login">Espace professionnel</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <section className="container legal-content" style={{ padding: '40px 24px 64px' }}>
         <h1>Mentions légales</h1>

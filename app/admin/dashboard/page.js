@@ -38,6 +38,7 @@ export default function AdminDashboardPage() {
         <nav>
           <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
           <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
+          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
           <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
@@ -77,6 +78,7 @@ export default function AdminDashboardPage() {
               {data.centres.length === 0 ? (
                 <div className="empty-state">Aucun centre pour le moment.</div>
               ) : (
+                <div className="table-scroll">
                 <table>
                   <thead>
                     <tr>
@@ -101,6 +103,7 @@ export default function AdminDashboardPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </>

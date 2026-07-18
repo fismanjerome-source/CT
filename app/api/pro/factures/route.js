@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server';
-import { all, get } from '@/lib/db';
+import { all } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError } from '@/lib/utils';
 
-export async function GET() {
+export async function GET(request) {
   const session = await getSession();
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
-  const controleur = await get('SELECT centre_id FROM controleurs WHERE id = ?', [session.controleurId]);
+  const { searchParams } = new URL(request.url);
+  const centreId = await resoudreCentreActif(session.controleurId, searchParams.get('centre'));
+  if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
 
   const factures = await all(
     `SELECT
@@ -18,7 +21,7 @@ export async function GET() {
      WHERE c.centre_id = ? AND r.statut = 'confirme'
      GROUP BY mois
      ORDER BY mois DESC`,
-    [controleur.centre_id]
+    [centreId]
   );
 
   return NextResponse.json({ factures });

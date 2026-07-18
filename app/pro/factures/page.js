@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
 
@@ -11,15 +11,19 @@ function formatMois(mois) {
   return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 }
 
-export default function ProFacturesPage() {
+function ProFacturesPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const centreId = searchParams.get('centre');
+
   const [factures, setFactures] = useState(null);
   const [erreur, setErreur] = useState(null);
 
   useEffect(() => {
     async function charger() {
       try {
-        const res = await fetch('/api/pro/factures');
+        const url = centreId ? `/api/pro/factures?centre=${centreId}` : '/api/pro/factures';
+        const res = await fetch(url);
         if (res.status === 401) { router.push('/pro/login'); return; }
         const json = await res.json();
         if (!res.ok) { setErreur(json.erreur); return; }
@@ -29,7 +33,7 @@ export default function ProFacturesPage() {
       }
     }
     charger();
-  }, [router]);
+  }, [router, centreId]);
 
   return (
     <div className="pro-shell">
@@ -57,7 +61,7 @@ export default function ProFacturesPage() {
         ) : (
           <div style={{ marginTop: 20 }}>
             {factures.map((f) => (
-              <Link key={f.mois} href={`/pro/factures/${f.mois}`} className="facture-list-item">
+              <Link key={f.mois} href={`/pro/factures/${f.mois}${centreId ? `?centre=${centreId}` : ''}`} className="facture-list-item">
                 <div>
                   <strong>{formatMois(f.mois)}</strong>
                   <div className="help-text">{f.nombre_rdv} RDV confirmé{f.nombre_rdv > 1 ? 's' : ''}</div>
@@ -71,5 +75,13 @@ export default function ProFacturesPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ProFacturesPage() {
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+      <ProFacturesPageInner />
+    </Suspense>
   );
 }
