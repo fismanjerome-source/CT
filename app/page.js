@@ -4,26 +4,41 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Logo from './components/Logo';
+import Footer from './components/Footer';
+import { CarIcon, MotoIcon } from './components/VehiculeIcons';
+import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 function formatDateCourte(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+function formatDateLongue(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
 export default function HomePage() {
+  const router = useRouter();
   const [ville, setVille] = useState('');
   const [cp, setCp] = useState('');
+  const [date, setDate] = useState('');
   const [centres, setCentres] = useState(null); // null = chargement initial
   const [totalRdv, setTotalRdv] = useState(null);
+
+  const [rechercheProche, setRechercheProche] = useState(false);
+  const [erreurProche, setErreurProche] = useState(null);
+  const [resultatProche, setResultatProche] = useState(null);
 
   useEffect(() => {
     fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
   }, []);
 
-  const rechercher = useCallback(async (villeQ = '', cpQ = '') => {
+  const rechercher = useCallback(async (villeQ = '', cpQ = '', dateQ = '') => {
     const params = new URLSearchParams();
     if (villeQ) params.set('ville', villeQ);
     if (cpQ) params.set('cp', cpQ);
+    if (dateQ) params.set('date', dateQ);
     try {
       const res = await fetch(`/api/centres?${params.toString()}`);
       const data = await res.json();
@@ -37,7 +52,42 @@ export default function HomePage() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    rechercher(ville.trim(), cp.trim());
+    setResultatProche(null);
+    rechercher(ville.trim(), cp.trim(), date);
+  }
+
+  function trouverProche() {
+    setErreurProche(null);
+    setResultatProche(null);
+
+    if (!navigator.geolocation) {
+      setErreurProche("Votre navigateur ne permet pas la géolocalisation. Essayez une recherche par ville.");
+      return;
+    }
+
+    setRechercheProche(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(`/api/centres/proche?lat=${latitude}&lng=${longitude}`);
+          const data = await res.json();
+          if (!res.ok) {
+            setErreurProche(data.erreur);
+            return;
+          }
+          setResultatProche(data);
+        } catch {
+          setErreurProche('Erreur réseau. Réessayez.');
+        } finally {
+          setRechercheProche(false);
+        }
+      },
+      () => {
+        setErreurProche("Impossible d'accéder à votre position — vérifiez que la géolocalisation est autorisée pour ce site.");
+        setRechercheProche(false);
+      }
+    );
   }
 
   return (
@@ -64,7 +114,42 @@ export default function HomePage() {
             ça vous arrange — y compris les disponibilités de dernière minute près de chez vous.
           </p>
 
-          <form className="search-box" onSubmit={handleSubmit}>
+          <button
+            type="button"
+            onClick={trouverProche}
+            disabled={rechercheProche}
+            style={{ marginTop: 16, marginBottom: 8 }}
+          >
+            {rechercheProche ? 'Recherche en cours…' : '📍 Prochain RDV disponible près de chez moi'}
+          </button>
+
+          {erreurProche && <div className="message-banner error" style={{ marginTop: 10, maxWidth: 480 }}>{erreurProche}</div>}
+
+          {resultatProche && (
+            <div className="card" style={{ marginTop: 14, maxWidth: 480, borderLeft: '3px solid var(--color-accent)' }}>
+              <p className="eyebrow" style={{ marginBottom: 6 }}>Le plus proche avec un créneau libre</p>
+              <h3 style={{ margin: '0 0 4px 0' }}>{resultatProche.centre.nom}</h3>
+              <p className="help-text" style={{ margin: '0 0 8px 0' }}>
+                {resultatProche.centre.adresse}, {resultatProche.centre.code_postal} {resultatProche.centre.ville}
+                {' · '}<span className="mono">{resultatProche.centre.distance_km} km</span>
+              </p>
+              <p style={{ margin: '0 0 12px 0' }}>
+                <strong>{formatDateLongue(resultatProche.creneau.date)}</strong> à <strong>{resultatProche.creneau.heure}</strong>
+                {resultatProche.creneau.prix != null && (
+                  <span className="mono" style={{ marginLeft: 8 }}>
+                    {resultatProche.creneau.promo_pourcentage
+                      ? `${(resultatProche.creneau.prix * (1 - resultatProche.creneau.promo_pourcentage / 100)).toFixed(2)}€ TTC`
+                      : `${resultatProche.creneau.prix.toFixed(2)}€ TTC`}
+                  </span>
+                )}
+              </p>
+              <button type="button" onClick={() => router.push(`/centre/${resultatProche.centre.id}`)}>
+                Voir ce créneau
+              </button>
+            </div>
+          )}
+
+          <form className="search-box" onSubmit={handleSubmit} style={{ marginTop: 20 }}>
             <div className="field">
               <label htmlFor="ville">Ville</label>
               <input id="ville" type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="Paris, Montreuil..." />
@@ -72,6 +157,10 @@ export default function HomePage() {
             <div className="field">
               <label htmlFor="cp">Code postal</label>
               <input id="cp" type="text" value={cp} onChange={(e) => setCp(e.target.value)} placeholder="75011" maxLength={5} />
+            </div>
+            <div className="field">
+              <label htmlFor="date">Date souhaitée (optionnel)</label>
+              <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
             <div className="field" style={{ flex: 0, alignSelf: 'flex-end' }}>
               <button type="submit">Rechercher</button>
@@ -104,23 +193,35 @@ export default function HomePage() {
                   <p>Essayez une autre ville ou un autre code postal.</p>
                 </div>
               ) : (
-                centres.map((c) => <CentreCard key={c.id} centre={c} />)
+                centres.map((c) => <CentreCard key={c.id} centre={c} dateRecherchee={date} />)
               )}
             </>
           )}
         </div>
       </section>
 
-      <footer className="site-footer">
-        <div className="container">
-          Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.
+      <section className="pro-cta">
+        <div className="container pro-cta-inner">
+          <div>
+            <p className="eyebrow" style={{ color: '#E8ECE6' }}>Vous êtes un centre de contrôle technique ?</p>
+            <h2 style={{ color: '#fff', margin: '6px 0 8px 0' }}>Comblez vos créneaux vides, sans effort et sans abonnement</h2>
+            <p style={{ color: '#cfe0d2', margin: 0, maxWidth: 520 }}>
+              Créneau CT connecte votre planning à des automobilistes prêts à réserver dès aujourd'hui. Vous gardez
+              la main sur vos prix, vos disponibilités et vos remises — aucun engagement, aucun abonnement.
+            </p>
+          </div>
+          <Link href="/contact" className="btn" style={{ background: '#fff', color: 'var(--color-primary)', borderColor: '#fff', whiteSpace: 'nowrap' }}>
+            Devenir centre partenaire
+          </Link>
         </div>
-      </footer>
+      </section>
+
+      <Footer />
     </>
   );
 }
 
-function CentreCard({ centre }) {
+function CentreCard({ centre, dateRecherchee }) {
   const router = useRouter();
   const vide = centre.creneaux_disponibles_7j === 0;
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -151,11 +252,28 @@ function CentreCard({ centre }) {
           </a>
         </div>
         {centre.telephone && <div className="tel">{centre.telephone}</div>}
-        <p className="help-text" style={{ marginTop: 8 }}>
-          {centre.prochain_creneau
-            ? `Prochain créneau : ${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}`
-            : 'Aucun créneau dans les 7 prochains jours'}
-        </p>
+
+        {dateRecherchee ? (
+          <p className="help-text" style={{ marginTop: 8 }}>
+            {centre.creneau_date_souhaitee
+              ? <>✅ Créneau disponible le {formatDateCourte(dateRecherchee)} à <strong>{centre.creneau_date_souhaitee.heure}</strong></>
+              : <>Pas de créneau ce jour-là — prochain disponible : {centre.prochain_creneau ? `${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}` : 'aucun sous 7 jours'}</>}
+          </p>
+        ) : (
+          <p className="help-text" style={{ marginTop: 8 }}>
+            {centre.prochain_creneau
+              ? `Prochain créneau : ${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}`
+              : 'Aucun créneau dans les 7 prochains jours'}
+          </p>
+        )}
+
+        <div className="vehicule-badges">
+          {TYPES_VEHICULES.filter((t) => parseTypes(centre.types_vehicules_acceptes).includes(t.value)).map((t) => (
+            <span key={t.value} className="vehicule-badge" style={{ borderColor: t.couleur, color: t.couleur }} title={t.label}>
+              {t.categorie === 'moto' ? <MotoIcon size={14} /> : <CarIcon size={14} />}
+            </span>
+          ))}
+        </div>
       </div>
       <div className={`stamp ${vide ? 'vide' : ''}`}>
         <span className="n">{centre.creneaux_disponibles_7j}</span>

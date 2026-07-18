@@ -220,6 +220,17 @@ button:disabled {
 
 .centre-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 
+.vehicule-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.vehicule-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid;
+}
+
 .enseigne-badge {
   font-family: var(--font-mono);
   font-size: 0.62rem;
@@ -292,6 +303,26 @@ button:disabled {
   border-bottom: 1px solid var(--color-border);
 }
 .back-link { font-size: 0.9rem; display: inline-block; margin-bottom: 14px; text-decoration: none; color: var(--color-text-muted); }
+
+.type-vehicule-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.type-vehicule-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  background: #fff;
+  cursor: pointer;
+}
 
 .day-picker {
   display: flex;
@@ -431,6 +462,19 @@ button:disabled {
 .message-banner.error { background: var(--color-danger-bg); color: var(--color-danger); border: 1px solid var(--color-danger); }
 .message-banner.success { background: var(--color-success-bg); color: var(--color-success); border: 1px solid var(--color-success); }
 
+/* ---------- Encart pro (page d'accueil) ---------- */
+.pro-cta {
+  background: var(--color-primary);
+  padding: 40px 0;
+}
+.pro-cta-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
 /* ---------- Pied de page ---------- */
 .site-footer {
   border-top: 1px solid var(--color-border);
@@ -438,6 +482,22 @@ button:disabled {
   color: var(--color-text-muted);
   font-size: 0.85rem;
 }
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.footer-links {
+  display: flex;
+  gap: 18px;
+}
+.footer-links a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.footer-links a:hover { color: var(--color-primary); text-decoration: underline; }
 
 /* ---------- Espace pro ---------- */
 .pro-shell { display: flex; min-height: 100vh; }
@@ -517,3 +577,81 @@ td.mono, .mono { font-family: var(--font-mono); }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }
 }
+
+/* ---------- Factures ---------- */
+.facture-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.facture-list-item:hover { background: var(--color-bg); }
+
+.facture-shell { max-width: 800px; margin: 0 auto; padding: 24px; }
+.facture-actions { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+.facture-document {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 40px;
+}
+.facture-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+.facture-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.facture-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 2px solid var(--color-primary);
+  margin-top: 16px;
+  padding-top: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.facture-total-montant {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+@media print {
+  .site-header, .pro-sidebar, .no-print { display: none !important; }
+  .pro-main, .facture-shell { padding: 0; max-width: none; }
+  .facture-document { border: none; padding: 0; }
+  body { background: #fff; }
+}
+
+/* ---------- Pages légales (CGU, mentions légales) ---------- */
+.legal-content {
+  max-width: 760px;
+}
+.legal-content h1 { margin-bottom: 8px; }
+.legal-content h2 {
+  margin-top: 32px;
+  margin-bottom: 10px;
+  font-size: 1.15rem;
+}
+.legal-content p, .legal-content ul {
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+.legal-content ul { padding-left: 20px; }
+.legal-content li { margin-bottom: 6px; }
+.legal-content strong { color: var(--color-text); }
+.legal-content a { color: var(--color-primary); }

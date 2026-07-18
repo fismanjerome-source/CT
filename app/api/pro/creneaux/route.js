@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { all, get, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { jsonError, todayISO, calculerRemise, calculerTauxCommission } from '@/lib/utils';
+import { jsonError, todayISO, calculerTauxCommission } from '@/lib/utils';
+import { serializeTypes } from '@/lib/vehicules';
 
 export async function GET(request) {
   const session = await getSession();
@@ -22,13 +23,18 @@ export async function GET(request) {
     [session.controleurId, debut, fin]
   );
 
-  const creneauxAvecRemise = creneaux.map((c) => ({
-    ...c,
-    promo_pourcentage: calculerRemise(c.date),
-    commission_taux_estime: calculerTauxCommission(c.date),
-  }));
+  // Estimation de la commission à titre indicatif pour le centre, calculée
+  // sur le prix APRÈS l'éventuelle promo qu'il a lui-même choisie.
+  const creneauxAvecEstimation = creneaux.map((c) => {
+    const tauxCommission = calculerTauxCommission(c.date);
+    const prixApresPromo = c.prix != null && c.promo_pourcentage
+      ? c.prix * (1 - c.promo_pourcentage / 100)
+      : c.prix;
+    const commissionEstimee = prixApresPromo != null ? Math.round(prixApresPromo * tauxCommission) / 100 : null;
+    return { ...c, commission_taux_estime: tauxCommission, commission_montant_estime: commissionEstimee };
+  });
 
-  return NextResponse.json({ creneaux: creneauxAvecRemise });
+  return NextResponse.json({ creneaux: creneauxAvecEstimation });
 }
 
 export async function POST(request) {
@@ -36,7 +42,7 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date, heure, duree_minutes, prix } = body;
+  const { date, heure, duree_minutes, prix, promo_pourcentage, types_vehicules } = body;
   if (!date || !heure) return jsonError(400, 'Date et heure requises.');
   if (!prix || Number(prix) <= 0) return jsonError(400, 'Le prix du contrôle technique est requis.');
 
@@ -44,8 +50,8 @@ export async function POST(request) {
 
   try {
     const result = await run(
-      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix) VALUES (?, ?, ?, ?, ?, 'disponible', ?)`,
-      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30, Number(prix)]
+      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
+      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
     );
     return NextResponse.json({ id: Number(result.lastInsertRowid) }, { status: 201 });
   } catch {

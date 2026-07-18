@@ -18,12 +18,18 @@ export async function POST(request) {
   const reference = generateReference();
   const now = new Date().toISOString();
 
-  // La commission est figée au moment de la réservation : elle reflète le
-  // délai entre la prise de RDV et la date du contrôle, et ne doit pas
-  // changer ensuite même si la date se rapproche.
-  const prix = creneau.prix || null;
+  // La commission est figée au moment de la réservation, et calculée sur le
+  // prix EFFECTIVEMENT payé par le client (donc après l'éventuelle remise
+  // choisie par le centre) — pas sur le prix initial. Exemple : CT à 100€,
+  // remise de 30% par le centre → client paie 70€ → commission = 30% de 70€.
+  // Cette information n'est jamais renvoyée au client, uniquement stockée
+  // pour la consultation par le centre et par l'admin.
+  const prixInitial = creneau.prix || null;
+  const prixPaye = prixInitial != null && creneau.promo_pourcentage
+    ? Math.round(prixInitial * (1 - creneau.promo_pourcentage / 100) * 100) / 100
+    : prixInitial;
   const commissionPourcentage = calculerTauxCommission(creneau.date);
-  const commissionMontant = prix != null ? Math.round(prix * commissionPourcentage) / 100 : null;
+  const commissionMontant = prixPaye != null ? Math.round(prixPaye * commissionPourcentage) / 100 : null;
 
   const tx = await db.transaction('write');
   try {
@@ -38,7 +44,7 @@ export async function POST(request) {
     await tx.execute({
       sql: `INSERT INTO rdv (creneau_id, client_nom, client_email, client_telephone, immatriculation, type_vehicule, reference, statut, prix, commission_pourcentage, commission_montant, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, 'confirme', ?, ?, ?, ?)`,
-      args: [creneau_id, client_nom, client_email, client_telephone, immatriculation.toUpperCase(), type_vehicule || null, reference, prix, commissionPourcentage, commissionMontant, now],
+      args: [creneau_id, client_nom, client_email, client_telephone, immatriculation.toUpperCase(), type_vehicule || null, reference, prixPaye, commissionPourcentage, commissionMontant, now],
     });
     await tx.commit();
   } catch (e) {

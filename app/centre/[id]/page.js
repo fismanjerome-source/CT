@@ -4,6 +4,9 @@ import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Logo from '../../components/Logo';
+import Footer from '../../components/Footer';
+import { CarIcon, MotoIcon } from '../../components/VehiculeIcons';
+import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -18,6 +21,7 @@ export default function CentrePage({ params }) {
   const [centre, setCentre] = useState(null);
   const [dispoParJour, setDispoParJour] = useState({});
   const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
+  const [typeVehicule, setTypeVehicule] = useState(null);
   const [creneaux, setCreneaux] = useState(null);
   const [chargementCreneaux, setChargementCreneaux] = useState(true);
   const [modalCreneau, setModalCreneau] = useState(null); // { heure } | null
@@ -39,6 +43,9 @@ export default function CentrePage({ params }) {
         if (annule) return;
 
         setCentre(centreData.centre);
+        const typesAcceptes = parseTypes(centreData.centre.types_vehicules_acceptes);
+        setTypeVehicule(typesAcceptes[0] || null);
+
         const map = Object.fromEntries(dispoData.disponibilites.map((d) => [d.date, d.n]));
         setDispoParJour(map);
 
@@ -52,13 +59,15 @@ export default function CentrePage({ params }) {
     return () => { annule = true; };
   }, [id]);
 
-  // Chargement des créneaux à chaque changement de date
+  // Chargement des créneaux à chaque changement de date ou de type de véhicule
   useEffect(() => {
     let annule = false;
     async function chargerCreneaux() {
       setChargementCreneaux(true);
       try {
-        const res = await fetch(`/api/centres/${id}/creneaux?date=${dateSelectionnee}`);
+        const params = new URLSearchParams({ date: dateSelectionnee });
+        if (typeVehicule) params.set('type_vehicule', typeVehicule);
+        const res = await fetch(`/api/centres/${id}/creneaux?${params.toString()}`);
         const data = await res.json();
         if (!annule) setCreneaux(data.creneaux);
       } catch {
@@ -67,12 +76,14 @@ export default function CentrePage({ params }) {
         if (!annule) setChargementCreneaux(false);
       }
     }
-    if (dateSelectionnee) chargerCreneaux();
+    if (dateSelectionnee && typeVehicule !== null) chargerCreneaux();
     return () => { annule = true; };
-  }, [id, dateSelectionnee]);
+  }, [id, dateSelectionnee, typeVehicule]);
 
   function rafraichirApresReservation() {
-    fetch(`/api/centres/${id}/creneaux?date=${dateSelectionnee}`)
+    const params = new URLSearchParams({ date: dateSelectionnee });
+    if (typeVehicule) params.set('type_vehicule', typeVehicule);
+    fetch(`/api/centres/${id}/creneaux?${params.toString()}`)
       .then((r) => r.json())
       .then((d) => setCreneaux(d.creneaux));
   }
@@ -85,6 +96,8 @@ export default function CentrePage({ params }) {
       </div>
     );
   }
+
+  const typesAcceptesCentre = centre ? parseTypes(centre.types_vehicules_acceptes) : [];
 
   return (
     <>
@@ -130,6 +143,26 @@ export default function CentrePage({ params }) {
       </section>
 
       <section className="container">
+        {typesAcceptesCentre.length > 0 && (
+          <>
+            <h2 style={{ marginTop: 20, marginBottom: 10 }}>Votre véhicule</h2>
+            <div className="type-vehicule-picker">
+              {TYPES_VEHICULES.filter((t) => typesAcceptesCentre.includes(t.value)).map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  className={`type-vehicule-chip ${typeVehicule === t.value ? 'selected' : ''}`}
+                  style={typeVehicule === t.value ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
+                  onClick={() => setTypeVehicule(t.value)}
+                >
+                  {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
         <div className="day-picker">
           {Array.from({ length: 14 }, (_, i) => todayISO(i)).map((dateStr) => {
             const d = new Date(dateStr + 'T00:00:00');
@@ -147,10 +180,8 @@ export default function CentrePage({ params }) {
             );
           })}
         </div>
-
-        <p className="help-text" style={{ marginTop: 10 }}>
-          <span className="promo-badge-inline" style={{ marginRight: 6 }}>Remise auto</span>
-          -25% dans les 7 prochains jours, -20% la semaine suivante, -15% au-delà — appliquée directement sur le créneau choisi.
+        <p className="help-text" style={{ marginTop: -4, marginBottom: 10 }}>
+          Le nombre de créneaux par jour ci-dessus inclut tous types de véhicules confondus — le détail ci-dessous est filtré selon votre sélection.
         </p>
 
         <h2 style={{ marginTop: 20 }}>
@@ -162,7 +193,7 @@ export default function CentrePage({ params }) {
             <p className="help-text">Chargement des créneaux…</p>
           ) : !creneaux || creneaux.length === 0 ? (
             <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
-              Aucun créneau disponible ce jour-là. Essayez une autre date dans le calendrier ci-dessus.
+              Aucun créneau disponible ce jour-là pour ce type de véhicule. Essayez une autre date ou un autre véhicule.
             </div>
           ) : (
             creneaux.map((c) => {
@@ -190,15 +221,14 @@ export default function CentrePage({ params }) {
         </div>
       </section>
 
-      <footer className="site-footer">
-        <div className="container">Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.</div>
-      </footer>
+      <Footer />
 
       {modalCreneau && centre && (
         <ReservationModal
           centre={centre}
           creneau={modalCreneau}
           dateSelectionnee={dateSelectionnee}
+          typeVehicule={typeVehicule}
           onClose={() => setModalCreneau(null)}
           onSuccess={(rdv) => {
             setModalCreneau(null);
@@ -215,18 +245,18 @@ export default function CentrePage({ params }) {
   );
 }
 
-function ReservationModal({ centre, creneau, dateSelectionnee, onClose, onSuccess }) {
+function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onClose, onSuccess }) {
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [telephone, setTelephone] = useState('');
   const [immatriculation, setImmatriculation] = useState('');
-  const [typeVehicule, setTypeVehicule] = useState('');
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState(null);
 
   const dateLisible = new Date(dateSelectionnee + 'T00:00:00').toLocaleDateString('fr-FR', {
     weekday: 'long', day: 'numeric', month: 'long',
   });
+  const typeLabel = TYPES_VEHICULES.find((t) => t.value === typeVehicule)?.label || typeVehicule;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -264,7 +294,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, onClose, onSucces
         <h2>Confirmer le rendez-vous</h2>
         <div className="modal-recap">
           <strong>{centre.nom}</strong><br />
-          {dateLisible} à {creneau.heure}
+          {dateLisible} à {creneau.heure} · {typeLabel}
           {creneau.prix != null && (
             <div style={{ marginTop: 6 }}>
               {creneau.promo_pourcentage ? (
@@ -299,16 +329,6 @@ function ReservationModal({ centre, creneau, dateSelectionnee, onClose, onSucces
               style={{ textTransform: 'uppercase' }}
               value={immatriculation} onChange={(e) => setImmatriculation(e.target.value)}
             />
-          </div>
-          <div className="form-row">
-            <label htmlFor="type_vehicule">Type de véhicule (optionnel)</label>
-            <select id="type_vehicule" value={typeVehicule} onChange={(e) => setTypeVehicule(e.target.value)}>
-              <option value="">Non précisé</option>
-              <option value="citadine">Citadine</option>
-              <option value="berline">Berline</option>
-              <option value="suv">SUV / 4x4</option>
-              <option value="utilitaire">Utilitaire</option>
-            </select>
           </div>
           {erreur && <div className="message-banner error">{erreur}</div>}
           <div className="modal-actions">

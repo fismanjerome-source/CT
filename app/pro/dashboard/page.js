@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Logo from '../../components/Logo';
+import { CarIcon, MotoIcon } from '../../components/VehiculeIcons';
+import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -37,12 +40,15 @@ export default function DashboardPage() {
   const [comblerForm, setComblerForm] = useState({
     date_debut: todayISO(), date_fin: todayISO(6),
     heure_debut: '09:00', heure_fin: '12:00',
-    intervalle_minutes: 30, duree_minutes: 30, prix: '',
+    intervalle_minutes: 30, duree_minutes: 30, prix: '', promo_pourcentage: '', types_vehicules: [],
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
 
-  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', prix: '' });
+  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', prix: '', promo_pourcentage: '', types_vehicules: [] });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
+
+  const [typesVehiculesCentre, setTypesVehiculesCentre] = useState([]);
+  const [typesVehiculesEnvoi, setTypesVehiculesEnvoi] = useState(false);
 
   const chargerPlanning = useCallback(async () => {
     try {
@@ -68,6 +74,7 @@ export default function DashboardPage() {
         const { controleur, centre } = await api('/api/pro/me');
         setControleur(controleur);
         setCentre(centre);
+        setTypesVehiculesCentre(parseTypes(centre.types_vehicules_acceptes));
         chargerPlanning();
         chargerRdvs();
       } catch (e) {
@@ -76,6 +83,27 @@ export default function DashboardPage() {
     }
     init();
   }, [router, chargerPlanning, chargerRdvs]);
+
+  function toggleTypeVehiculeCentre(value) {
+    setTypesVehiculesCentre((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  }
+
+  async function handleSaveTypesVehicules() {
+    setTypesVehiculesEnvoi(true);
+    try {
+      await api('/api/pro/centre', {
+        method: 'PATCH',
+        body: JSON.stringify({ types_vehicules_acceptes: typesVehiculesCentre }),
+      });
+      setMessage({ type: 'success', text: 'Types de véhicules mis à jour.' });
+    } catch (e) {
+      setMessage({ type: 'error', text: e.message });
+    } finally {
+      setTypesVehiculesEnvoi(false);
+    }
+  }
 
   async function handleComblerSubmit(e) {
     e.preventDefault();
@@ -88,6 +116,7 @@ export default function DashboardPage() {
           intervalle_minutes: Number(comblerForm.intervalle_minutes),
           duree_minutes: Number(comblerForm.duree_minutes),
           prix: Number(comblerForm.prix),
+          promo_pourcentage: comblerForm.promo_pourcentage ? Number(comblerForm.promo_pourcentage) : null,
         }),
       });
       setMessage({ type: 'success', text: data.message });
@@ -105,7 +134,11 @@ export default function DashboardPage() {
     try {
       await api('/api/pro/creneaux', {
         method: 'POST',
-        body: JSON.stringify({ ...singleForm, prix: Number(singleForm.prix) }),
+        body: JSON.stringify({
+          ...singleForm,
+          prix: Number(singleForm.prix),
+          promo_pourcentage: singleForm.promo_pourcentage ? Number(singleForm.promo_pourcentage) : null,
+        }),
       });
       setMessage({ type: 'success', text: 'Créneau ajouté.' });
       chargerPlanning();
@@ -141,9 +174,11 @@ export default function DashboardPage() {
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace pro</div>
         <nav>
-          <a href="#combler" className="active">Combler des horaires vides</a>
+          <a href="#vehicules" className="active">Véhicules acceptés</a>
+          <a href="#combler">Combler des horaires vides</a>
           <a href="#planning">Mon planning</a>
           <a href="#rdv">Mes rendez-vous</a>
+          <Link href="/pro/factures">Mes factures</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <p style={{ fontSize: '0.85rem', color: '#cfe0d2', marginBottom: 10 }}>{controleur.nom}</p>
@@ -161,7 +196,35 @@ export default function DashboardPage() {
           <div className={`message-banner ${message.type}`} style={{ marginTop: 16 }}>{message.text}</div>
         )}
 
-        <section id="combler" className="card" style={{ marginTop: 24 }}>
+        <section id="vehicules" className="card" style={{ marginTop: 24 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Types de véhicules acceptés</h2></div>
+          <p className="help-text">
+            Cochez ce que votre centre est équipé pour contrôler. Ça détermine les icônes affichées côté client, et
+            les types que vous pourrez proposer lors de l'ouverture de créneaux.
+          </p>
+          <div className="type-vehicule-picker">
+            {TYPES_VEHICULES.map((t) => {
+              const coche = typesVehiculesCentre.includes(t.value);
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  className="type-vehicule-chip"
+                  style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
+                  onClick={() => toggleTypeVehiculeCentre(t.value)}
+                >
+                  {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+          <button type="button" onClick={handleSaveTypesVehicules} disabled={typesVehiculesEnvoi} style={{ marginTop: 14 }}>
+            {typesVehiculesEnvoi ? 'Enregistrement…' : 'Enregistrer'}
+          </button>
+        </section>
+
+        <section id="combler" className="card">
           <div className="card-header"><h2 style={{ margin: 0 }}>Combler des horaires vides</h2></div>
           <p className="help-text">
             Ouvrez d'un coup tous les créneaux libres sur une plage horaire, pour plusieurs jours —
@@ -230,11 +293,46 @@ export default function DashboardPage() {
                 <input id="combler_prix" type="number" min="1" step="0.01" required placeholder="ex: 78" value={comblerForm.prix}
                   onChange={(e) => setComblerForm({ ...comblerForm, prix: e.target.value })} />
               </div>
+              <div className="form-row">
+                <label htmlFor="combler_promo">Remise client (optionnel, en %)</label>
+                <input id="combler_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide" value={comblerForm.promo_pourcentage}
+                  onChange={(e) => setComblerForm({ ...comblerForm, promo_pourcentage: e.target.value })} />
+              </div>
+              <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                <label>Réserver ce lot à certains véhicules (optionnel)</label>
+                <div className="type-vehicule-picker">
+                  {TYPES_VEHICULES.filter((t) => typesVehiculesCentre.includes(t.value)).map((t) => {
+                    const coche = comblerForm.types_vehicules.includes(t.value);
+                    return (
+                      <button
+                        key={t.value}
+                        type="button"
+                        className="type-vehicule-chip"
+                        style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
+                        onClick={() => setComblerForm({
+                          ...comblerForm,
+                          types_vehicules: coche
+                            ? comblerForm.types_vehicules.filter((v) => v !== t.value)
+                            : [...comblerForm.types_vehicules, t.value],
+                        })}
+                      >
+                        {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                        {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="help-text">Rien de coché = ouvert à tous les véhicules acceptés par votre centre.</p>
+              </div>
             </div>
             <p className="help-text">
               Les créneaux existants ne sont jamais dupliqués ni écrasés — seuls les horaires encore vides sont ouverts.
-              Une commission Créneau CT s'applique sur ce prix selon le délai de réservation (30% sous 7 jours, 25%
-              entre 7 et 14 jours, 20% au-delà), calculée automatiquement à chaque réservation.
+              La remise est entièrement à votre choix : si vous la laissez vide, le client paie le prix plein.
+            </p>
+            <p className="help-text">
+              Pour rappel (information interne, jamais affichée au client) : la commission Créneau CT est calculée
+              automatiquement sur le prix payé par le client, selon le délai de réservation (30% sous 7 jours, 25%
+              entre 7 et 14 jours, 20% au-delà) — vous la retrouverez dans le tableau ci-dessous.
             </p>
             <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture…' : 'Ouvrir les créneaux'}</button>
           </form>
@@ -259,6 +357,37 @@ export default function DashboardPage() {
                 onChange={(e) => setSingleForm({ ...singleForm, prix: e.target.value })} />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+              <label htmlFor="s_promo">Remise client (optionnel, en %)</label>
+              <input id="s_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide" value={singleForm.promo_pourcentage}
+                onChange={(e) => setSingleForm({ ...singleForm, promo_pourcentage: e.target.value })} />
+            </div>
+            <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+              <label>Réserver ce créneau à certains véhicules (optionnel)</label>
+              <div className="type-vehicule-picker">
+                {TYPES_VEHICULES.filter((t) => typesVehiculesCentre.includes(t.value)).map((t) => {
+                  const coche = singleForm.types_vehicules.includes(t.value);
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      className="type-vehicule-chip"
+                      style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
+                      onClick={() => setSingleForm({
+                        ...singleForm,
+                        types_vehicules: coche
+                          ? singleForm.types_vehicules.filter((v) => v !== t.value)
+                          : [...singleForm.types_vehicules, t.value],
+                      })}
+                    >
+                      {t.categorie === 'moto' ? <MotoIcon size={16} /> : <CarIcon size={16} />}
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="help-text">Rien de coché = ouvert à tous les véhicules acceptés par votre centre.</p>
+            </div>
+            <div className="form-row" style={{ gridColumn: '1 / -1' }}>
               <button type="submit" disabled={singleEnvoi}>{singleEnvoi ? 'Ajout…' : 'Ajouter ce créneau'}</button>
             </div>
           </form>
@@ -272,14 +401,17 @@ export default function DashboardPage() {
             <div className="empty-state">Aucun créneau programmé. Utilisez le formulaire ci-dessus pour en ouvrir.</div>
           ) : (
             <table>
-              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Promo</th><th>Client</th><th></th></tr></thead>
+              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client</th><th>Commission CT</th><th>Client</th><th></th></tr></thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
                     <td className="mono">{formatDate(c.date)}</td>
                     <td className="mono">{c.heure}</td>
                     <td><span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>{c.statut === 'disponible' ? 'Disponible' : 'Réservé'}</span></td>
+                    <td className="help-text">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
                     <td>{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
+                    <td className="mono">{c.prix != null ? `${c.prix.toFixed(2)} €` : '—'}</td>
+                    <td className="mono">{c.commission_montant_estime != null ? `${c.commission_montant_estime.toFixed(2)} €` : '—'}</td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
                     <td>{c.statut === 'disponible' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}</td>
                   </tr>

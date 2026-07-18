@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Logo from '../components/Logo';
+import Footer from '../components/Footer';
 
 export default function SuiviPage() {
   const [reference, setReference] = useState('');
@@ -103,6 +104,8 @@ export default function SuiviPage() {
           </div>
         )}
       </section>
+
+      <Footer />
     </>
   );
 }

@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import Logo from '../../components/Logo';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [data, setData] = useState(null);
   const [erreur, setErreur] = useState(null);
 
@@ -33,6 +35,11 @@ export default function AdminDashboardPage() {
     <div className="pro-shell">
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace admin</div>
+        <nav>
+          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
+          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
+          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
+        </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <button className="btn-secondary" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }} onClick={logout}>
             Se déconnecter
