@@ -58,6 +58,10 @@ function DashboardPageInner() {
   const [typesVehiculesCentre, setTypesVehiculesCentre] = useState([]);
   const [statutPaiement, setStatutPaiement] = useState(null);
   const [promotionActive, setPromotionActive] = useState(null);
+  const [creneauReservation, setCreneauReservation] = useState(null); // créneau en cours de réservation manuelle
+  const [formReservation, setFormReservation] = useState({ nom: '', email: '', telephone: '', immatriculation: '', type_vehicule: '' });
+  const [reservationEnvoi, setReservationEnvoi] = useState(false);
+  const [reservationErreur, setReservationErreur] = useState(null);
   const [editionCentre, setEditionCentre] = useState(false);
   const [centreForm, setCentreForm] = useState(null);
   const [centreEnvoi, setCentreEnvoi] = useState(false);
@@ -178,6 +182,41 @@ function DashboardPageInner() {
       setImageErreur(e.message);
     } finally {
       setImageEnvoi(false);
+    }
+  }
+
+  function ouvrirReservationManuelle(creneau) {
+    setCreneauReservation(creneau);
+    setFormReservation({ nom: '', email: '', telephone: '', immatriculation: '', type_vehicule: typesVehiculesCentre[0] || '' });
+    setReservationErreur(null);
+  }
+
+  async function handleReservationManuelle(e) {
+    e.preventDefault();
+    setReservationEnvoi(true);
+    setReservationErreur(null);
+    try {
+      const res = await fetch('/api/rdv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creneau_id: creneauReservation.id,
+          client_nom: formReservation.nom.trim(),
+          client_email: formReservation.email.trim(),
+          client_telephone: formReservation.telephone.trim(),
+          immatriculation: formReservation.immatriculation.trim(),
+          type_vehicule: formReservation.type_vehicule,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setReservationErreur(data.erreur); setReservationEnvoi(false); return; }
+      setMessage({ type: 'success', text: `Rendez-vous enregistré pour ${formReservation.nom} — référence ${data.rdv.reference}.` });
+      setCreneauReservation(null);
+      chargerPlanning();
+    } catch {
+      setReservationErreur('Erreur réseau. Réessayez.');
+    } finally {
+      setReservationEnvoi(false);
     }
   }
 
@@ -806,7 +845,12 @@ function DashboardPageInner() {
                       {c.prix != null && c.commission_montant_estime != null ? `${(c.prix - c.commission_montant_estime).toFixed(2)} €` : '—'}
                     </td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
-                    <td>{c.statut !== 'reserve' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}</td>
+                    <td style={{ display: 'flex', gap: 6 }}>
+                      {c.statut === 'disponible' && (
+                        <button type="button" onClick={() => ouvrirReservationManuelle(c)}>Prendre un RDV</button>
+                      )}
+                      {c.statut !== 'reserve' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -842,6 +886,63 @@ function DashboardPageInner() {
           )}
         </section>
       </main>
+
+      {creneauReservation && (
+        <div className="overlay" onClick={(e) => e.target === e.currentTarget && setCreneauReservation(null)}>
+          <div className="modal">
+            <h2>Prendre un rendez-vous</h2>
+            <div className="modal-recap">
+              <strong>{centre.nom}</strong><br />
+              {new Date(creneauReservation.date + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} à {creneauReservation.heure}
+              {creneauReservation.prix != null && (
+                <div style={{ marginTop: 6, fontWeight: 700 }}>{creneauReservation.prix.toFixed(2)}€ TTC</div>
+              )}
+            </div>
+            <form onSubmit={handleReservationManuelle}>
+              <div className="form-row">
+                <label htmlFor="resa_nom">Nom du client</label>
+                <input id="resa_nom" type="text" required value={formReservation.nom}
+                  onChange={(e) => setFormReservation({ ...formReservation, nom: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="resa_email">Email du client</label>
+                <input id="resa_email" type="email" required value={formReservation.email}
+                  onChange={(e) => setFormReservation({ ...formReservation, email: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="resa_telephone">Téléphone du client</label>
+                <input id="resa_telephone" type="tel" required value={formReservation.telephone}
+                  onChange={(e) => setFormReservation({ ...formReservation, telephone: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="resa_immat">Immatriculation</label>
+                <input id="resa_immat" type="text" required placeholder="AA-123-BB" style={{ textTransform: 'uppercase' }}
+                  value={formReservation.immatriculation}
+                  onChange={(e) => setFormReservation({ ...formReservation, immatriculation: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="resa_type">Type de véhicule</label>
+                <select id="resa_type" required value={formReservation.type_vehicule}
+                  onChange={(e) => setFormReservation({ ...formReservation, type_vehicule: e.target.value })}>
+                  <option value="">Sélectionner…</option>
+                  {TYPES_VEHICULES.filter((t) => typesVehiculesCentre.includes(t.value)).map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+              {reservationErreur && <div className="message-banner error">{reservationErreur}</div>}
+              <p className="help-text">
+                Le client recevra automatiquement un email de confirmation avec le fichier calendrier, exactement
+                comme pour une réservation en ligne.
+              </p>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => setCreneauReservation(null)}>Annuler</button>
+                <button type="submit" disabled={reservationEnvoi}>{reservationEnvoi ? 'Enregistrement…' : 'Confirmer le rendez-vous'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

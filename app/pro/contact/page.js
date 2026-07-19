@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
-import { PhoneIcon, MailIcon } from '../../components/ContactIcons';
+import { PhoneIcon, MailIcon, WhatsAppIcon } from '../../components/ContactIcons';
 
 export default function ProContactPage() {
   const pathname = usePathname();
@@ -38,6 +38,10 @@ export default function ProContactPage() {
             <a href="mailto:contact@creneauct.com" className="contact-btn">
               <MailIcon size={16} />
               contact@creneauct.com
+            </a>
+            <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
+              <WhatsAppIcon size={16} />
+              WhatsApp
             </a>
           </div>
         </div>

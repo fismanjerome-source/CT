@@ -251,6 +251,7 @@ export default function CentrePage({ params }) {
 }
 
 function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onClose, onSuccess }) {
+  const [etape, setEtape] = useState('formulaire'); // 'formulaire' | 'recapitulatif'
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [telephone, setTelephone] = useState('');
@@ -263,8 +264,13 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
   });
   const typeLabel = TYPES_VEHICULES.find((t) => t.value === typeVehicule)?.label || typeVehicule;
 
-  async function handleSubmit(e) {
+  function handlePasserAuRecap(e) {
     e.preventDefault();
+    setErreur(null);
+    setEtape('recapitulatif');
+  }
+
+  async function handleConfirmerDefinitivement() {
     setEnvoi(true);
     setErreur(null);
     try {
@@ -284,37 +290,77 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
       if (!res.ok) {
         setErreur(data.erreur);
         setEnvoi(false);
+        setEtape('formulaire');
         return;
       }
       onSuccess(data.rdv);
     } catch {
       setErreur('Erreur réseau. Réessayez.');
       setEnvoi(false);
+      setEtape('formulaire');
     }
+  }
+
+  const recapCreneau = (
+    <div className="modal-recap">
+      <strong>{centre.nom}</strong><br />
+      {dateLisible} à {creneau.heure} · {typeLabel}
+      {creneau.prix != null && (
+        <div style={{ marginTop: 6 }}>
+          {creneau.promo_pourcentage ? (
+            <>
+              <span className="promo-badge-inline" style={{ marginRight: 8 }}>-{creneau.promo_pourcentage}%</span>
+              <s className="prix-barre">{creneau.prix.toFixed(2)}€</s>{' '}
+              <span className="prix-final" style={{ fontWeight: 700 }}>{creneau.prix_final.toFixed(2)}€ TTC</span>
+            </>
+          ) : (
+            <span style={{ fontWeight: 700 }}>{creneau.prix.toFixed(2)}€ TTC</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  if (etape === 'recapitulatif') {
+    return (
+      <div className="overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+        <div className="modal">
+          <h2>Vérifiez vos informations</h2>
+          {recapCreneau}
+
+          <div className="card" style={{ marginTop: 4 }}>
+            <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Nom</span><br /><strong>{nom}</strong></p>
+            <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Email</span><br /><strong>{email}</strong></p>
+            <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Téléphone</span><br /><strong>{telephone}</strong></p>
+            <p style={{ margin: 0 }}><span className="help-text">Immatriculation</span><br /><strong>{immatriculation.toUpperCase()}</strong></p>
+          </div>
+
+          <div className="message-banner success" style={{ marginTop: 14 }}>
+            📧 Vous allez recevoir un email de confirmation à <strong>{email}</strong>. Vérifiez bien que cette
+            adresse est correcte avant de valider.
+          </div>
+
+          {erreur && <div className="message-banner error">{erreur}</div>}
+
+          <div className="modal-actions">
+            <button type="button" className="btn-secondary" onClick={() => setEtape('formulaire')} disabled={envoi}>
+              ← Modifier
+            </button>
+            <button type="button" onClick={handleConfirmerDefinitivement} disabled={envoi}>
+              {envoi ? 'Réservation en cours…' : 'Confirmer définitivement'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <h2>Confirmer le rendez-vous</h2>
-        <div className="modal-recap">
-          <strong>{centre.nom}</strong><br />
-          {dateLisible} à {creneau.heure} · {typeLabel}
-          {creneau.prix != null && (
-            <div style={{ marginTop: 6 }}>
-              {creneau.promo_pourcentage ? (
-                <>
-                  <span className="promo-badge-inline" style={{ marginRight: 8 }}>-{creneau.promo_pourcentage}%</span>
-                  <s className="prix-barre">{creneau.prix.toFixed(2)}€</s>{' '}
-                  <span className="prix-final" style={{ fontWeight: 700 }}>{creneau.prix_final.toFixed(2)}€ TTC</span>
-                </>
-              ) : (
-                <span style={{ fontWeight: 700 }}>{creneau.prix.toFixed(2)}€ TTC</span>
-              )}
-            </div>
-          )}
-        </div>
-        <form onSubmit={handleSubmit}>
+        <h2>Réserver ce créneau</h2>
+        {recapCreneau}
+        <form onSubmit={handlePasserAuRecap}>
           <div className="form-row">
             <label htmlFor="client_nom">Nom complet</label>
             <input id="client_nom" type="text" required value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="name" />
@@ -338,7 +384,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
           {erreur && <div className="message-banner error">{erreur}</div>}
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Annuler</button>
-            <button type="submit" disabled={envoi}>{envoi ? 'Réservation en cours…' : 'Confirmer le rendez-vous'}</button>
+            <button type="submit">Continuer</button>
           </div>
         </form>
       </div>

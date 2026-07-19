@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import { IconeVehicule } from './components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
-import { PhoneIcon, MailIcon } from './components/ContactIcons';
+import { PhoneIcon, MailIcon, WhatsAppIcon } from './components/ContactIcons';
 
 function formatDateCourte(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -117,6 +117,10 @@ export default function HomePage() {
               <a href="mailto:contact@creneauct.com" className="contact-btn">
                 <MailIcon size={16} />
                 contact@creneauct.com
+              </a>
+              <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
+                <WhatsAppIcon size={16} />
+                WhatsApp
               </a>
             </div>
           </div>
@@ -288,7 +292,7 @@ function CentreCard({ centre, dateRecherchee }) {
   return (
     <div
       className="centre-card"
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', borderColor: couleur.degrade ? (couleur.bordure || couleur.texte) : couleur.fond }}
       role="link"
       tabIndex={0}
       onClick={() => router.push(`/centre/${centre.id}`)}
