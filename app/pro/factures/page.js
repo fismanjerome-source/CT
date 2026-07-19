@@ -42,6 +42,7 @@ function ProFacturesPageInner() {
         <nav>
           <Link href="/pro/dashboard">Tableau de bord</Link>
           <Link href="/pro/factures" className="active">Mes factures</Link>
+          <Link href="/pro/parametres">Paramètres</Link>
           <Link href="/pro/contact">Contact Créneau CT</Link>
         </nav>
       </aside>

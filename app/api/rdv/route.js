@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { db, get, ensureSchema } from '@/lib/db';
-import { generateReference, jsonError, calculerTauxCommission } from '@/lib/utils';
+import { generateReference, jsonError } from '@/lib/utils';
+import { calculerTauxCommissionEffectif } from '@/lib/facturation';
+import { envoyerEmail } from '@/lib/email';
+import { emailConfirmationReservation } from '@/lib/emails/templates';
+import { genererICSRendezVous } from '@/lib/ics';
+import { envoyerNotificationTelegram } from '@/lib/telegram';
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
@@ -28,7 +33,7 @@ export async function POST(request) {
   const prixPaye = prixInitial != null && creneau.promo_pourcentage
     ? Math.round(prixInitial * (1 - creneau.promo_pourcentage / 100) * 100) / 100
     : prixInitial;
-  const commissionPourcentage = calculerTauxCommission(creneau.date);
+  const commissionPourcentage = await calculerTauxCommissionEffectif(creneau.centre_id, creneau.date);
   const commissionMontant = prixPaye != null ? Math.round(prixPaye * commissionPourcentage) / 100 : null;
 
   const tx = await db.transaction('write');
@@ -53,6 +58,33 @@ export async function POST(request) {
   }
 
   const centre = await get('SELECT nom, adresse, ville FROM centres WHERE id = ?', [creneau.centre_id]);
+
+  const dateLisible = new Date(creneau.date + 'T00:00:00').toLocaleDateString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+  const adresseComplete = `${centre.adresse}, ${centre.ville}`;
+
+  const { subject, html } = emailConfirmationReservation({
+    clientNom: client_nom, centreNom: centre.nom, adresse: adresseComplete,
+    dateLisible, heure: creneau.heure, reference,
+  });
+  const icsBase64 = genererICSRendezVous({
+    titre: `Contrôle technique — ${centre.nom}`,
+    description: `Rendez-vous de contrôle technique chez ${centre.nom}. Référence : ${reference}. Pensez à votre carte grise et à arriver 10 minutes en avance.`,
+    lieu: adresseComplete,
+    dateStr: creneau.date,
+    heureStr: creneau.heure,
+    dureeMinutes: creneau.duree_minutes || 30,
+  });
+  envoyerEmail({
+    to: client_email,
+    subject,
+    html,
+    attachments: [{ filename: 'rendez-vous-controle-technique.ics', content: icsBase64 }],
+  }).catch(() => {});
+  envoyerNotificationTelegram(
+    `📅 <b>Nouvelle réservation client</b>\nCentre : ${centre.nom}\nDate : ${creneau.date} à ${creneau.heure}\nClient : ${client_nom}\nRéférence : ${reference}`
+  ).catch(() => {});
 
   return NextResponse.json(
     { rdv: { reference, date: creneau.date, heure: creneau.heure, centre } },

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
+import AlertePaiements from '../../components/AlertePaiements';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -37,8 +38,11 @@ export default function AdminDashboardPage() {
         <div className="brand"><Logo /> Espace admin</div>
         <nav>
           <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
+          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
+          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
           <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
           <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
+          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
           <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
@@ -50,6 +54,7 @@ export default function AdminDashboardPage() {
 
       <main className="pro-main">
         <h1>Commissions dues par les centres</h1>
+        <AlertePaiements />
         <p className="help-text">
           Calculées automatiquement à la réservation : 30% si le RDV est pris dans les 7 jours, 25% entre 7 et 14 jours,
           20% au-delà — appliqué sur le prix renseigné par chaque centre.

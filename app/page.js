@@ -244,6 +244,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="stats-public">
+        <div className="container">
+          <div className="eyebrow">Le contrôle technique en France</div>
+          <h2>Une obligation prise au sérieux, partout en France</h2>
+          <div className="stats-public-grid">
+            <div className="stat-public-card">
+              <span className="stat-public-value">27,6 M</span>
+              <span className="stat-public-label">contrôles techniques réalisés en 2025</span>
+            </div>
+            <div className="stat-public-card">
+              <span className="stat-public-value">18,58 %</span>
+              <span className="stat-public-label">de véhicules recalés pour défaillance majeure — près d'1 sur 5</span>
+            </div>
+            <div className="stat-public-card">
+              <span className="stat-public-value">6 700</span>
+              <span className="stat-public-label">centres de contrôle technique agréés en France</span>
+            </div>
+            <div className="stat-public-card">
+              <span className="stat-public-value">13 329</span>
+              <span className="stat-public-label">contrôleurs agréés sur tout le territoire</span>
+            </div>
+          </div>
+          <p className="help-text" style={{ marginTop: 16 }}>
+            Sources : bilans annuels de l'UTAC-OTC (Organisme Technique Central), 2022-2025.
+          </p>
+        </div>
+      </section>
+
       <Footer />
     </>
   );

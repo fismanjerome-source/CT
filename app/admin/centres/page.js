@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
+import AlertePaiements from '../../components/AlertePaiements';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 export default function AdminCentresPage() {
@@ -12,6 +13,8 @@ export default function AdminCentresPage() {
   const [centres, setCentres] = useState(null);
   const [stats, setStats] = useState(null);
   const [erreur, setErreur] = useState(null);
+  const [reinitEnCours, setReinitEnCours] = useState(null);
+  const [reinitResultat, setReinitResultat] = useState(null);
   const [icalInputs, setIcalInputs] = useState({});
   const [statutParCentre, setStatutParCentre] = useState({}); // { [id]: { enCours, message, type } }
 
@@ -30,6 +33,22 @@ export default function AdminCentresPage() {
       setIcalInputs(Object.fromEntries(centresJson.centres.map((c) => [c.id, c.ical_url || ''])));
     } catch {
       setErreur('Erreur réseau. Réessayez.');
+    }
+  }
+
+  async function reinitialiserMotDePasse(gerantId) {
+    if (!confirm('Générer un nouveau mot de passe temporaire pour ce compte ? L\'ancien ne fonctionnera plus.')) return;
+    setReinitEnCours(gerantId);
+    setReinitResultat(null);
+    try {
+      const res = await fetch(`/api/admin/controleurs/${gerantId}/reinitialiser-mdp`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { setErreur(data.erreur); return; }
+      setReinitResultat(data);
+    } catch {
+      setErreur('Erreur réseau. Réessayez.');
+    } finally {
+      setReinitEnCours(null);
     }
   }
 
@@ -80,8 +99,11 @@ export default function AdminCentresPage() {
         <div className="brand"><Logo /> Espace admin</div>
         <nav>
           <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
+          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
+          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
           <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
           <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
+          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
           <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
@@ -93,9 +115,18 @@ export default function AdminCentresPage() {
 
       <main className="pro-main">
         <h1>Centres & utilisateurs</h1>
+        <AlertePaiements />
         <p className="help-text">Tous les centres inscrits sur la plateforme, avec les coordonnées de leur gérant.</p>
 
         {erreur && <div className="message-banner error" style={{ marginTop: 16 }}>{erreur}</div>}
+
+        {reinitResultat && (
+          <div className="message-banner success" style={{ marginTop: 16 }}>
+            Nouveau mot de passe pour <strong>{reinitResultat.email}</strong> :{' '}
+            <span className="mono" style={{ fontWeight: 700, fontSize: '1.05rem' }}>{reinitResultat.nouveau_mot_de_passe}</span>
+            <br />Communiquez-le au gérant maintenant — il ne sera plus jamais affiché après avoir quitté cette page.
+          </div>
+        )}
 
         {stats && (
           <div className="stats-grid" style={{ marginTop: 20 }}>
@@ -148,6 +179,7 @@ export default function AdminCentresPage() {
                     <th>Créneaux dispo.</th>
                     <th>Réservés</th>
                     <th>Bloqués (agenda)</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -164,6 +196,19 @@ export default function AdminCentresPage() {
                       <td className="mono">{c.creneaux_disponibles}</td>
                       <td className="mono">{c.creneaux_reserves}</td>
                       <td className="mono">{c.creneaux_bloques}</td>
+                      <td>
+                        {c.gerant_id && (
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            style={{ whiteSpace: 'nowrap' }}
+                            onClick={() => reinitialiserMotDePasse(c.gerant_id)}
+                            disabled={reinitEnCours === c.gerant_id}
+                          >
+                            {reinitEnCours === c.gerant_id ? '…' : 'Réinitialiser mdp'}
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

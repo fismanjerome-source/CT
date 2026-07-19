@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
+import AlertePaiements from '../../components/AlertePaiements';
 
 function formatDate(dateStr) {
   const d = new Date(dateStr);
@@ -46,14 +47,18 @@ export default function AdminContactsPage() {
         <div className="brand"><Logo /> Espace admin</div>
         <nav>
           <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
+          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
+          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
           <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
           <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
+          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
           <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
         </nav>
       </aside>
 
       <main className="pro-main">
         <h1>Demandes de contact</h1>
+        <AlertePaiements />
         <p className="help-text">Centres intéressés ayant rempli le formulaire de la page Contact.</p>
 
         {erreur && <div className="message-banner error" style={{ marginTop: 16 }}>{erreur}</div>}
@@ -68,7 +73,12 @@ export default function AdminContactsPage() {
               <div key={c.id} className="card">
                 <div className="card-header">
                   <div>
-                    <h2 style={{ margin: 0 }}>{c.nom}</h2>
+                    <h2 style={{ margin: 0 }}>
+                      {c.nom}
+                      {c.type === 'reinitialisation_mdp' && (
+                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle' }}>🔑 Mot de passe oublié</span>
+                      )}
+                    </h2>
                     <p className="help-text" style={{ margin: 0 }}>
                       {c.nom_centre && <>{c.nom_centre} · </>}
                       {c.email}{c.telephone && ` · ${c.telephone}`}
@@ -79,6 +89,9 @@ export default function AdminContactsPage() {
                   </span>
                 </div>
                 <p>{c.message}</p>
+                {c.type === 'reinitialisation_mdp' && (
+                  <p className="help-text">Réinitialisez ce compte depuis l'onglet <Link href="/admin/centres">Centres & utilisateurs</Link>.</p>
+                )}
                 <p className="help-text mono">{formatDate(c.created_at)}</p>
                 <button className="btn-secondary" onClick={() => marquerTraite(c.id, c.statut)}>
                   {c.statut === 'traite' ? 'Marquer comme nouveau' : 'Marquer comme traité'}

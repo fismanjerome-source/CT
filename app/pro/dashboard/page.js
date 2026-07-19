@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Logo from '../../components/Logo';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
+import { couleurEnseigne } from '@/lib/enseignes';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -43,7 +44,10 @@ function DashboardPageInner() {
 
   const [comblerForm, setComblerForm] = useState({
     date_debut: todayISO(), date_fin: todayISO(6),
-    heure_debut: '09:00', heure_fin: '12:00',
+    journeeContinue: false,
+    heure_debut_matin: '09:00', heure_fin_matin: '12:00',
+    heure_debut_apresmidi: '14:00', heure_fin_apresmidi: '18:00',
+    heure_debut_continue: '09:00', heure_fin_continue: '18:00',
     intervalle_minutes: 30, duree_minutes: 30, prix: '', promo_pourcentage: '', types_vehicules: [],
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
@@ -52,6 +56,12 @@ function DashboardPageInner() {
   const [singleEnvoi, setSingleEnvoi] = useState(false);
 
   const [typesVehiculesCentre, setTypesVehiculesCentre] = useState([]);
+  const [statutPaiement, setStatutPaiement] = useState(null);
+  const [promotionActive, setPromotionActive] = useState(null);
+  const [editionCentre, setEditionCentre] = useState(false);
+  const [centreForm, setCentreForm] = useState(null);
+  const [centreEnvoi, setCentreEnvoi] = useState(false);
+  const [centreErreur, setCentreErreur] = useState(null);
   const [typesVehiculesEnvoi, setTypesVehiculesEnvoi] = useState(false);
   const [semaineOffset, setSemaineOffset] = useState(0);
   const [imagePreview, setImagePreview] = useState(null); // { data, mime } en attente d'enregistrement
@@ -98,6 +108,8 @@ function DashboardPageInner() {
     if (centre) {
       chargerPlanning();
       chargerRdvs();
+      api(`/api/pro/statut-paiement?centre=${centre.id}`).then(setStatutPaiement).catch(() => {});
+      api(`/api/pro/promotion-active?centre=${centre.id}`).then((d) => setPromotionActive(d.promotion)).catch(() => {});
     }
   }, [centre, chargerPlanning, chargerRdvs]);
 
@@ -169,6 +181,35 @@ function DashboardPageInner() {
     }
   }
 
+  function ouvrirEditionCentre() {
+    setCentreForm({
+      nom: centre.nom, adresse: centre.adresse, code_postal: centre.code_postal,
+      ville: centre.ville, telephone: centre.telephone || '',
+    });
+    setCentreErreur(null);
+    setEditionCentre(true);
+  }
+
+  async function handleSaveCentre(e) {
+    e.preventDefault();
+    setCentreEnvoi(true);
+    setCentreErreur(null);
+    try {
+      await api('/api/pro/centre', {
+        method: 'PATCH',
+        body: JSON.stringify({ ...centreForm, centre_id: centre.id }),
+      });
+      setEditionCentre(false);
+      setMessage({ type: 'success', text: 'Informations du centre mises à jour.' });
+      const { centre: centreMisAJour } = await api(`/api/pro/me?centre=${centre.id}`);
+      setCentre(centreMisAJour);
+    } catch (e) {
+      setCentreErreur(e.message);
+    } finally {
+      setCentreEnvoi(false);
+    }
+  }
+
   async function handleSaveTypesVehicules() {
     setTypesVehiculesEnvoi(true);
     try {
@@ -188,14 +229,23 @@ function DashboardPageInner() {
     e.preventDefault();
     setComblerEnvoi(true);
     try {
+      const plages = comblerForm.journeeContinue
+        ? [{ heure_debut: comblerForm.heure_debut_continue, heure_fin: comblerForm.heure_fin_continue }]
+        : [
+            { heure_debut: comblerForm.heure_debut_matin, heure_fin: comblerForm.heure_fin_matin },
+            { heure_debut: comblerForm.heure_debut_apresmidi, heure_fin: comblerForm.heure_fin_apresmidi },
+          ];
       const data = await api('/api/pro/creneaux/combler-vides', {
         method: 'POST',
         body: JSON.stringify({
-          ...comblerForm,
+          date_debut: comblerForm.date_debut,
+          date_fin: comblerForm.date_fin,
+          plages,
           intervalle_minutes: Number(comblerForm.intervalle_minutes),
           duree_minutes: Number(comblerForm.duree_minutes),
           prix: Number(comblerForm.prix),
           promo_pourcentage: comblerForm.promo_pourcentage ? Number(comblerForm.promo_pourcentage) : null,
+          types_vehicules: comblerForm.types_vehicules,
           centre_id: centre.id,
         }),
       });
@@ -278,6 +328,7 @@ function DashboardPageInner() {
           <a href="#rdv">Mes rendez-vous</a>
           <Link href={`/pro/factures?centre=${centre.id}`}>Mes factures</Link>
           <Link href="/pro/centres">Mes centres</Link>
+          <Link href="/pro/parametres">Paramètres</Link>
           <Link href="/pro/contact">Contact Créneau CT</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
@@ -289,8 +340,104 @@ function DashboardPageInner() {
       </aside>
 
       <main className="pro-main">
-        <h1>{centre.nom}</h1>
-        <p className="help-text">{centre.adresse}, {centre.code_postal} {centre.ville}</p>
+        {(() => {
+          const couleur = couleurEnseigne(centre.enseigne);
+          const styleBouton = couleur.degrade
+            ? { background: couleur.degrade, color: couleur.texte, border: `1px solid ${couleur.bordure || 'transparent'}` }
+            : { background: couleur.fond, color: couleur.texte, border: '1px solid transparent' };
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <h1 style={{ margin: 0 }}>{centre.nom}</h1>
+              {!editionCentre && (
+                <button type="button" style={{ ...styleBouton, borderRadius: 20, padding: '6px 14px', fontSize: '0.8rem' }} onClick={ouvrirEditionCentre}>
+                  Modifier
+                </button>
+              )}
+            </div>
+          );
+        })()}
+
+        {editionCentre ? (
+          <form onSubmit={handleSaveCentre} className="card" style={{ marginTop: 12, maxWidth: 480 }}>
+            {centreErreur && <div className="message-banner error">{centreErreur}</div>}
+            <div className="form-row">
+              <label htmlFor="centre_nom">Nom du centre</label>
+              <input id="centre_nom" type="text" required value={centreForm.nom}
+                onChange={(e) => setCentreForm({ ...centreForm, nom: e.target.value })} />
+            </div>
+            <div className="form-row">
+              <label htmlFor="centre_adresse">Adresse</label>
+              <input id="centre_adresse" type="text" required value={centreForm.adresse}
+                onChange={(e) => setCentreForm({ ...centreForm, adresse: e.target.value })} />
+            </div>
+            <div className="grid-2">
+              <div className="form-row">
+                <label htmlFor="centre_cp">Code postal</label>
+                <input id="centre_cp" type="text" required maxLength={5} value={centreForm.code_postal}
+                  onChange={(e) => setCentreForm({ ...centreForm, code_postal: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="centre_ville">Ville</label>
+                <input id="centre_ville" type="text" required value={centreForm.ville}
+                  onChange={(e) => setCentreForm({ ...centreForm, ville: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-row">
+              <label htmlFor="centre_telephone">Téléphone</label>
+              <input id="centre_telephone" type="tel" value={centreForm.telephone}
+                onChange={(e) => setCentreForm({ ...centreForm, telephone: e.target.value })} />
+            </div>
+            <p className="help-text">La position sur la carte (Google Maps, « près de chez moi ») sera automatiquement mise à jour.</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button type="submit" disabled={centreEnvoi}>{centreEnvoi ? 'Enregistrement…' : 'Enregistrer'}</button>
+              <button type="button" className="btn-secondary" onClick={() => setEditionCentre(false)}>Annuler</button>
+            </div>
+          </form>
+        ) : (
+          <p className="help-text">{centre.adresse}, {centre.code_postal} {centre.ville}</p>
+        )}
+
+        {statutPaiement && (
+          <div className={`paiements-banner ${statutPaiement.bloque ? 'alerte' : 'ok'}`} style={{ marginTop: 16 }}>
+            <div>
+              {statutPaiement.bloque ? (
+                <>
+                  <strong>Ouverture de créneaux bloquée</strong> — commission en retard de paiement
+                  {statutPaiement.retards.map((r) => (
+                    <span key={r.mois} className="mono" style={{ display: 'block', marginTop: 4 }}>
+                      {r.montant.toFixed(2)} € dus depuis le {new Date(r.date_limite).toLocaleDateString('fr-FR')}
+                    </span>
+                  ))}
+                  <span className="help-text" style={{ display: 'block', marginTop: 6 }}>
+                    Contactez-nous depuis l'onglet « Contact Créneau CT » pour régulariser.
+                  </span>
+                </>
+              ) : statutPaiement.mois_en_cours.montant > 0 ? (
+                <>
+                  <strong>{statutPaiement.mois_en_cours.montant.toFixed(2)} €</strong> de commission générés ce
+                  mois-ci — à régler avant le 10 du mois suivant.
+                </>
+              ) : (
+                <strong>Aucune commission due pour le moment.</strong>
+              )}
+            </div>
+          </div>
+        )}
+
+        {promotionActive && (
+          <div className="paiements-banner ok" style={{ marginTop: 16, borderColor: 'var(--color-accent)', background: 'var(--color-promo-bg)', color: 'var(--color-promo)' }}>
+            <div>
+              🎉 <strong>Promotion en cours : {promotionActive.nom}</strong>
+              <span className="mono" style={{ display: 'block', marginTop: 4 }}>
+                Taux réduits : {promotionActive.taux_semaine1}% / {promotionActive.taux_semaine2}% / {promotionActive.taux_semaine3}%
+                (au lieu de 30% / 25% / 20%)
+              </span>
+              <span className="help-text" style={{ display: 'block', marginTop: 4, color: 'inherit', opacity: 0.8 }}>
+                Valable jusqu'au {new Date(promotionActive.date_fin).toLocaleDateString('fr-FR')}.
+              </span>
+            </div>
+          </div>
+        )}
 
         {message && (
           <div className={`message-banner ${message.type}`} style={{ marginTop: 16 }}>{message.text}</div>
@@ -410,16 +557,63 @@ function DashboardPageInner() {
                   ))}
                 </div>
               </div>
-              <div className="form-row">
-                <label htmlFor="heure_debut">Heure de début</label>
-                <input id="heure_debut" type="time" required value={comblerForm.heure_debut}
-                  onChange={(e) => setComblerForm({ ...comblerForm, heure_debut: e.target.value })} />
+              <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <span className={`chip-checkbox ${comblerForm.journeeContinue ? 'coche' : ''}`} style={{ border: `1.5px solid var(--color-primary)`, background: comblerForm.journeeContinue ? 'var(--color-primary)' : 'transparent' }}>
+                    {comblerForm.journeeContinue && (
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 12l6 6L20 6" />
+                      </svg>
+                    )}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={comblerForm.journeeContinue}
+                    onChange={(e) => setComblerForm({ ...comblerForm, journeeContinue: e.target.checked })}
+                    style={{ display: 'none' }}
+                  />
+                  Journée continue (pas de pause déjeuner)
+                </label>
               </div>
-              <div className="form-row">
-                <label htmlFor="heure_fin">Heure de fin</label>
-                <input id="heure_fin" type="time" required value={comblerForm.heure_fin}
-                  onChange={(e) => setComblerForm({ ...comblerForm, heure_fin: e.target.value })} />
-              </div>
+
+              {comblerForm.journeeContinue ? (
+                <>
+                  <div className="form-row">
+                    <label htmlFor="heure_debut_continue">Heure de début</label>
+                    <input id="heure_debut_continue" type="time" required value={comblerForm.heure_debut_continue}
+                      onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_continue: e.target.value })} />
+                  </div>
+                  <div className="form-row">
+                    <label htmlFor="heure_fin_continue">Heure de fin</label>
+                    <input id="heure_fin_continue" type="time" required value={comblerForm.heure_fin_continue}
+                      onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_continue: e.target.value })} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="form-row">
+                    <label htmlFor="heure_debut_matin">Heure de début matin</label>
+                    <input id="heure_debut_matin" type="time" required value={comblerForm.heure_debut_matin}
+                      onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_matin: e.target.value })} />
+                  </div>
+                  <div className="form-row">
+                    <label htmlFor="heure_fin_matin">Heure de fin matin</label>
+                    <input id="heure_fin_matin" type="time" required value={comblerForm.heure_fin_matin}
+                      onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_matin: e.target.value })} />
+                  </div>
+                  <div className="form-row">
+                    <label htmlFor="heure_debut_apresmidi">Heure de début après-midi</label>
+                    <input id="heure_debut_apresmidi" type="time" required value={comblerForm.heure_debut_apresmidi}
+                      onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_apresmidi: e.target.value })} />
+                  </div>
+                  <div className="form-row">
+                    <label htmlFor="heure_fin_apresmidi">Heure de fin après-midi</label>
+                    <input id="heure_fin_apresmidi" type="time" required value={comblerForm.heure_fin_apresmidi}
+                      onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_apresmidi: e.target.value })} />
+                  </div>
+                </>
+              )}
+
               <div className="form-row">
                 <label htmlFor="intervalle">Intervalle entre créneaux (min)</label>
                 <select id="intervalle" value={comblerForm.intervalle_minutes}

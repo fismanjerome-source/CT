@@ -62,6 +62,7 @@ export default function ProLoginPage() {
           Compte de démonstration : <span className="mono">karim@autosecurite-bastille.fr</span> / <span className="mono">demo1234</span>
         </p>
         <p className="help-text">Pas encore de compte ? <Link href="/pro/register">Créez votre compte centre</Link></p>
+        <p className="help-text"><Link href="/pro/mot-de-passe-oublie">Mot de passe oublié ?</Link></p>
         <p className="help-text"><Link href="/">← Retour au site public</Link></p>
       </div>
     </div>

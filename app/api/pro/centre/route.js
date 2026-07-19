@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth';
 import { verifierAccesCentre } from '@/lib/pro';
 import { jsonError } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
+import { geocoderAdresse } from '@/lib/geocoding';
 
 const TAILLE_MAX_IMAGE = 1_500_000; // ~1.5 Mo en base64, large marge pour un logo/photo raisonnable
 
@@ -12,10 +13,24 @@ export async function PATCH(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { types_vehicules_acceptes, image_data, image_mime, centre_id } = body;
+  const { types_vehicules_acceptes, image_data, image_mime, centre_id, nom, adresse, code_postal, ville, telephone } = body;
 
   const centreId = await verifierAccesCentre(session.controleurId, centre_id);
   if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
+
+  if (nom !== undefined) {
+    if (!nom || !adresse || !code_postal || !ville) {
+      return jsonError(400, 'Nom, adresse, code postal et ville sont requis.');
+    }
+    await run('UPDATE centres SET nom = ?, adresse = ?, code_postal = ?, ville = ?, telephone = ? WHERE id = ?', [
+      nom, adresse, code_postal, ville, telephone || null, centreId,
+    ]);
+
+    const coords = await geocoderAdresse(adresse, code_postal, ville);
+    if (coords) {
+      await run('UPDATE centres SET latitude = ?, longitude = ? WHERE id = ?', [coords.latitude, coords.longitude, centreId]);
+    }
+  }
 
   if (types_vehicules_acceptes !== undefined) {
     if (!Array.isArray(types_vehicules_acceptes) || types_vehicules_acceptes.length === 0) {

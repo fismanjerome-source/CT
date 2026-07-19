@@ -16,6 +16,7 @@ export default function ProContactPage() {
           <Link href="/pro/dashboard">Tableau de bord</Link>
           <Link href="/pro/centres">Mes centres</Link>
           <Link href="/pro/factures">Mes factures</Link>
+          <Link href="/pro/parametres">Paramètres</Link>
           <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>Contact Créneau CT</Link>
         </nav>
       </aside>

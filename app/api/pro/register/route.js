@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { db, get, ensureSchema } from '@/lib/db';
 import { hashPassword, setSessionCookie } from '@/lib/auth';
 import { jsonError } from '@/lib/utils';
+import { envoyerEmail } from '@/lib/email';
+import { emailBienvenuePro } from '@/lib/emails/templates';
+import { envoyerNotificationTelegram } from '@/lib/telegram';
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
@@ -48,6 +51,15 @@ export async function POST(request) {
   }
 
   await setSessionCookie(controleurId);
+
+  // Email et notification envoyés en tâche de fond, sans jamais bloquer ni
+  // faire échouer la création de compte si l'un des deux service externe
+  // n'est pas configuré ou indisponible.
+  const { subject, html } = emailBienvenuePro({ nom, nomCentre: nom_centre });
+  envoyerEmail({ to: email.toLowerCase(), subject, html }).catch(() => {});
+  envoyerNotificationTelegram(
+    `🏢 <b>Nouveau compte professionnel</b>\nCentre : ${nom_centre}\nGérant : ${nom}\nEmail : ${email.toLowerCase()}\nVille : ${ville}`
+  ).catch(() => {});
 
   return NextResponse.json({ message: 'Compte créé.' }, { status: 201 });
 }

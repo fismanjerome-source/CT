@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { all, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { resoudreCentreActif } from '@/lib/pro';
-import { jsonError, todayISO, calculerTauxCommission } from '@/lib/utils';
+import { jsonError, todayISO } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
+import { centreEstBloque, calculerTauxCommissionEffectif } from '@/lib/facturation';
 
 export async function GET(request) {
   const session = await getSession();
@@ -28,15 +29,18 @@ export async function GET(request) {
   );
 
   // Estimation de la commission à titre indicatif pour le centre, calculée
-  // sur le prix APRÈS l'éventuelle promo qu'il a lui-même choisie.
-  const creneauxAvecEstimation = creneaux.map((c) => {
-    const tauxCommission = calculerTauxCommission(c.date);
-    const prixApresPromo = c.prix != null && c.promo_pourcentage
-      ? c.prix * (1 - c.promo_pourcentage / 100)
-      : c.prix;
-    const commissionEstimee = prixApresPromo != null ? Math.round(prixApresPromo * tauxCommission) / 100 : null;
-    return { ...c, commission_taux_estime: tauxCommission, commission_montant_estime: commissionEstimee };
-  });
+  // sur le prix APRÈS l'éventuelle promo qu'il a lui-même choisie, et en
+  // tenant compte d'une éventuelle promotion Créneau CT active.
+  const creneauxAvecEstimation = await Promise.all(
+    creneaux.map(async (c) => {
+      const tauxCommission = await calculerTauxCommissionEffectif(centreId, c.date);
+      const prixApresPromo = c.prix != null && c.promo_pourcentage
+        ? c.prix * (1 - c.promo_pourcentage / 100)
+        : c.prix;
+      const commissionEstimee = prixApresPromo != null ? Math.round(prixApresPromo * tauxCommission) / 100 : null;
+      return { ...c, commission_taux_estime: tauxCommission, commission_montant_estime: commissionEstimee };
+    })
+  );
 
   return NextResponse.json({ creneaux: creneauxAvecEstimation });
 }
@@ -52,6 +56,10 @@ export async function POST(request) {
 
   const centreId = await resoudreCentreActif(session.controleurId, centre_id);
   if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
+
+  if (await centreEstBloque(centreId)) {
+    return jsonError(403, "Ouverture de créneaux bloquée : une commission Créneau CT est en retard de paiement pour ce centre. Régularisez la situation depuis l'onglet « Paiements » ou contactez-nous.");
+  }
 
   try {
     const result = await run(

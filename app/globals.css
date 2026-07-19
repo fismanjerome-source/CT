@@ -696,6 +696,57 @@ td.mono, .mono { font-family: var(--font-mono); }
   .pro-cta .btn, .pro-cta .btn-secondary { width: 100%; text-align: center; }
 }
 
+.stats-public {
+  padding: 48px 0;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+.stats-public h2 { margin-bottom: 24px; }
+.stats-public-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.stat-public-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 24px 16px;
+  box-shadow: var(--shadow);
+}
+.stat-public-value {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+.stat-public-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.paiements-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  border: 1px solid;
+}
+.paiements-banner.ok { background: var(--color-success-bg); border-color: var(--color-success); color: var(--color-success); }
+.paiements-banner.alerte { background: var(--color-danger-bg); border-color: var(--color-danger); color: var(--color-danger); }
+.paiements-banner .help-text { color: inherit; opacity: 0.75; }
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -853,3 +904,24 @@ td.mono, .mono { font-family: var(--font-mono); }
 .legal-content li { margin-bottom: 6px; }
 .legal-content strong { color: var(--color-text); }
 .legal-content a { color: var(--color-primary); }
+
+.guide-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+.guide-card h2 {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.guide-card p, .guide-card ul { margin-bottom: 0; }
+.guide-card ul { margin-top: 8px; }
+.guide-card.accent-succes { border-left-color: var(--color-success); }
+.guide-card.accent-danger { border-left-color: var(--color-danger); }
+.guide-card.accent-promo { border-left-color: var(--color-promo); }
