@@ -59,7 +59,7 @@ function DashboardPageInner() {
   const [statutPaiement, setStatutPaiement] = useState(null);
   const [promotionActive, setPromotionActive] = useState(null);
   const [creneauReservation, setCreneauReservation] = useState(null); // créneau en cours de réservation manuelle
-  const [formReservation, setFormReservation] = useState({ nom: '', email: '', telephone: '', immatriculation: '', type_vehicule: '' });
+  const [formReservation, setFormReservation] = useState({ prenom: '', nom: '', email: '', telephone: '', immatriculation: '', type_vehicule: '' });
   const [reservationEnvoi, setReservationEnvoi] = useState(false);
   const [reservationErreur, setReservationErreur] = useState(null);
   const [editionCentre, setEditionCentre] = useState(false);
@@ -187,7 +187,7 @@ function DashboardPageInner() {
 
   function ouvrirReservationManuelle(creneau) {
     setCreneauReservation(creneau);
-    setFormReservation({ nom: '', email: '', telephone: '', immatriculation: '', type_vehicule: typesVehiculesCentre[0] || '' });
+    setFormReservation({ prenom: '', nom: '', email: '', telephone: '', immatriculation: '', type_vehicule: typesVehiculesCentre[0] || '' });
     setReservationErreur(null);
   }
 
@@ -201,6 +201,7 @@ function DashboardPageInner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           creneau_id: creneauReservation.id,
+          client_prenom: formReservation.prenom.trim(),
           client_nom: formReservation.nom.trim(),
           client_email: formReservation.email.trim(),
           client_telephone: formReservation.telephone.trim(),
@@ -210,7 +211,7 @@ function DashboardPageInner() {
       });
       const data = await res.json();
       if (!res.ok) { setReservationErreur(data.erreur); setReservationEnvoi(false); return; }
-      setMessage({ type: 'success', text: `Rendez-vous enregistré pour ${formReservation.nom} — référence ${data.rdv.reference}.` });
+      setMessage({ type: 'success', text: `Rendez-vous enregistré pour ${formReservation.prenom} ${formReservation.nom} — référence ${data.rdv.reference}.` });
       setCreneauReservation(null);
       chargerPlanning();
     } catch {
@@ -365,6 +366,7 @@ function DashboardPageInner() {
           <a href="#combler">Combler des horaires vides</a>
           <a href="#planning">Mon planning</a>
           <a href="#rdv">Mes rendez-vous</a>
+          <Link href="/pro/clients">Mes RDV clients</Link>
           <Link href={`/pro/factures?centre=${centre.id}`}>Mes factures</Link>
           <Link href="/pro/centres">Mes centres</Link>
           <Link href="/pro/parametres">Paramètres</Link>
@@ -899,10 +901,17 @@ function DashboardPageInner() {
               )}
             </div>
             <form onSubmit={handleReservationManuelle}>
-              <div className="form-row">
-                <label htmlFor="resa_nom">Nom du client</label>
-                <input id="resa_nom" type="text" required value={formReservation.nom}
-                  onChange={(e) => setFormReservation({ ...formReservation, nom: e.target.value })} />
+              <div className="grid-2">
+                <div className="form-row">
+                  <label htmlFor="resa_prenom">Prénom du client</label>
+                  <input id="resa_prenom" type="text" required value={formReservation.prenom}
+                    onChange={(e) => setFormReservation({ ...formReservation, prenom: e.target.value })} />
+                </div>
+                <div className="form-row">
+                  <label htmlFor="resa_nom">Nom du client</label>
+                  <input id="resa_nom" type="text" required value={formReservation.nom}
+                    onChange={(e) => setFormReservation({ ...formReservation, nom: e.target.value })} />
+                </div>
               </div>
               <div className="form-row">
                 <label htmlFor="resa_email">Email du client</label>

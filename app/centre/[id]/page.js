@@ -252,6 +252,7 @@ export default function CentrePage({ params }) {
 
 function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onClose, onSuccess }) {
   const [etape, setEtape] = useState('formulaire'); // 'formulaire' | 'recapitulatif'
+  const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [telephone, setTelephone] = useState('');
@@ -279,6 +280,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           creneau_id: creneau.id,
+          client_prenom: prenom.trim(),
           client_nom: nom.trim(),
           client_email: email.trim(),
           client_telephone: telephone.trim(),
@@ -329,6 +331,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
           {recapCreneau}
 
           <div className="card" style={{ marginTop: 4 }}>
+            <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Prénom</span><br /><strong>{prenom}</strong></p>
             <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Nom</span><br /><strong>{nom}</strong></p>
             <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Email</span><br /><strong>{email}</strong></p>
             <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Téléphone</span><br /><strong>{telephone}</strong></p>
@@ -361,9 +364,15 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
         <h2>Réserver ce créneau</h2>
         {recapCreneau}
         <form onSubmit={handlePasserAuRecap}>
-          <div className="form-row">
-            <label htmlFor="client_nom">Nom complet</label>
-            <input id="client_nom" type="text" required value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="name" />
+          <div className="grid-2">
+            <div className="form-row">
+              <label htmlFor="client_prenom">Prénom</label>
+              <input id="client_prenom" type="text" required value={prenom} onChange={(e) => setPrenom(e.target.value)} autoComplete="given-name" />
+            </div>
+            <div className="form-row">
+              <label htmlFor="client_nom">Nom</label>
+              <input id="client_nom" type="text" required value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="family-name" />
+            </div>
           </div>
           <div className="form-row">
             <label htmlFor="client_email">Email</label>

@@ -78,7 +78,7 @@ export async function PATCH(request, { params }) {
   const adresseComplete = `${centre.adresse}, ${centre.ville}`;
 
   const { subject, html } = emailConfirmationReservation({
-    clientNom: rdv.client_nom, centreNom: centre.nom, adresse: adresseComplete,
+    clientNom: `${rdv.client_prenom || ''} ${rdv.client_nom}`.trim(), centreNom: centre.nom, adresse: adresseComplete,
     dateLisible, heure: nouveauCreneau.heure, reference,
   });
   const icsBase64 = genererICSRendezVous({

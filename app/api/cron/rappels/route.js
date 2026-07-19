@@ -21,7 +21,7 @@ export async function GET(request) {
   const demain = todayISO(1);
 
   const rdvsDemain = await all(
-    `SELECT r.id, r.reference, r.client_nom, r.client_email, c.heure, ce.nom AS centre_nom, ce.adresse, ce.ville
+    `SELECT r.id, r.reference, r.client_prenom, r.client_nom, r.client_email, c.heure, ce.nom AS centre_nom, ce.adresse, ce.ville
      FROM rdv r
      JOIN creneaux c ON c.id = r.creneau_id
      JOIN centres ce ON ce.id = c.centre_id
@@ -32,7 +32,7 @@ export async function GET(request) {
   let envoyes = 0;
   for (const rdv of rdvsDemain) {
     const { subject, html } = emailRappelRendezVous({
-      clientNom: rdv.client_nom,
+      clientNom: `${rdv.client_prenom || ''} ${rdv.client_nom}`.trim(),
       centreNom: rdv.centre_nom,
       adresse: `${rdv.adresse}, ${rdv.ville}`,
       heure: rdv.heure,
