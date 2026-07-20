@@ -96,7 +96,7 @@ export async function PATCH(request, { params }) {
     attachments: [{ filename: 'rendez-vous-controle-technique.ics', content: icsBase64 }],
   }).catch(() => {});
   envoyerNotificationTelegram(
-    `🔄 <b>RDV modifié par le client</b>\nCentre : ${centre.nom}\nNouvelle date : ${nouveauCreneau.date} à ${nouveauCreneau.heure}\nRéférence : ${reference}`
+    `🔄 <b>RDV modifié par le client</b>\nCentre : ${centre.nom}\nNouvelle date : ${nouveauCreneau.date} à ${nouveauCreneau.heure}\nRéférence : ${reference}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
   ).catch(() => {});
 
   return NextResponse.json({
