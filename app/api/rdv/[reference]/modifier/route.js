@@ -6,6 +6,7 @@ import { envoyerEmail } from '@/lib/email';
 import { emailConfirmationReservation } from '@/lib/emails/templates';
 import { genererICSRendezVous } from '@/lib/ics';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
+import { libelleType } from '@/lib/vehicules';
 
 export async function PATCH(request, { params }) {
   const { reference } = await params;
@@ -80,6 +81,7 @@ export async function PATCH(request, { params }) {
   const { subject, html } = emailConfirmationReservation({
     clientNom: `${rdv.client_prenom || ''} ${rdv.client_nom}`.trim(), centreNom: centre.nom, adresse: adresseComplete,
     dateLisible, heure: nouveauCreneau.heure, reference,
+    typeVehiculeLabel: rdv.type_vehicule ? libelleType(rdv.type_vehicule) : null,
   });
   const icsBase64 = genererICSRendezVous({
     titre: `Contrôle technique — ${centre.nom}`,
@@ -96,7 +98,7 @@ export async function PATCH(request, { params }) {
     attachments: [{ filename: 'rendez-vous-controle-technique.ics', content: icsBase64 }],
   }).catch(() => {});
   envoyerNotificationTelegram(
-    `🔄 <b>RDV modifié par le client</b>\nCentre : ${centre.nom}\nNouvelle date : ${nouveauCreneau.date} à ${nouveauCreneau.heure}\nRéférence : ${reference}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
+    `🔄 <b>RDV modifié par le client</b>\nCentre : ${centre.nom}\nNouvelle date : ${nouveauCreneau.date} à ${nouveauCreneau.heure}\n🚗 Véhicule : ${rdv.type_vehicule ? libelleType(rdv.type_vehicule) : 'non renseigné'}\nRéférence : ${reference}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
   ).catch(() => {});
 
   return NextResponse.json({

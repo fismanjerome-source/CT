@@ -6,6 +6,7 @@ import { envoyerEmail } from '@/lib/email';
 import { emailConfirmationReservation } from '@/lib/emails/templates';
 import { genererICSRendezVous } from '@/lib/ics';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
+import { libelleType } from '@/lib/vehicules';
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
@@ -68,6 +69,7 @@ export async function POST(request) {
   const { subject, html } = emailConfirmationReservation({
     clientNom: nomComplet, centreNom: centre.nom, adresse: adresseComplete,
     dateLisible, heure: creneau.heure, reference,
+    typeVehiculeLabel: type_vehicule ? libelleType(type_vehicule) : null,
   });
   const icsBase64 = genererICSRendezVous({
     titre: `Contrôle technique — ${centre.nom}`,
@@ -84,7 +86,7 @@ export async function POST(request) {
     attachments: [{ filename: 'rendez-vous-controle-technique.ics', content: icsBase64 }],
   }).catch(() => {});
   envoyerNotificationTelegram(
-    `📅 <b>Nouvelle réservation client</b>\nCentre : ${centre.nom}\nDate : ${creneau.date} à ${creneau.heure}\nClient : ${nomComplet}\nRéférence : ${reference}\nPrix payé : ${prixPaye != null ? `${prixPaye.toFixed(2)} €` : 'non renseigné'}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
+    `📅 <b>Nouvelle réservation client</b>\nCentre : ${centre.nom}\nDate : ${creneau.date} à ${creneau.heure}\nClient : ${nomComplet}\n🚗 Véhicule : ${type_vehicule ? libelleType(type_vehicule) : 'non renseigné'}\nRéférence : ${reference}\nPrix payé : ${prixPaye != null ? `${prixPaye.toFixed(2)} €` : 'non renseigné'}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
   ).catch(() => {});
 
   return NextResponse.json(

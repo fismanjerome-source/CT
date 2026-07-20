@@ -62,6 +62,39 @@
   background: var(--color-surface);
 }
 
+[data-theme="dim"] {
+  --color-bg: #3A414A;
+  --color-surface: #454D57;
+  --color-primary: #6FA8D9;
+  --color-primary-light: #82B6E0;
+  --color-accent: #D9B45A;
+  --color-highlight: #E8825F;
+  --color-text: #EDEFF1;
+  --color-text-muted: #AEB5BC;
+  --color-success: #6FC48A;
+  --color-success-bg: #2E3D34;
+  --color-danger: #E08A76;
+  --color-danger-bg: #3D2E29;
+  --color-promo: #E0A06B;
+  --color-promo-bg: #3D3226;
+  --color-border: #545C66;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="dim"] .centre-card,
+[data-theme="dim"] .search-box,
+[data-theme="dim"] .card,
+[data-theme="dim"] .facture-document,
+[data-theme="dim"] .modal,
+[data-theme="dim"] .login-card {
+  background: var(--color-surface);
+}
+
+[data-theme="dim"] .day-chip,
+[data-theme="dim"] .slot-btn:not(.promo) {
+  background: var(--color-surface);
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -143,6 +176,47 @@ a { color: var(--color-primary); }
   margin-left: 22px;
 }
 .site-header nav a:hover { color: #fff; text-decoration: underline; }
+.nav-mobile { display: none; }
+
+@media (max-width: 720px) {
+  .site-header .container { flex-direction: column; }
+  .brand { align-self: center; }
+  .nav-desktop { display: none; }
+  .nav-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  .nav-mobile-centre {
+    color: #E8ECE6;
+    text-decoration: none;
+    font-size: 0.92rem;
+    text-align: center;
+  }
+  .nav-mobile-centre:hover { color: #fff; text-decoration: underline; }
+  .nav-mobile-colonnes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+  }
+  .nav-mobile-colonnes a {
+    flex: 1;
+    text-align: center;
+    color: #E8ECE6;
+    text-decoration: none;
+    font-size: 0.88rem;
+  }
+  .nav-mobile-colonnes a:hover { color: #fff; text-decoration: underline; }
+  .nav-mobile-separateur {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
 .theme-toggle {
   margin-left: 20px;
   width: 34px;
@@ -214,11 +288,18 @@ a { color: var(--color-primary); }
 .contact-btn-whatsapp { border-color: #25D366; color: #1B8A4C; }
 .contact-btn-whatsapp:hover { background: #25D366; color: #fff; }
 
+.chemins-contact-titre {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+
 .chemins-contact {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  margin-top: 20px;
+  margin-top: 10px;
   max-width: 720px;
 }
 .chemin-carte {
@@ -233,21 +314,33 @@ a { color: var(--color-primary); }
   text-decoration: none;
   color: inherit;
 }
-.chemin-carte-lien { cursor: pointer; transition: border-color 0.15s ease, transform 0.15s ease; }
-.chemin-carte-lien:hover { border-color: var(--color-primary); transform: translateY(-2px); }
 .chemin-icone { font-size: 1.4rem; margin-bottom: 2px; }
 .chemin-carte strong { font-size: 0.95rem; color: var(--color-text); }
 .chemin-carte p { margin: 0; font-size: 0.82rem; color: var(--color-text-muted); line-height: 1.4; }
 .chemin-carte button { margin-top: 6px; width: 100%; font-size: 0.85rem; padding: 8px 10px; }
 .chemin-carte input, .chemin-carte textarea { width: 100%; font-size: 0.85rem; }
+.chemin-lien-principal {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.chemin-lien-principal:hover { text-decoration: underline; }
 .chemin-liens-secondaires {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 0.78rem;
+}
+.chemin-liens-secondaires a {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 8px;
-  font-size: 0.78rem;
   color: var(--color-text-muted);
+  text-decoration: none;
 }
+.chemin-liens-secondaires a:hover { color: var(--color-primary); text-decoration: underline; }
 
 @media (max-width: 720px) {
   .chemins-contact { grid-template-columns: 1fr; }

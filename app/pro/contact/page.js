@@ -38,12 +38,12 @@ export default function ProContactPage() {
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace pro</div>
         <nav>
-          <Link href="/pro/dashboard">Tableau de bord</Link>
-          <Link href="/pro/clients">Mes RDV clients</Link>
-          <Link href="/pro/centres">Mes centres</Link>
-          <Link href="/pro/factures">Mes factures</Link>
-          <Link href="/pro/parametres">Paramètres</Link>
-          <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>Contact Créneau CT</Link>
+          <Link href="/pro/dashboard">📊 Tableau de bord</Link>
+          <Link href="/pro/clients">🚗 Mes RDV clients</Link>
+          <Link href="/pro/centres">🏢 Mes centres</Link>
+          <Link href="/pro/factures">🧾 Mes factures</Link>
+          <Link href="/pro/parametres">⚙️ Paramètres</Link>
+          <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>💬 Contact Créneau CT</Link>
         </nav>
       </aside>
 

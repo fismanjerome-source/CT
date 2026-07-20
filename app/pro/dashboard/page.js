@@ -431,11 +431,11 @@ function DashboardPageInner() {
           <a href="#combler">Combler des horaires vides</a>
           <a href="#planning">Mon planning</a>
           <a href="#rdv">Mes rendez-vous</a>
-          <Link href="/pro/clients">Mes RDV clients</Link>
-          <Link href={`/pro/factures?centre=${centre.id}`}>Mes factures</Link>
-          <Link href="/pro/centres">Mes centres</Link>
-          <Link href="/pro/parametres">Paramètres</Link>
-          <Link href="/pro/contact">Contact Créneau CT</Link>
+          <Link href="/pro/clients">🚗 Mes RDV clients</Link>
+          <Link href={`/pro/factures?centre=${centre.id}`}>🧾 Mes factures</Link>
+          <Link href="/pro/centres">🏢 Mes centres</Link>
+          <Link href="/pro/parametres">⚙️ Paramètres</Link>
+          <Link href="/pro/contact">💬 Contact Créneau CT</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <p style={{ fontSize: '0.85rem', color: '#cfe0d2', marginBottom: 10 }}>{controleur.nom}</p>
@@ -974,18 +974,29 @@ function DashboardPageInner() {
           ) : (
             <div className="table-scroll">
             <table>
-              <thead><tr><th>Date</th><th>Heure</th><th>Client</th><th>Téléphone</th><th>Immatriculation</th><th>Référence</th></tr></thead>
+              <thead><tr><th>Date</th><th>Heure</th><th>Client</th><th>Véhicule</th><th>Téléphone</th><th>Immatriculation</th><th>Référence</th></tr></thead>
               <tbody>
-                {rdvs.map((r) => (
-                  <tr key={r.id}>
-                    <td className="mono">{formatDate(r.date)}</td>
-                    <td className="mono">{r.heure}</td>
-                    <td>{r.client_nom}</td>
-                    <td className="mono">{r.client_telephone}</td>
-                    <td className="mono">{r.immatriculation}</td>
-                    <td className="mono">{r.reference}</td>
-                  </tr>
-                ))}
+                {rdvs.map((r) => {
+                  const typeInfo = TYPES_VEHICULES.find((t) => t.value === r.type_vehicule);
+                  return (
+                    <tr key={r.id}>
+                      <td className="mono">{formatDate(r.date)}</td>
+                      <td className="mono">{r.heure}</td>
+                      <td>{r.client_prenom ? `${r.client_prenom} ${r.client_nom}` : r.client_nom}</td>
+                      <td>
+                        {typeInfo ? (
+                          <span className="vehicule-badge" style={{ background: typeInfo.couleur }}>
+                            <IconeVehicule icone={typeInfo.icone} size={12} color="#fff" />
+                            {typeInfo.label}
+                          </span>
+                        ) : '—'}
+                      </td>
+                      <td className="mono">{r.client_telephone}</td>
+                      <td className="mono">{r.immatriculation}</td>
+                      <td className="mono">{r.reference}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             </div>

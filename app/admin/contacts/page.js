@@ -46,14 +46,14 @@ export default function AdminContactsPage() {
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace admin</div>
         <nav>
-          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
-          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
-          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
-          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>Réserver un RDV</Link>
-          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
-          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
-          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
-          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
+          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>💰 Commissions</Link>
+          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>💳 Paiements</Link>
+          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>🏷️ Promotions</Link>
+          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>📅 Réserver un RDV</Link>
+          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>🧾 Factures</Link>
+          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>🏢 Centres & utilisateurs</Link>
+          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>✉️ Modèles de mails</Link>
+          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>💬 Contacts</Link>
         </nav>
       </aside>
 
@@ -97,7 +97,7 @@ export default function AdminContactsPage() {
                 </div>
                 <p>{c.message}</p>
                 {c.type === 'reinitialisation_mdp' && (
-                  <p className="help-text">Réinitialisez ce compte depuis l'onglet <Link href="/admin/centres">Centres & utilisateurs</Link>.</p>
+                  <p className="help-text">Réinitialisez ce compte depuis l'onglet <Link href="/admin/centres">🏢 Centres & utilisateurs</Link>.</p>
                 )}
                 <p className="help-text mono">{formatDate(c.created_at)}</p>
                 <button className="btn-secondary" onClick={() => marquerTraite(c.id, c.statut)}>

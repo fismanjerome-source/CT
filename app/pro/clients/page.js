@@ -4,6 +4,8 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
+import { IconeVehicule } from '../../components/VehiculeIcons';
+import { TYPES_VEHICULES } from '@/lib/vehicules';
 
 function formatDate(dateStr) {
   return new Date(dateStr + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -12,12 +14,12 @@ function formatDate(dateStr) {
 function SidebarNav({ pathname, centreId }) {
   return (
     <nav>
-      <Link href={centreId ? `/pro/dashboard?centre=${centreId}` : '/pro/dashboard'} className={pathname === '/pro/dashboard' ? 'active' : ''}>Tableau de bord</Link>
-      <Link href="/pro/clients" className={pathname.startsWith('/pro/clients') ? 'active' : ''}>Mes RDV clients</Link>
-      <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}>Mes centres</Link>
-      <Link href={centreId ? `/pro/factures?centre=${centreId}` : '/pro/factures'} className={pathname.startsWith('/pro/factures') ? 'active' : ''}>Mes factures</Link>
-      <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>Paramètres</Link>
-      <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>Contact Créneau CT</Link>
+      <Link href={centreId ? `/pro/dashboard?centre=${centreId}` : '/pro/dashboard'} className={pathname === '/pro/dashboard' ? 'active' : ''}>📊 Tableau de bord</Link>
+      <Link href="/pro/clients" className={pathname.startsWith('/pro/clients') ? 'active' : ''}>🚗 Mes RDV clients</Link>
+      <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}>🏢 Mes centres</Link>
+      <Link href={centreId ? `/pro/factures?centre=${centreId}` : '/pro/factures'} className={pathname.startsWith('/pro/factures') ? 'active' : ''}>🧾 Mes factures</Link>
+      <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>⚙️ Paramètres</Link>
+      <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>💬 Contact Créneau CT</Link>
     </nav>
   );
 }
@@ -101,6 +103,7 @@ function ClientsPageInner() {
                   <th>Heure</th>
                   <th>Prénom</th>
                   <th>Nom</th>
+                  <th>Véhicule</th>
                   <th>Email</th>
                   <th>Téléphone</th>
                   <th>Immatriculation</th>
@@ -108,18 +111,29 @@ function ClientsPageInner() {
                 </tr>
               </thead>
               <tbody>
-                {rdvsFiltres.map((r) => (
-                  <tr key={r.id}>
-                    <td className="mono">{formatDate(r.date)}</td>
-                    <td className="mono">{r.heure}</td>
-                    <td>{r.client_prenom || '—'}</td>
-                    <td>{r.client_nom}</td>
-                    <td className="mono">{r.client_email}</td>
-                    <td className="mono">{r.client_telephone}</td>
-                    <td className="mono">{r.immatriculation}</td>
-                    <td className="mono">{r.reference}</td>
-                  </tr>
-                ))}
+                {rdvsFiltres.map((r) => {
+                  const typeInfo = TYPES_VEHICULES.find((t) => t.value === r.type_vehicule);
+                  return (
+                    <tr key={r.id}>
+                      <td className="mono">{formatDate(r.date)}</td>
+                      <td className="mono">{r.heure}</td>
+                      <td>{r.client_prenom || '—'}</td>
+                      <td>{r.client_nom}</td>
+                      <td>
+                        {typeInfo ? (
+                          <span className="vehicule-badge" style={{ background: typeInfo.couleur }}>
+                            <IconeVehicule icone={typeInfo.icone} size={12} color="#fff" />
+                            {typeInfo.label}
+                          </span>
+                        ) : '—'}
+                      </td>
+                      <td className="mono">{r.client_email}</td>
+                      <td className="mono">{r.client_telephone}</td>
+                      <td className="mono">{r.immatriculation}</td>
+                      <td className="mono">{r.reference}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

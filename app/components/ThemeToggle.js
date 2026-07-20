@@ -19,6 +19,19 @@ function MoonIcon() {
   );
 }
 
+function HalfMoonIcon() {
+  // Représente le mode tamisé : un cercle mi-plein, entre soleil et lune.
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+const THEMES = ['light', 'dim', 'dark'];
+const LABELS = { light: 'mode jour', dim: 'mode tamisé', dark: 'mode nuit' };
+
 export default function ThemeToggle() {
   const [theme, setTheme] = useState(null); // null tant qu'on n'a pas lu la préférence côté client
 
@@ -27,7 +40,8 @@ export default function ThemeToggle() {
   }, []);
 
   function toggle() {
-    const next = theme === 'dark' ? 'light' : 'dark';
+    const indexActuel = THEMES.indexOf(theme);
+    const next = THEMES[(indexActuel + 1) % THEMES.length];
     setTheme(next);
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem('creneau-ct-theme', next); } catch {}
@@ -35,14 +49,17 @@ export default function ThemeToggle() {
 
   if (theme === null) return <span style={{ width: 34, height: 34, display: 'inline-block' }} />;
 
+  const prochain = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === 'dark' ? 'Passer en mode jour' : 'Passer en mode nuit'}
+      aria-label={`Actuellement en ${LABELS[theme]} — passer en ${LABELS[prochain]}`}
+      title={`Passer en ${LABELS[prochain]}`}
       className="theme-toggle"
     >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      {theme === 'light' ? <SunIcon /> : theme === 'dim' ? <HalfMoonIcon /> : <MoonIcon />}
     </button>
   );
 }

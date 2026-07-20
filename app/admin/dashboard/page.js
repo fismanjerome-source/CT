@@ -10,6 +10,7 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
   const [data, setData] = useState(null);
+  const [centreOuvert, setCentreOuvert] = useState(null);
   const [erreur, setErreur] = useState(null);
 
   useEffect(() => {
@@ -37,14 +38,14 @@ export default function AdminDashboardPage() {
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace admin</div>
         <nav>
-          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
-          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
-          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
-          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>Réserver un RDV</Link>
-          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
-          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
-          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
-          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
+          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>💰 Commissions</Link>
+          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>💳 Paiements</Link>
+          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>🏷️ Promotions</Link>
+          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>📅 Réserver un RDV</Link>
+          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>🧾 Factures</Link>
+          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>🏢 Centres & utilisateurs</Link>
+          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>✉️ Modèles de mails</Link>
+          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>💬 Contacts</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <button className="btn-secondary" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }} onClick={logout}>
@@ -84,32 +85,65 @@ export default function AdminDashboardPage() {
               {data.centres.length === 0 ? (
                 <div className="empty-state">Aucun centre pour le moment.</div>
               ) : (
-                <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Centre</th>
-                      <th>Enseigne</th>
-                      <th>Ville</th>
-                      <th>RDV confirmés</th>
-                      <th>Commission due</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.centres.map((c) => (
-                      <tr key={c.centre_id}>
-                        <td>{c.centre_nom}</td>
-                        <td>{c.enseigne || 'Indépendant'}</td>
-                        <td>{c.ville}</td>
-                        <td className="mono">{c.nombre_rdv}</td>
-                        <td className="mono" style={{ fontWeight: 700 }}>
-                          {Number(c.total_commission).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </div>
+                data.centres.map((c) => {
+                  const ouvert = centreOuvert === c.centre_id;
+                  return (
+                    <div key={c.centre_id} style={{ borderTop: '1px solid var(--color-border)', padding: '14px 0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                        <div>
+                          <strong>{c.centre_nom}</strong>
+                          <span className="help-text" style={{ marginLeft: 8 }}>{c.enseigne || 'Indépendant'} · {c.ville}</span>
+                          <div className="help-text">{c.nombre_rdv} RDV confirmé{c.nombre_rdv > 1 ? 's' : ''}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                          <span className="mono" style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--color-primary)' }}>
+                            {Number(c.total_commission).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                          </span>
+                          {c.nombre_rdv > 0 && (
+                            <button
+                              type="button"
+                              className="btn-secondary"
+                              onClick={() => setCentreOuvert(ouvert ? null : c.centre_id)}
+                            >
+                              {ouvert ? 'Masquer le détail' : 'Voir le détail'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {ouvert && (
+                        <div className="table-scroll" style={{ marginTop: 12 }}>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Date</th>
+                                <th>Heure</th>
+                                <th>Référence</th>
+                                <th>Montant TTC</th>
+                                <th>Taux</th>
+                                <th>Commission</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {c.lignes.map((l) => (
+                                <tr key={l.reference}>
+                                  <td className="mono">{new Date(l.date + 'T00:00:00').toLocaleDateString('fr-FR')}</td>
+                                  <td className="mono">{l.heure}</td>
+                                  <td className="mono">{l.reference}</td>
+                                  <td className="mono">{l.prix != null ? `${l.prix.toFixed(2)} €` : '—'}</td>
+                                  <td className="mono">{l.commission_pourcentage}%</td>
+                                  <td className="mono" style={{ fontWeight: 700 }}>
+                                    {l.commission_montant != null ? `${l.commission_montant.toFixed(2)} €` : '—'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           </>

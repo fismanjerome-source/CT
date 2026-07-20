@@ -22,6 +22,21 @@ export async function GET() {
     ORDER BY total_commission DESC
   `);
 
+  // Détail RDV par RDV pour chaque centre concerné, pour la vue détaillée.
+  const parCentreAvecDetail = await Promise.all(
+    parCentre.map(async (c) => {
+      if (c.nombre_rdv === 0) return { ...c, lignes: [] };
+      const lignes = await all(
+        `SELECT r.reference, c.date, c.heure, r.prix, r.commission_pourcentage, r.commission_montant
+         FROM rdv r JOIN creneaux c ON c.id = r.creneau_id
+         WHERE c.centre_id = ? AND r.statut = 'confirme'
+         ORDER BY c.date DESC, c.heure DESC`,
+        [c.centre_id]
+      );
+      return { ...c, lignes };
+    })
+  );
+
   const { total_general } = await get(`
     SELECT COALESCE(SUM(commission_montant), 0) AS total_general
     FROM rdv WHERE statut = 'confirme'
@@ -31,5 +46,5 @@ export async function GET() {
     SELECT COUNT(*) AS nombre_rdv_total FROM rdv WHERE statut = 'confirme'
   `);
 
-  return NextResponse.json({ centres: parCentre, total_general, nombre_rdv_total });
+  return NextResponse.json({ centres: parCentreAvecDetail, total_general, nombre_rdv_total });
 }

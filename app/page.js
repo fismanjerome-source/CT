@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import { IconeVehicule } from './components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
-import { MailIcon, WhatsAppIcon } from './components/ContactIcons';
+import { PhoneIcon, MailIcon, WhatsAppIcon, SmsIcon } from './components/ContactIcons';
 
 function formatDateCourte(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -32,32 +32,6 @@ export default function HomePage() {
   const [rechercheProche, setRechercheProche] = useState(false);
   const [erreurProche, setErreurProche] = useState(null);
   const [resultatProche, setResultatProche] = useState(null);
-
-  const [afficherMessageForm, setAfficherMessageForm] = useState(false);
-  const [messageForm, setMessageForm] = useState({ nom: '', email: '', message: '' });
-  const [messageEnvoi, setMessageEnvoi] = useState(false);
-  const [messageEnvoye, setMessageEnvoye] = useState(false);
-  const [messageErreur, setMessageErreur] = useState(null);
-
-  async function handleEnvoyerMessage(e) {
-    e.preventDefault();
-    setMessageEnvoi(true);
-    setMessageErreur(null);
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...messageForm, type: 'question_client' }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setMessageErreur(data.erreur); setMessageEnvoi(false); return; }
-      setMessageEnvoye(true);
-    } catch {
-      setMessageErreur('Erreur réseau. Réessayez.');
-    } finally {
-      setMessageEnvoi(false);
-    }
-  }
 
   useEffect(() => {
     fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
@@ -133,60 +107,25 @@ export default function HomePage() {
             ça vous arrange — y compris les disponibilités de dernière minute près de chez vous.
           </p>
 
-          <div className="chemins-contact">
-            <div className="chemin-carte">
-              <span className="chemin-icone">📅</span>
-              <strong>Réservez en ligne</strong>
-              <p>Choisissez votre centre et votre créneau juste en dessous, en quelques clics.</p>
-            </div>
-
-            <a href="tel:+33186761234" className="chemin-carte chemin-carte-lien">
-              <span className="chemin-icone">📞</span>
-              <strong>Appelez-nous pour réserver</strong>
-              <p>01 86 76 12 34 — on s'occupe de tout avec vous au téléphone.</p>
-              <span className="chemin-liens-secondaires">
-                <WhatsAppIcon size={14} /> ou WhatsApp
-              </span>
-            </a>
-
-            <div className="chemin-carte">
-              <span className="chemin-icone">💬</span>
-              <strong>Une question ? Écrivez-nous</strong>
-              {!afficherMessageForm ? (
-                <>
-                  <p>Panne, doute, besoin d'aide — on vous répond vite.</p>
-                  <button type="button" className="btn-secondary" onClick={() => setAfficherMessageForm(true)}>
-                    Écrire un message
-                  </button>
-                  <span className="chemin-liens-secondaires">
-                    <MailIcon size={14} /> contact@creneauct.com
-                  </span>
-                </>
-              ) : messageEnvoye ? (
-                <p style={{ color: 'var(--color-success)', fontWeight: 600 }}>✅ Message envoyé, on revient vers vous vite !</p>
-              ) : (
-                <form onSubmit={handleEnvoyerMessage} style={{ width: '100%' }}>
-                  <input
-                    type="text" required placeholder="Votre nom" value={messageForm.nom}
-                    onChange={(e) => setMessageForm({ ...messageForm, nom: e.target.value })}
-                    style={{ marginBottom: 6 }}
-                  />
-                  <input
-                    type="email" required placeholder="Votre email" value={messageForm.email}
-                    onChange={(e) => setMessageForm({ ...messageForm, email: e.target.value })}
-                    style={{ marginBottom: 6 }}
-                  />
-                  <textarea
-                    required rows={3} placeholder="Votre message…" value={messageForm.message}
-                    onChange={(e) => setMessageForm({ ...messageForm, message: e.target.value })}
-                    style={{ marginBottom: 8 }}
-                  />
-                  {messageErreur && <div className="message-banner error" style={{ marginBottom: 8 }}>{messageErreur}</div>}
-                  <button type="submit" disabled={messageEnvoi} style={{ width: '100%' }}>
-                    {messageEnvoi ? 'Envoi…' : 'Envoyer'}
-                  </button>
-                </form>
-              )}
+          <div className="contact-humain">
+            <span className="contact-humain-label">Un RDV pour votre contrôle technique ? Une question ? Un vrai contact, toujours disponible :</span>
+            <div className="contact-humain-boutons">
+              <a href="tel:+33186761234" className="contact-btn">
+                <PhoneIcon size={16} />
+                01 86 76 12 34
+              </a>
+              <a href="sms:+33612345678" className="contact-btn">
+                <SmsIcon size={16} />
+                SMS
+              </a>
+              <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
+                <WhatsAppIcon size={16} />
+                WhatsApp
+              </a>
+              <a href="mailto:contact@creneauct.com" className="contact-btn">
+                <MailIcon size={16} />
+                contact@creneauct.com
+              </a>
             </div>
           </div>
 
@@ -228,11 +167,11 @@ export default function HomePage() {
           <form className="search-box" onSubmit={handleSubmit} style={{ marginTop: 20 }}>
             <div className="field">
               <label htmlFor="ville">Ville</label>
-              <input id="ville" type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="Paris, Montreuil..." />
+              <input id="ville" type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="Lille, Paris, Lyon..." />
             </div>
             <div className="field">
               <label htmlFor="cp">Code postal</label>
-              <input id="cp" type="text" value={cp} onChange={(e) => setCp(e.target.value)} placeholder="75011" maxLength={5} />
+              <input id="cp" type="text" value={cp} onChange={(e) => setCp(e.target.value)} placeholder="59000" maxLength={5} />
             </div>
             <div className="field">
               <label htmlFor="date">Date souhaitée (optionnel)</label>
@@ -247,7 +186,7 @@ export default function HomePage() {
                     <option key={t.value} value={t.value}>{t.label}</option>
                   ))}
                 </optgroup>
-                <optgroup label="Moto">
+                <optgroup label="Moto/scooter">
                   {TYPES_VEHICULES.filter((t) => t.categorie === 'moto').map((t) => (
                     <option key={t.value} value={t.value}>{t.label}</option>
                   ))}

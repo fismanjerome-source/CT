@@ -19,6 +19,7 @@ export default function AdminReserverPage() {
   const pathname = usePathname();
 
   const [centres, setCentres] = useState(null);
+  const [rechercheCentre, setRechercheCentre] = useState('');
   const [centreId, setCentreId] = useState('');
   const [typeVehicule, setTypeVehicule] = useState('');
   const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
@@ -47,6 +48,11 @@ export default function AdminReserverPage() {
   }, [router]);
 
   const centre = centres?.find((c) => String(c.id) === String(centreId));
+  const centresFiltres = centres?.filter((c) => {
+    const q = rechercheCentre.trim().toLowerCase();
+    if (!q) return true;
+    return c.nom.toLowerCase().includes(q) || c.ville.toLowerCase().includes(q);
+  });
   const typesAcceptes = centre ? parseTypes(centre.types_vehicules_acceptes) : [];
 
   useEffect(() => {
@@ -121,14 +127,14 @@ export default function AdminReserverPage() {
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace admin</div>
         <nav>
-          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
-          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
-          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
-          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>Réserver un RDV</Link>
-          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
-          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
-          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
-          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>Contacts</Link>
+          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>💰 Commissions</Link>
+          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>💳 Paiements</Link>
+          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>🏷️ Promotions</Link>
+          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>📅 Réserver un RDV</Link>
+          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>🧾 Factures</Link>
+          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>🏢 Centres & utilisateurs</Link>
+          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>✉️ Modèles de mails</Link>
+          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>💬 Contacts</Link>
         </nav>
       </aside>
 
@@ -144,10 +150,21 @@ export default function AdminReserverPage() {
         {message && <div className={`message-banner ${message.type}`} style={{ marginTop: 16 }}>{message.text}</div>}
 
         <div className="form-row" style={{ maxWidth: 420, marginTop: 20 }}>
-          <label htmlFor="centre">Centre</label>
+          <label htmlFor="recherche_centre">Rechercher un centre (nom ou ville)</label>
+          <input
+            id="recherche_centre"
+            type="text"
+            placeholder="Tapez pour filtrer…"
+            value={rechercheCentre}
+            onChange={(e) => setRechercheCentre(e.target.value)}
+          />
+        </div>
+
+        <div className="form-row" style={{ maxWidth: 420, marginTop: 12 }}>
+          <label htmlFor="centre">Centre {centresFiltres && `(${centresFiltres.length} résultat${centresFiltres.length > 1 ? 's' : ''})`}</label>
           <select id="centre" value={centreId} onChange={(e) => setCentreId(e.target.value)}>
             <option value="">Sélectionner un centre…</option>
-            {centres?.map((c) => (
+            {centresFiltres?.map((c) => (
               <option key={c.id} value={c.id}>{c.nom} — {c.ville}</option>
             ))}
           </select>

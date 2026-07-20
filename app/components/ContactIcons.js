@@ -22,3 +22,12 @@ export function WhatsAppIcon({ size = 16, color = 'currentColor' }) {
     </svg>
   );
 }
+
+export function SmsIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+      <path d="M7 9.5h10M7 13h6" />
+    </svg>
+  );
+}

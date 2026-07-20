@@ -263,7 +263,8 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
   const dateLisible = new Date(dateSelectionnee + 'T00:00:00').toLocaleDateString('fr-FR', {
     weekday: 'long', day: 'numeric', month: 'long',
   });
-  const typeLabel = TYPES_VEHICULES.find((t) => t.value === typeVehicule)?.label || typeVehicule;
+  const typeInfo = TYPES_VEHICULES.find((t) => t.value === typeVehicule);
+  const typeLabel = typeInfo?.label || typeVehicule;
 
   function handlePasserAuRecap(e) {
     e.preventDefault();
@@ -306,7 +307,13 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
   const recapCreneau = (
     <div className="modal-recap">
       <strong>{centre.nom}</strong><br />
-      {dateLisible} à {creneau.heure} · {typeLabel}
+      {dateLisible} à {creneau.heure}
+      {typeInfo && (
+        <span className="vehicule-badge" style={{ background: typeInfo.couleur, marginLeft: 8, verticalAlign: 'middle' }}>
+          <IconeVehicule icone={typeInfo.icone} size={13} color="#fff" />
+          {typeInfo.label}
+        </span>
+      )}
       {creneau.prix != null && (
         <div style={{ marginTop: 6 }}>
           {creneau.promo_pourcentage ? (
@@ -337,6 +344,22 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
             <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Téléphone</span><br /><strong>{telephone}</strong></p>
             <p style={{ margin: 0 }}><span className="help-text">Immatriculation</span><br /><strong>{immatriculation.toUpperCase()}</strong></p>
           </div>
+
+          {typeInfo && (
+            <div className="guide-card" style={{ borderLeftColor: typeInfo.couleur, marginTop: 14 }}>
+              <p style={{ margin: 0 }}>
+                Vous réservez bien un contrôle technique pour :{' '}
+                <span className="vehicule-badge" style={{ background: typeInfo.couleur }}>
+                  <IconeVehicule icone={typeInfo.icone} size={13} color="#fff" />
+                  {typeInfo.label}
+                </span>
+              </p>
+              <p className="help-text" style={{ marginTop: 8, marginBottom: 0 }}>
+                Certains centres ne contrôlent pas toutes les catégories de véhicules — vérifiez bien avant de
+                valider pour éviter un déplacement inutile.
+              </p>
+            </div>
+          )}
 
           <div className="message-banner success" style={{ marginTop: 14 }}>
             📧 Vous allez recevoir un email de confirmation à <strong>{email}</strong>. Vérifiez bien que cette

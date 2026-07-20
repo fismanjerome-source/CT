@@ -49,12 +49,12 @@ export default function ProParametresPage() {
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace pro</div>
         <nav>
-          <Link href="/pro/dashboard">Tableau de bord</Link>
-          <Link href="/pro/clients">Mes RDV clients</Link>
-          <Link href="/pro/centres">Mes centres</Link>
-          <Link href="/pro/factures">Mes factures</Link>
-          <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>Paramètres</Link>
-          <Link href="/pro/contact">Contact Créneau CT</Link>
+          <Link href="/pro/dashboard">📊 Tableau de bord</Link>
+          <Link href="/pro/clients">🚗 Mes RDV clients</Link>
+          <Link href="/pro/centres">🏢 Mes centres</Link>
+          <Link href="/pro/factures">🧾 Mes factures</Link>
+          <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>⚙️ Paramètres</Link>
+          <Link href="/pro/contact">💬 Contact Créneau CT</Link>
         </nav>
       </aside>
 
