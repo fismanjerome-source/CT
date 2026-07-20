@@ -21,7 +21,7 @@ export default function PartenairesPage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">Ils nous font confiance</div>
+          <div className="eyebrow">🤝 Ils nous font confiance</div>
           <h1>Nos partenaires</h1>
           <p className="lead">
             Des acteurs du secteur du contrôle technique qui partagent notre exigence de qualité et de transparence.

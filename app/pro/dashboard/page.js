@@ -66,6 +66,9 @@ function DashboardPageInner() {
   const [centreForm, setCentreForm] = useState(null);
   const [centreEnvoi, setCentreEnvoi] = useState(false);
   const [centreErreur, setCentreErreur] = useState(null);
+  const [icalUrl, setIcalUrl] = useState('');
+  const [agendaEnvoi, setAgendaEnvoi] = useState(false);
+  const [agendaMessage, setAgendaMessage] = useState(null);
   const [typesVehiculesEnvoi, setTypesVehiculesEnvoi] = useState(false);
   const [semaineOffset, setSemaineOffset] = useState(0);
   const [imagePreview, setImagePreview] = useState(null); // { data, mime } en attente d'enregistrement
@@ -101,6 +104,7 @@ function DashboardPageInner() {
         setCentre(centre);
         setMesCentres(mesCentres || []);
         setTypesVehiculesCentre(parseTypes(centre.types_vehicules_acceptes));
+        setIcalUrl(centre.ical_url || '');
       } catch (e) {
         router.push('/pro/login');
       }
@@ -123,7 +127,35 @@ function DashboardPageInner() {
     );
   }
 
-  function handleImageChange(e) {
+  function redimensionnerImage(fichier, dimensionMax = 1200, qualite = 0.82) {
+    return new Promise((resolve, reject) => {
+      const lecteur = new FileReader();
+      lecteur.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > dimensionMax) {
+            height = Math.round((height * dimensionMax) / width);
+            width = dimensionMax;
+          } else if (height > dimensionMax) {
+            width = Math.round((width * dimensionMax) / height);
+            height = dimensionMax;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', qualite));
+        };
+        img.onerror = () => reject(new Error("Impossible de lire cette image."));
+        img.src = e.target.result;
+      };
+      lecteur.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
+      lecteur.readAsDataURL(fichier);
+    });
+  }
+
+  async function handleImageChange(e) {
     const fichier = e.target.files?.[0];
     if (!fichier) return;
     setImageErreur(null);
@@ -132,19 +164,18 @@ function DashboardPageInner() {
       setImageErreur('Merci de choisir un fichier image (JPG, PNG, WebP...).');
       return;
     }
-    if (fichier.size > 1_500_000) {
-      setImageErreur('Image trop volumineuse (1,5 Mo maximum). Choisissez une image plus légère.');
-      return;
-    }
 
-    const lecteur = new FileReader();
-    lecteur.onload = () => {
-      const dataUrl = lecteur.result; // "data:image/png;base64,...."
+    try {
+      // Redimensionnée et compressée automatiquement — n'importe quelle
+      // photo (même une photo brute de téléphone) est acceptée, le fichier
+      // final envoyé au serveur reste toujours léger.
+      const dataUrl = await redimensionnerImage(fichier);
       const [entete, donnees] = dataUrl.split(',');
-      const mime = entete.match(/data:(.*);base64/)?.[1] || fichier.type;
+      const mime = entete.match(/data:(.*);base64/)?.[1] || 'image/jpeg';
       setImagePreview({ data: donnees, mime, apercu: dataUrl });
-    };
-    lecteur.readAsDataURL(fichier);
+    } catch {
+      setImageErreur("Impossible de traiter cette image. Essayez-en une autre.");
+    }
   }
 
   async function handleSaveImage() {
@@ -218,6 +249,39 @@ function DashboardPageInner() {
       setReservationErreur('Erreur réseau. Réessayez.');
     } finally {
       setReservationEnvoi(false);
+    }
+  }
+
+  async function handleSaveAgenda() {
+    setAgendaEnvoi(true);
+    setAgendaMessage(null);
+    try {
+      await api('/api/pro/centre', {
+        method: 'PATCH',
+        body: JSON.stringify({ ical_url: icalUrl, centre_id: centre.id }),
+      });
+      setAgendaMessage({ type: 'success', text: 'Lien agenda enregistré.' });
+    } catch (e) {
+      setAgendaMessage({ type: 'error', text: e.message });
+    } finally {
+      setAgendaEnvoi(false);
+    }
+  }
+
+  async function handleSyncAgenda() {
+    setAgendaEnvoi(true);
+    setAgendaMessage(null);
+    try {
+      const data = await api('/api/pro/centre/sync-agenda', {
+        method: 'POST',
+        body: JSON.stringify({ centre_id: centre.id }),
+      });
+      setAgendaMessage({ type: 'success', text: data.message });
+      chargerPlanning();
+    } catch (e) {
+      setAgendaMessage({ type: 'error', text: e.message });
+    } finally {
+      setAgendaEnvoi(false);
     }
   }
 
@@ -362,6 +426,7 @@ function DashboardPageInner() {
 
         <nav>
           <a href="#image" className="active">Image du centre</a>
+          <a href="#agenda">Mon agenda externe</a>
           <a href="#vehicules">Véhicules acceptés</a>
           <a href="#combler">Combler des horaires vides</a>
           <a href="#planning">Mon planning</a>
@@ -488,7 +553,9 @@ function DashboardPageInner() {
           <div className="card-header"><h2 style={{ margin: 0 }}>Image de mon centre</h2></div>
           <p className="help-text">
             Une photo de votre centre ou le logo de votre enseigne — elle sera mise en avant sur la page d'accueil
-            et partout où votre centre apparaît. Format JPG, PNG ou WebP, 1,5 Mo maximum.
+            et partout où votre centre apparaît. Choisissez la photo que vous voulez (JPG, PNG, WebP...), y compris
+            directement depuis votre téléphone : elle est automatiquement redimensionnée et optimisée à l'envoi,
+            aucune limite de taille à surveiller de votre côté.
           </p>
 
           {imageErreur && <div className="message-banner error">{imageErreur}</div>}
@@ -519,6 +586,43 @@ function DashboardPageInner() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section id="agenda" className="card" style={{ marginTop: 24 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Mon agenda externe</h2></div>
+          <p className="help-text">
+            Collez ici le lien iCal privé de votre agenda (Google Calendar : Paramètres → Intégrer l'agenda →
+            « Adresse secrète au format iCal ». Outlook : Paramètres → Calendrier → Partager → « Publier un
+            calendrier »). La synchronisation bloque automatiquement vos créneaux Créneau CT qui entrent en
+            conflit avec un événement de votre agenda — lecture seule, rien n'est jamais écrit dans votre
+            calendrier.
+          </p>
+
+          {agendaMessage && <div className={`message-banner ${agendaMessage.type}`}>{agendaMessage.text}</div>}
+
+          <div className="form-row">
+            <label htmlFor="ical_url">Lien iCal privé</label>
+            <input
+              id="ical_url"
+              type="url"
+              placeholder="https://calendar.google.com/calendar/ical/.../private-xxxx/basic.ics"
+              value={icalUrl}
+              onChange={(e) => setIcalUrl(e.target.value)}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-secondary" onClick={handleSaveAgenda} disabled={agendaEnvoi}>
+              Enregistrer le lien
+            </button>
+            <button type="button" onClick={handleSyncAgenda} disabled={agendaEnvoi || !centre.ical_url}>
+              {agendaEnvoi ? 'Synchronisation…' : 'Synchroniser maintenant'}
+            </button>
+          </div>
+          <p className="help-text" style={{ marginTop: 10 }}>
+            ✅ Une fois ce lien enregistré, votre agenda est mis à jour automatiquement à intervalles réguliers
+            (toutes les 15 minutes) — aucun risque qu'un créneau déjà pris de votre côté soit proposé en
+            double sur Créneau CT.
+          </p>
         </section>
 
         <section id="vehicules" className="card" style={{ marginTop: 24 }}>

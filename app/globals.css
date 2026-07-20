@@ -214,6 +214,45 @@ a { color: var(--color-primary); }
 .contact-btn-whatsapp { border-color: #25D366; color: #1B8A4C; }
 .contact-btn-whatsapp:hover { background: #25D366; color: #fff; }
 
+.chemins-contact {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+  max-width: 720px;
+}
+.chemin-carte {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+.chemin-carte-lien { cursor: pointer; transition: border-color 0.15s ease, transform 0.15s ease; }
+.chemin-carte-lien:hover { border-color: var(--color-primary); transform: translateY(-2px); }
+.chemin-icone { font-size: 1.4rem; margin-bottom: 2px; }
+.chemin-carte strong { font-size: 0.95rem; color: var(--color-text); }
+.chemin-carte p { margin: 0; font-size: 0.82rem; color: var(--color-text-muted); line-height: 1.4; }
+.chemin-carte button { margin-top: 6px; width: 100%; font-size: 0.85rem; padding: 8px 10px; }
+.chemin-carte input, .chemin-carte textarea { width: 100%; font-size: 0.85rem; }
+.chemin-liens-secondaires {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 720px) {
+  .chemins-contact { grid-template-columns: 1fr; }
+}
+
 /* ---------- Formulaire de recherche ---------- */
 .search-box {
   background: var(--color-surface);
@@ -359,10 +398,15 @@ button:disabled {
 .maps-link:hover { text-decoration: underline; }
 
 /* Tampon de disponibilité — élément signature, évoque le cachet d'un centre agréé */
+.stamps-groupe {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .stamp {
   border: 2px dashed var(--color-accent);
   border-radius: 50%;
-  width: 92px; height: 92px;
+  width: 68px; height: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -371,21 +415,27 @@ button:disabled {
   flex-shrink: 0;
   color: var(--color-accent);
   text-align: center;
-  padding: 4px;
+  padding: 3px;
 }
 .stamp .n {
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1;
 }
 .stamp .label {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.42rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
   margin-top: 2px;
+}
+.stamp-marque {
+  display: block;
+  font-weight: 700;
+  font-size: 0.46rem;
+  letter-spacing: 0.01em;
 }
 .stamp.vide { border-color: var(--color-text-muted); color: var(--color-text-muted); opacity: 0.6; }
 
@@ -573,7 +623,7 @@ button:disabled {
 
 /* ---------- Encart pro (page d'accueil) ---------- */
 .pro-cta {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   padding: 40px 0;
 }
 .pro-cta-inner {
@@ -694,6 +744,7 @@ td.mono, .mono { font-family: var(--font-mono); }
   .pro-main { padding: 16px; }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }
+  .stamps-groupe { align-self: center; }
   .facture-shell { padding: 12px; }
   .facture-document { padding: 20px 16px; }
   .facture-header { flex-direction: column; gap: 14px; align-items: flex-start; }

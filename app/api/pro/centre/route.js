@@ -6,17 +6,22 @@ import { jsonError } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
 import { geocoderAdresse } from '@/lib/geocoding';
 
-const TAILLE_MAX_IMAGE = 1_500_000; // ~1.5 Mo en base64, large marge pour un logo/photo raisonnable
+const TAILLE_MAX_IMAGE = 800_000; // ~800 Ko en base64 : filet de sécurité côté serveur — les images sont
+// normalement déjà redimensionnées et compressées côté navigateur avant l'envoi (~100-300 Ko en pratique).
 
 export async function PATCH(request) {
   const session = await getSession();
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { types_vehicules_acceptes, image_data, image_mime, centre_id, nom, adresse, code_postal, ville, telephone } = body;
+  const { types_vehicules_acceptes, image_data, image_mime, centre_id, nom, adresse, code_postal, ville, telephone, ical_url } = body;
 
   const centreId = await verifierAccesCentre(session.controleurId, centre_id);
   if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
+
+  if (ical_url !== undefined) {
+    await run('UPDATE centres SET ical_url = ? WHERE id = ?', [ical_url ? ical_url.trim() : null, centreId]);
+  }
 
   if (nom !== undefined) {
     if (!nom || !adresse || !code_postal || !ville) {
@@ -44,7 +49,7 @@ export async function PATCH(request) {
 
   if (image_data !== undefined) {
     if (image_data && image_data.length > TAILLE_MAX_IMAGE) {
-      return jsonError(400, 'Image trop volumineuse (1,5 Mo maximum). Choisissez une image plus légère.');
+      return jsonError(400, "Image trop volumineuse après compression. Réessayez avec une autre photo.");
     }
     await run('UPDATE centres SET image_data = ?, image_mime = ? WHERE id = ?', [
       image_data || null,

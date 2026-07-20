@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import { IconeVehicule } from './components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
-import { PhoneIcon, MailIcon, WhatsAppIcon } from './components/ContactIcons';
+import { MailIcon, WhatsAppIcon } from './components/ContactIcons';
 
 function formatDateCourte(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -32,6 +32,32 @@ export default function HomePage() {
   const [rechercheProche, setRechercheProche] = useState(false);
   const [erreurProche, setErreurProche] = useState(null);
   const [resultatProche, setResultatProche] = useState(null);
+
+  const [afficherMessageForm, setAfficherMessageForm] = useState(false);
+  const [messageForm, setMessageForm] = useState({ nom: '', email: '', message: '' });
+  const [messageEnvoi, setMessageEnvoi] = useState(false);
+  const [messageEnvoye, setMessageEnvoye] = useState(false);
+  const [messageErreur, setMessageErreur] = useState(null);
+
+  async function handleEnvoyerMessage(e) {
+    e.preventDefault();
+    setMessageEnvoi(true);
+    setMessageErreur(null);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...messageForm, type: 'question_client' }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setMessageErreur(data.erreur); setMessageEnvoi(false); return; }
+      setMessageEnvoye(true);
+    } catch {
+      setMessageErreur('Erreur réseau. Réessayez.');
+    } finally {
+      setMessageEnvoi(false);
+    }
+  }
 
   useEffect(() => {
     fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
@@ -100,28 +126,67 @@ export default function HomePage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">Réservation en ligne</div>
+          <div className="eyebrow">🚗 Réservation en ligne</div>
           <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
           <p className="lead">
             Créneau CT vous permet de réserver facilement votre contrôle technique, où et quand
             ça vous arrange — y compris les disponibilités de dernière minute près de chez vous.
           </p>
 
-          <div className="contact-humain">
-            <span className="contact-humain-label">Une question ? Un vrai contact, toujours disponible :</span>
-            <div className="contact-humain-boutons">
-              <a href="tel:+33186761234" className="contact-btn">
-                <PhoneIcon size={16} />
-                01 86 76 12 34
-              </a>
-              <a href="mailto:contact@creneauct.com" className="contact-btn">
-                <MailIcon size={16} />
-                contact@creneauct.com
-              </a>
-              <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
-                <WhatsAppIcon size={16} />
-                WhatsApp
-              </a>
+          <div className="chemins-contact">
+            <div className="chemin-carte">
+              <span className="chemin-icone">📅</span>
+              <strong>Réservez en ligne</strong>
+              <p>Choisissez votre centre et votre créneau juste en dessous, en quelques clics.</p>
+            </div>
+
+            <a href="tel:+33186761234" className="chemin-carte chemin-carte-lien">
+              <span className="chemin-icone">📞</span>
+              <strong>Appelez-nous pour réserver</strong>
+              <p>01 86 76 12 34 — on s'occupe de tout avec vous au téléphone.</p>
+              <span className="chemin-liens-secondaires">
+                <WhatsAppIcon size={14} /> ou WhatsApp
+              </span>
+            </a>
+
+            <div className="chemin-carte">
+              <span className="chemin-icone">💬</span>
+              <strong>Une question ? Écrivez-nous</strong>
+              {!afficherMessageForm ? (
+                <>
+                  <p>Panne, doute, besoin d'aide — on vous répond vite.</p>
+                  <button type="button" className="btn-secondary" onClick={() => setAfficherMessageForm(true)}>
+                    Écrire un message
+                  </button>
+                  <span className="chemin-liens-secondaires">
+                    <MailIcon size={14} /> contact@creneauct.com
+                  </span>
+                </>
+              ) : messageEnvoye ? (
+                <p style={{ color: 'var(--color-success)', fontWeight: 600 }}>✅ Message envoyé, on revient vers vous vite !</p>
+              ) : (
+                <form onSubmit={handleEnvoyerMessage} style={{ width: '100%' }}>
+                  <input
+                    type="text" required placeholder="Votre nom" value={messageForm.nom}
+                    onChange={(e) => setMessageForm({ ...messageForm, nom: e.target.value })}
+                    style={{ marginBottom: 6 }}
+                  />
+                  <input
+                    type="email" required placeholder="Votre email" value={messageForm.email}
+                    onChange={(e) => setMessageForm({ ...messageForm, email: e.target.value })}
+                    style={{ marginBottom: 6 }}
+                  />
+                  <textarea
+                    required rows={3} placeholder="Votre message…" value={messageForm.message}
+                    onChange={(e) => setMessageForm({ ...messageForm, message: e.target.value })}
+                    style={{ marginBottom: 8 }}
+                  />
+                  {messageErreur && <div className="message-banner error" style={{ marginBottom: 8 }}>{messageErreur}</div>}
+                  <button type="submit" disabled={messageEnvoi} style={{ width: '100%' }}>
+                    {messageEnvoi ? 'Envoi…' : 'Envoyer'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
 
@@ -129,7 +194,7 @@ export default function HomePage() {
             type="button"
             onClick={trouverProche}
             disabled={rechercheProche}
-            style={{ marginTop: 16, marginBottom: 8 }}
+            style={{ marginTop: 16, marginBottom: 8, background: 'var(--color-highlight)', borderColor: 'var(--color-highlight)' }}
           >
             {rechercheProche ? 'Recherche en cours…' : '📍 Prochain RDV disponible près de chez moi'}
           </button>
@@ -230,7 +295,7 @@ export default function HomePage() {
       <section className="pro-cta">
         <div className="container pro-cta-inner">
           <div>
-            <p className="eyebrow" style={{ color: '#E8ECE6' }}>Vous êtes un centre de contrôle technique ?</p>
+            <p className="eyebrow" style={{ color: '#E8ECE6' }}>🔧 Vous êtes un centre de contrôle technique ?</p>
             <h2 style={{ color: '#fff', margin: '6px 0 8px 0' }}>Comblez vos créneaux vides, sans effort et sans abonnement</h2>
             <p style={{ color: '#cfe0d2', margin: 0, maxWidth: 520 }}>
               Créneau CT connecte votre planning à des automobilistes prêts à réserver dès aujourd'hui. Vous gardez
@@ -250,24 +315,24 @@ export default function HomePage() {
 
       <section className="stats-public">
         <div className="container">
-          <div className="eyebrow">Le contrôle technique en France</div>
+          <div className="eyebrow">📊 Le contrôle technique en France</div>
           <h2>Une obligation prise au sérieux, partout en France</h2>
           <div className="stats-public-grid">
-            <div className="stat-public-card">
-              <span className="stat-public-value">27,6 M</span>
-              <span className="stat-public-label">contrôles techniques réalisés en 2025</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-primary)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-primary)' }}>27,6 M</span>
+              <span className="stat-public-label">🚗 contrôles techniques réalisés en 2025</span>
             </div>
-            <div className="stat-public-card">
-              <span className="stat-public-value">18,58 %</span>
-              <span className="stat-public-label">de véhicules recalés pour défaillance majeure — près d'1 sur 5</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-highlight)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-highlight)' }}>18,58 %</span>
+              <span className="stat-public-label">⚠️ de véhicules recalés pour défaillance majeure — près d'1 sur 5</span>
             </div>
-            <div className="stat-public-card">
-              <span className="stat-public-value">6 700</span>
-              <span className="stat-public-label">centres de contrôle technique agréés en France</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-success)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-success)' }}>6 700</span>
+              <span className="stat-public-label">📍 centres de contrôle technique agréés en France</span>
             </div>
-            <div className="stat-public-card">
-              <span className="stat-public-value">13 329</span>
-              <span className="stat-public-label">contrôleurs agréés sur tout le territoire</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-accent)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-accent)' }}>13 329</span>
+              <span className="stat-public-label">🔧 contrôleurs agréés sur tout le territoire</span>
             </div>
           </div>
           <p className="help-text" style={{ marginTop: 16 }}>
@@ -283,7 +348,6 @@ export default function HomePage() {
 
 function CentreCard({ centre, dateRecherchee }) {
   const router = useRouter();
-  const vide = centre.creneaux_disponibles_7j === 0;
   const couleur = couleurEnseigne(centre.enseigne);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${centre.adresse}, ${centre.code_postal} ${centre.ville}`
@@ -349,9 +413,20 @@ function CentreCard({ centre, dateRecherchee }) {
           ))}
         </div>
       </div>
-      <div className={`stamp ${vide ? 'vide' : ''}`}>
-        <span className="n">{centre.creneaux_disponibles_7j}</span>
-        <span className="label">créneaux<br />sous 7 jours</span>
+      <div className="stamps-groupe">
+        {[
+          { n: centre.creneaux_2j, label: '2 jours' },
+          { n: centre.creneaux_7j, label: '7 jours' },
+          { n: centre.creneaux_14j, label: '14 jours' },
+        ].map((s) => (
+          <div key={s.label} className={`stamp ${s.n === 0 ? 'vide' : ''}`}>
+            <span className="n">{s.n}</span>
+            <span className="label">
+              <span className="stamp-marque">Créneau CT</span>
+              sous {s.label}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

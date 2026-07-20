@@ -101,6 +101,7 @@ export default function AdminCentresPage() {
           <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
           <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
           <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
+          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>Réserver un RDV</Link>
           <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
           <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
           <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
@@ -227,6 +228,11 @@ export default function AdminCentresPage() {
             « Publier un calendrier »). La synchronisation bloque automatiquement les créneaux Créneau CT qui
             entrent en conflit avec un événement de leur agenda — lecture seule, rien n'est jamais écrit dans
             leur calendrier.
+          </p>
+          <p className="help-text">
+            Chaque centre peut aussi renseigner et synchroniser son propre lien directement depuis son tableau
+            de bord (section « Mon agenda externe ») — vous n'avez donc plus besoin de le faire vous-même pour
+            chaque centre, sauf en cas de besoin ponctuel.
           </p>
 
           {!centres ? (

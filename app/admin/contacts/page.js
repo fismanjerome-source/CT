@@ -49,6 +49,7 @@ export default function AdminContactsPage() {
           <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>Commissions</Link>
           <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>Paiements</Link>
           <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>Promotions</Link>
+          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>Réserver un RDV</Link>
           <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>Factures</Link>
           <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>Centres & utilisateurs</Link>
           <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>Modèles de mails</Link>
@@ -77,6 +78,12 @@ export default function AdminContactsPage() {
                       {c.nom}
                       {c.type === 'reinitialisation_mdp' && (
                         <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle' }}>🔑 Mot de passe oublié</span>
+                      )}
+                      {c.type === 'message_pro' && (
+                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle', background: 'var(--color-success-bg)', color: 'var(--color-success)' }}>💬 Message d'un centre</span>
+                      )}
+                      {c.type === 'question_client' && (
+                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle', background: 'var(--color-primary-light)', color: '#fff' }}>❓ Question client</span>
                       )}
                     </h2>
                     <p className="help-text" style={{ margin: 0 }}>
