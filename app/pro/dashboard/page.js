@@ -589,6 +589,11 @@ function DashboardPageInner() {
               {agendaEnvoi ? 'Synchronisation…' : 'Synchroniser maintenant'}
             </button>
           </div>
+          <p className="help-text" style={{ marginTop: 10 }}>
+            ✅ Une fois ce lien enregistré, votre agenda est mis à jour automatiquement à intervalles réguliers
+            (toutes les 15 à 30 minutes) — aucun risque qu'un créneau déjà pris de votre côté soit proposé en
+            double sur Créneau CT.
+          </p>
         </section>
 
         <section id="vehicules" className="card" style={{ marginTop: 24 }}>
