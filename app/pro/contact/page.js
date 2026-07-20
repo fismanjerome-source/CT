@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -7,6 +8,30 @@ import { PhoneIcon, MailIcon, WhatsAppIcon } from '../../components/ContactIcons
 
 export default function ProContactPage() {
   const pathname = usePathname();
+  const [message, setMessage] = useState('');
+  const [envoi, setEnvoi] = useState(false);
+  const [statut, setStatut] = useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setEnvoi(true);
+    setStatut(null);
+    try {
+      const res = await fetch('/api/pro/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatut({ type: 'error', text: data.erreur }); setEnvoi(false); return; }
+      setStatut({ type: 'success', text: data.message });
+      setMessage('');
+    } catch {
+      setStatut({ type: 'error', text: 'Erreur réseau. Réessayez.' });
+    } finally {
+      setEnvoi(false);
+    }
+  }
 
   return (
     <div className="pro-shell">
@@ -46,6 +71,30 @@ export default function ProContactPage() {
             </a>
           </div>
         </div>
+
+        <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Ou écrivez-nous directement</h2></div>
+          <p className="help-text">Votre message nous parvient instantanément — on revient vers vous rapidement.</p>
+
+          {statut && <div className={`message-banner ${statut.type}`}>{statut.text}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-row">
+              <label htmlFor="message">Votre message</label>
+              <textarea
+                id="message"
+                rows={5}
+                required
+                placeholder="Décrivez votre question ou votre problème…"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </div>
+            <button type="submit" disabled={envoi} style={{ width: '100%' }}>
+              {envoi ? 'Envoi…' : 'Envoyer'}
+            </button>
+          </form>
+        </section>
 
         <p className="help-text" style={{ marginTop: 24 }}>
           Vous pouvez aussi consulter notre <Link href="/faq-centres">FAQ dédiée aux centres</Link> — beaucoup de

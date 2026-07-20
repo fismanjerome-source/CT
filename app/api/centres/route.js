@@ -23,13 +23,15 @@ export async function GET(request) {
   }
 
   const debut = todayISO();
-  const fin = todayISO(7);
+  const fin14 = todayISO(14);
+  const fin7 = todayISO(7);
+  const fin2 = todayISO(2);
 
   const result = await Promise.all(
     centres.map(async (c) => {
       const creneauxFenetre = await all(
         `SELECT date, heure, types_vehicules FROM creneaux WHERE centre_id = ? AND statut = 'disponible' AND date BETWEEN ? AND ? ORDER BY date, heure`,
-        [c.id, debut, fin]
+        [c.id, debut, fin14]
       );
       const creneauxApresAujourdhui = await all(
         `SELECT date, heure, types_vehicules FROM creneaux WHERE centre_id = ? AND statut = 'disponible' AND date >= ? ORDER BY date, heure LIMIT 30`,
@@ -40,7 +42,10 @@ export async function GET(request) {
         ? liste.filter((cr) => creneauCompatible(cr.types_vehicules, c.types_vehicules_acceptes, vehiculeSouhaite))
         : liste;
 
-      const n = filtrer(creneauxFenetre).length;
+      const creneauxCompatibles = filtrer(creneauxFenetre);
+      const n2 = creneauxCompatibles.filter((cr) => cr.date <= fin2).length;
+      const n7 = creneauxCompatibles.filter((cr) => cr.date <= fin7).length;
+      const n14 = creneauxCompatibles.length;
       const prochain = filtrer(creneauxApresAujourdhui)[0] || null;
 
       let creneauDateSouhaitee = null;
@@ -55,7 +60,10 @@ export async function GET(request) {
 
       return {
         ...c,
-        creneaux_disponibles_7j: n,
+        creneaux_2j: n2,
+        creneaux_7j: n7,
+        creneaux_14j: n14,
+        creneaux_disponibles_7j: n7, // conservé pour compatibilité
         prochain_creneau: prochain ? { date: prochain.date, heure: prochain.heure } : null,
         creneau_date_souhaitee: creneauDateSouhaitee,
       };

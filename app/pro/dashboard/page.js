@@ -127,7 +127,35 @@ function DashboardPageInner() {
     );
   }
 
-  function handleImageChange(e) {
+  function redimensionnerImage(fichier, dimensionMax = 1200, qualite = 0.82) {
+    return new Promise((resolve, reject) => {
+      const lecteur = new FileReader();
+      lecteur.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > dimensionMax) {
+            height = Math.round((height * dimensionMax) / width);
+            width = dimensionMax;
+          } else if (height > dimensionMax) {
+            width = Math.round((width * dimensionMax) / height);
+            height = dimensionMax;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', qualite));
+        };
+        img.onerror = () => reject(new Error("Impossible de lire cette image."));
+        img.src = e.target.result;
+      };
+      lecteur.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
+      lecteur.readAsDataURL(fichier);
+    });
+  }
+
+  async function handleImageChange(e) {
     const fichier = e.target.files?.[0];
     if (!fichier) return;
     setImageErreur(null);
@@ -136,19 +164,18 @@ function DashboardPageInner() {
       setImageErreur('Merci de choisir un fichier image (JPG, PNG, WebP...).');
       return;
     }
-    if (fichier.size > 1_500_000) {
-      setImageErreur('Image trop volumineuse (1,5 Mo maximum). Choisissez une image plus légère.');
-      return;
-    }
 
-    const lecteur = new FileReader();
-    lecteur.onload = () => {
-      const dataUrl = lecteur.result; // "data:image/png;base64,...."
+    try {
+      // Redimensionnée et compressée automatiquement — n'importe quelle
+      // photo (même une photo brute de téléphone) est acceptée, le fichier
+      // final envoyé au serveur reste toujours léger.
+      const dataUrl = await redimensionnerImage(fichier);
       const [entete, donnees] = dataUrl.split(',');
-      const mime = entete.match(/data:(.*);base64/)?.[1] || fichier.type;
+      const mime = entete.match(/data:(.*);base64/)?.[1] || 'image/jpeg';
       setImagePreview({ data: donnees, mime, apercu: dataUrl });
-    };
-    lecteur.readAsDataURL(fichier);
+    } catch {
+      setImageErreur("Impossible de traiter cette image. Essayez-en une autre.");
+    }
   }
 
   async function handleSaveImage() {
@@ -526,7 +553,9 @@ function DashboardPageInner() {
           <div className="card-header"><h2 style={{ margin: 0 }}>Image de mon centre</h2></div>
           <p className="help-text">
             Une photo de votre centre ou le logo de votre enseigne — elle sera mise en avant sur la page d'accueil
-            et partout où votre centre apparaît. Format JPG, PNG ou WebP, 1,5 Mo maximum.
+            et partout où votre centre apparaît. Choisissez la photo que vous voulez (JPG, PNG, WebP...), y compris
+            directement depuis votre téléphone : elle est automatiquement redimensionnée et optimisée à l'envoi,
+            aucune limite de taille à surveiller de votre côté.
           </p>
 
           {imageErreur && <div className="message-banner error">{imageErreur}</div>}
@@ -591,7 +620,7 @@ function DashboardPageInner() {
           </div>
           <p className="help-text" style={{ marginTop: 10 }}>
             ✅ Une fois ce lien enregistré, votre agenda est mis à jour automatiquement à intervalles réguliers
-            (toutes les 15 à 30 minutes) — aucun risque qu'un créneau déjà pris de votre côté soit proposé en
+            (toutes les 15 minutes) — aucun risque qu'un créneau déjà pris de votre côté soit proposé en
             double sur Créneau CT.
           </p>
         </section>

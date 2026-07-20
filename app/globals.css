@@ -359,10 +359,15 @@ button:disabled {
 .maps-link:hover { text-decoration: underline; }
 
 /* Tampon de disponibilité — élément signature, évoque le cachet d'un centre agréé */
+.stamps-groupe {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .stamp {
   border: 2px dashed var(--color-accent);
   border-radius: 50%;
-  width: 92px; height: 92px;
+  width: 68px; height: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -371,21 +376,27 @@ button:disabled {
   flex-shrink: 0;
   color: var(--color-accent);
   text-align: center;
-  padding: 4px;
+  padding: 3px;
 }
 .stamp .n {
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1;
 }
 .stamp .label {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.42rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
   margin-top: 2px;
+}
+.stamp-marque {
+  display: block;
+  font-weight: 700;
+  font-size: 0.46rem;
+  letter-spacing: 0.01em;
 }
 .stamp.vide { border-color: var(--color-text-muted); color: var(--color-text-muted); opacity: 0.6; }
 
@@ -694,6 +705,7 @@ td.mono, .mono { font-family: var(--font-mono); }
   .pro-main { padding: 16px; }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }
+  .stamps-groupe { align-self: center; }
   .facture-shell { padding: 12px; }
   .facture-document { padding: 20px 16px; }
   .facture-header { flex-direction: column; gap: 14px; align-items: flex-start; }

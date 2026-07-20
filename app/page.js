@@ -283,7 +283,6 @@ export default function HomePage() {
 
 function CentreCard({ centre, dateRecherchee }) {
   const router = useRouter();
-  const vide = centre.creneaux_disponibles_7j === 0;
   const couleur = couleurEnseigne(centre.enseigne);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${centre.adresse}, ${centre.code_postal} ${centre.ville}`
@@ -349,9 +348,20 @@ function CentreCard({ centre, dateRecherchee }) {
           ))}
         </div>
       </div>
-      <div className={`stamp ${vide ? 'vide' : ''}`}>
-        <span className="n">{centre.creneaux_disponibles_7j}</span>
-        <span className="label">créneaux<br />sous 7 jours</span>
+      <div className="stamps-groupe">
+        {[
+          { n: centre.creneaux_2j, label: '2 jours' },
+          { n: centre.creneaux_7j, label: '7 jours' },
+          { n: centre.creneaux_14j, label: '14 jours' },
+        ].map((s) => (
+          <div key={s.label} className={`stamp ${s.n === 0 ? 'vide' : ''}`}>
+            <span className="n">{s.n}</span>
+            <span className="label">
+              <span className="stamp-marque">Créneau CT</span>
+              sous {s.label}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

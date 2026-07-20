@@ -6,7 +6,8 @@ import { jsonError } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
 import { geocoderAdresse } from '@/lib/geocoding';
 
-const TAILLE_MAX_IMAGE = 1_500_000; // ~1.5 Mo en base64, large marge pour un logo/photo raisonnable
+const TAILLE_MAX_IMAGE = 800_000; // ~800 Ko en base64 : filet de sécurité côté serveur — les images sont
+// normalement déjà redimensionnées et compressées côté navigateur avant l'envoi (~100-300 Ko en pratique).
 
 export async function PATCH(request) {
   const session = await getSession();
@@ -48,7 +49,7 @@ export async function PATCH(request) {
 
   if (image_data !== undefined) {
     if (image_data && image_data.length > TAILLE_MAX_IMAGE) {
-      return jsonError(400, 'Image trop volumineuse (1,5 Mo maximum). Choisissez une image plus légère.');
+      return jsonError(400, "Image trop volumineuse après compression. Réessayez avec une autre photo.");
     }
     await run('UPDATE centres SET image_data = ?, image_mime = ? WHERE id = ?', [
       image_data || null,
