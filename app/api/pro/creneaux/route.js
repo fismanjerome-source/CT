@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server';
-import { all, get, run } from '@/lib/db';
+import { all, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError, todayISO } from '@/lib/utils';
+import { serializeTypes } from '@/lib/vehicules';
+import { centreEstBloque, calculerTauxCommissionEffectif } from '@/lib/facturation';
 
 export async function GET(request) {
   const session = await getSession();
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const { searchParams } = new URL(request.url);
+  const centreId = await resoudreCentreActif(session.controleurId, searchParams.get('centre'));
+  if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
+
   const debut = searchParams.get('debut') || todayISO();
   const jours = Number(searchParams.get('jours')) || 14;
   const finDate = new Date(debut + 'T00:00:00');
@@ -17,12 +23,26 @@ export async function GET(request) {
   const creneaux = await all(
     `SELECT c.*, r.reference AS rdv_reference, r.client_nom, r.client_telephone, r.immatriculation
      FROM creneaux c LEFT JOIN rdv r ON r.creneau_id = c.id AND r.statut = 'confirme'
-     WHERE c.controleur_id = ? AND c.date BETWEEN ? AND ?
+     WHERE c.centre_id = ? AND c.date BETWEEN ? AND ?
      ORDER BY c.date, c.heure`,
-    [session.controleurId, debut, fin]
+    [centreId, debut, fin]
   );
 
-  return NextResponse.json({ creneaux });
+  // Estimation de la commission à titre indicatif pour le centre, calculée
+  // sur le prix APRÈS l'éventuelle promo qu'il a lui-même choisie, et en
+  // tenant compte d'une éventuelle promotion Créneau CT active.
+  const creneauxAvecEstimation = await Promise.all(
+    creneaux.map(async (c) => {
+      const tauxCommission = await calculerTauxCommissionEffectif(centreId, c.date);
+      const prixApresPromo = c.prix != null && c.promo_pourcentage
+        ? c.prix * (1 - c.promo_pourcentage / 100)
+        : c.prix;
+      const commissionEstimee = prixApresPromo != null ? Math.round(prixApresPromo * tauxCommission) / 100 : null;
+      return { ...c, commission_taux_estime: tauxCommission, commission_montant_estime: commissionEstimee };
+    })
+  );
+
+  return NextResponse.json({ creneaux: creneauxAvecEstimation });
 }
 
 export async function POST(request) {
@@ -30,15 +50,21 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date, heure, duree_minutes, promo_pourcentage } = body;
+  const { date, heure, duree_minutes, prix, promo_pourcentage, types_vehicules, centre_id } = body;
   if (!date || !heure) return jsonError(400, 'Date et heure requises.');
+  if (!prix || Number(prix) <= 0) return jsonError(400, 'Le prix du contrôle technique est requis.');
 
-  const controleur = await get('SELECT centre_id FROM controleurs WHERE id = ?', [session.controleurId]);
+  const centreId = await resoudreCentreActif(session.controleurId, centre_id);
+  if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
+
+  if (await centreEstBloque(centreId)) {
+    return jsonError(403, "Ouverture de créneaux bloquée : une commission Créneau CT est en retard de paiement pour ce centre. Régularisez la situation depuis l'onglet « Paiements » ou contactez-nous.");
+  }
 
   try {
     const result = await run(
-      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, promo_pourcentage) VALUES (?, ?, ?, ?, ?, 'disponible', ?)`,
-      [controleur.centre_id, session.controleurId, date, heure, duree_minutes || 30, promo_pourcentage || null]
+      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
+      [centreId, session.controleurId, date, heure, duree_minutes || 30, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
     );
     return NextResponse.json({ id: Number(result.lastInsertRowid) }, { status: 201 });
   } catch {

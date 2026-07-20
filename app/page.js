@@ -3,22 +3,46 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Logo from './components/Logo';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import { IconeVehicule } from './components/VehiculeIcons';
+import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
+import { couleurEnseigne } from '@/lib/enseignes';
+import { PhoneIcon, MailIcon, WhatsAppIcon } from './components/ContactIcons';
 
 function formatDateCourte(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+function formatDateLongue(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
 export default function HomePage() {
+  const router = useRouter();
   const [ville, setVille] = useState('');
   const [cp, setCp] = useState('');
+  const [date, setDate] = useState('');
+  const [vehicule, setVehicule] = useState('');
   const [centres, setCentres] = useState(null); // null = chargement initial
+  const [totalRdv, setTotalRdv] = useState(null);
 
-  const rechercher = useCallback(async (villeQ = '', cpQ = '') => {
+  const [rechercheProche, setRechercheProche] = useState(false);
+  const [erreurProche, setErreurProche] = useState(null);
+  const [resultatProche, setResultatProche] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
+  }, []);
+
+  const rechercher = useCallback(async (villeQ = '', cpQ = '', dateQ = '', vehiculeQ = '') => {
     const params = new URLSearchParams();
     if (villeQ) params.set('ville', villeQ);
     if (cpQ) params.set('cp', cpQ);
+    if (dateQ) params.set('date', dateQ);
+    if (vehiculeQ) params.set('vehicule', vehiculeQ);
     try {
       const res = await fetch(`/api/centres?${params.toString()}`);
       const data = await res.json();
@@ -32,23 +56,47 @@ export default function HomePage() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    rechercher(ville.trim(), cp.trim());
+    setResultatProche(null);
+    rechercher(ville.trim(), cp.trim(), date, vehicule);
+  }
+
+  function trouverProche() {
+    setErreurProche(null);
+    setResultatProche(null);
+
+    if (!navigator.geolocation) {
+      setErreurProche("Votre navigateur ne permet pas la géolocalisation. Essayez une recherche par ville.");
+      return;
+    }
+
+    setRechercheProche(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(`/api/centres/proche?lat=${latitude}&lng=${longitude}`);
+          const data = await res.json();
+          if (!res.ok) {
+            setErreurProche(data.erreur);
+            return;
+          }
+          setResultatProche(data);
+        } catch {
+          setErreurProche('Erreur réseau. Réessayez.');
+        } finally {
+          setRechercheProche(false);
+        }
+      },
+      () => {
+        setErreurProche("Impossible d'accéder à votre position — vérifiez que la géolocalisation est autorisée pour ce site.");
+        setRechercheProche(false);
+      }
+    );
   }
 
   return (
     <>
-      <header className="site-header">
-        <div className="container">
-          <Link href="/" className="brand">
-            <Logo />
-            Créneau CT
-          </Link>
-          <nav>
-            <Link href="/suivi">Suivre un RDV</Link>
-            <Link href="/pro/login">Espace professionnel</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <section className="hero">
         <div className="container">
@@ -59,7 +107,60 @@ export default function HomePage() {
             ça vous arrange — y compris les disponibilités de dernière minute près de chez vous.
           </p>
 
-          <form className="search-box" onSubmit={handleSubmit}>
+          <div className="contact-humain">
+            <span className="contact-humain-label">Une question ? Un vrai contact, toujours disponible :</span>
+            <div className="contact-humain-boutons">
+              <a href="tel:+33186761234" className="contact-btn">
+                <PhoneIcon size={16} />
+                01 86 76 12 34
+              </a>
+              <a href="mailto:contact@creneauct.com" className="contact-btn">
+                <MailIcon size={16} />
+                contact@creneauct.com
+              </a>
+              <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
+                <WhatsAppIcon size={16} />
+                WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={trouverProche}
+            disabled={rechercheProche}
+            style={{ marginTop: 16, marginBottom: 8 }}
+          >
+            {rechercheProche ? 'Recherche en cours…' : '📍 Prochain RDV disponible près de chez moi'}
+          </button>
+
+          {erreurProche && <div className="message-banner error" style={{ marginTop: 10, maxWidth: 480 }}>{erreurProche}</div>}
+
+          {resultatProche && (
+            <div className="card" style={{ marginTop: 14, maxWidth: 480, borderLeft: '3px solid var(--color-accent)' }}>
+              <p className="eyebrow" style={{ marginBottom: 6 }}>Le plus proche avec un créneau libre</p>
+              <h3 style={{ margin: '0 0 4px 0' }}>{resultatProche.centre.nom}</h3>
+              <p className="help-text" style={{ margin: '0 0 8px 0' }}>
+                {resultatProche.centre.adresse}, {resultatProche.centre.code_postal} {resultatProche.centre.ville}
+                {' · '}<span className="mono">{resultatProche.centre.distance_km} km</span>
+              </p>
+              <p style={{ margin: '0 0 12px 0' }}>
+                <strong>{formatDateLongue(resultatProche.creneau.date)}</strong> à <strong>{resultatProche.creneau.heure}</strong>
+                {resultatProche.creneau.prix != null && (
+                  <span className="mono" style={{ marginLeft: 8 }}>
+                    {resultatProche.creneau.promo_pourcentage
+                      ? `${(resultatProche.creneau.prix * (1 - resultatProche.creneau.promo_pourcentage / 100)).toFixed(2)}€ TTC`
+                      : `${resultatProche.creneau.prix.toFixed(2)}€ TTC`}
+                  </span>
+                )}
+              </p>
+              <button type="button" onClick={() => router.push(`/centre/${resultatProche.centre.id}`)}>
+                Voir ce créneau
+              </button>
+            </div>
+          )}
+
+          <form className="search-box" onSubmit={handleSubmit} style={{ marginTop: 20 }}>
             <div className="field">
               <label htmlFor="ville">Ville</label>
               <input id="ville" type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="Paris, Montreuil..." />
@@ -68,10 +169,39 @@ export default function HomePage() {
               <label htmlFor="cp">Code postal</label>
               <input id="cp" type="text" value={cp} onChange={(e) => setCp(e.target.value)} placeholder="75011" maxLength={5} />
             </div>
+            <div className="field">
+              <label htmlFor="date">Date souhaitée (optionnel)</label>
+              <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="vehicule">Mon véhicule (optionnel)</label>
+              <select id="vehicule" value={vehicule} onChange={(e) => setVehicule(e.target.value)}>
+                <option value="">Tous véhicules</option>
+                <optgroup label="Voiture">
+                  {TYPES_VEHICULES.filter((t) => t.categorie === 'voiture').map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Moto">
+                  {TYPES_VEHICULES.filter((t) => t.categorie === 'moto').map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
             <div className="field" style={{ flex: 0, alignSelf: 'flex-end' }}>
               <button type="submit">Rechercher</button>
             </div>
           </form>
+
+          {totalRdv > 0 && (
+            <p className="help-text" style={{ marginTop: 14 }}>
+              <span className="mono" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
+                {totalRdv.toLocaleString('fr-FR')}
+              </span>{' '}
+              contrôle{totalRdv > 1 ? 's' : ''} technique{totalRdv > 1 ? 's' : ''} déjà réservé{totalRdv > 1 ? 's' : ''} via Créneau CT
+            </p>
+          )}
         </div>
       </section>
 
@@ -90,25 +220,71 @@ export default function HomePage() {
                   <p>Essayez une autre ville ou un autre code postal.</p>
                 </div>
               ) : (
-                centres.map((c) => <CentreCard key={c.id} centre={c} />)
+                centres.map((c) => <CentreCard key={c.id} centre={c} dateRecherchee={date} />)
               )}
             </>
           )}
         </div>
       </section>
 
-      <footer className="site-footer">
-        <div className="container">
-          Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.
+      <section className="pro-cta">
+        <div className="container pro-cta-inner">
+          <div>
+            <p className="eyebrow" style={{ color: '#E8ECE6' }}>Vous êtes un centre de contrôle technique ?</p>
+            <h2 style={{ color: '#fff', margin: '6px 0 8px 0' }}>Comblez vos créneaux vides, sans effort et sans abonnement</h2>
+            <p style={{ color: '#cfe0d2', margin: 0, maxWidth: 520 }}>
+              Créneau CT connecte votre planning à des automobilistes prêts à réserver dès aujourd'hui. Vous gardez
+              la main sur vos prix, vos disponibilités et vos remises — aucun engagement, aucun abonnement.
+            </p>
+          </div>
+          <div className="pro-cta-boutons">
+            <Link href="/pro/register" className="btn" style={{ background: '#fff', color: 'var(--color-primary)', borderColor: '#fff', whiteSpace: 'nowrap' }}>
+              Créer mon compte centre
+            </Link>
+            <Link href="/contact" className="btn-secondary" style={{ borderColor: 'rgba(255,255,255,0.6)', color: '#fff', whiteSpace: 'nowrap' }}>
+              Une question avant ? Contactez-nous
+            </Link>
+          </div>
         </div>
-      </footer>
+      </section>
+
+      <section className="stats-public">
+        <div className="container">
+          <div className="eyebrow">Le contrôle technique en France</div>
+          <h2>Une obligation prise au sérieux, partout en France</h2>
+          <div className="stats-public-grid">
+            <div className="stat-public-card">
+              <span className="stat-public-value">27,6 M</span>
+              <span className="stat-public-label">contrôles techniques réalisés en 2025</span>
+            </div>
+            <div className="stat-public-card">
+              <span className="stat-public-value">18,58 %</span>
+              <span className="stat-public-label">de véhicules recalés pour défaillance majeure — près d'1 sur 5</span>
+            </div>
+            <div className="stat-public-card">
+              <span className="stat-public-value">6 700</span>
+              <span className="stat-public-label">centres de contrôle technique agréés en France</span>
+            </div>
+            <div className="stat-public-card">
+              <span className="stat-public-value">13 329</span>
+              <span className="stat-public-label">contrôleurs agréés sur tout le territoire</span>
+            </div>
+          </div>
+          <p className="help-text" style={{ marginTop: 16 }}>
+            Sources : bilans annuels de l'UTAC-OTC (Organisme Technique Central), 2022-2025.
+          </p>
+        </div>
+      </section>
+
+      <Footer />
     </>
   );
 }
 
-function CentreCard({ centre }) {
+function CentreCard({ centre, dateRecherchee }) {
   const router = useRouter();
   const vide = centre.creneaux_disponibles_7j === 0;
+  const couleur = couleurEnseigne(centre.enseigne);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${centre.adresse}, ${centre.code_postal} ${centre.ville}`
   )}`;
@@ -116,16 +292,28 @@ function CentreCard({ centre }) {
   return (
     <div
       className="centre-card"
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', borderColor: couleur.degrade ? (couleur.bordure || couleur.texte) : couleur.fond }}
       role="link"
       tabIndex={0}
       onClick={() => router.push(`/centre/${centre.id}`)}
       onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/centre/${centre.id}`); }}
     >
+      {centre.image_data && (
+        <div className="centre-card-image">
+          <img src={`data:${centre.image_mime};base64,${centre.image_data}`} alt={centre.nom} />
+        </div>
+      )}
       <div className="infos">
         <div className="centre-title-row">
           <h3 style={{ margin: 0 }}>{centre.nom}</h3>
-          <span className={`enseigne-badge ${centre.enseigne ? '' : 'independant'}`}>
+          <span
+            className="enseigne-badge"
+            style={
+              couleur.degrade
+                ? { background: couleur.degrade, color: couleur.texte, border: `1px solid ${couleur.bordure || 'transparent'}` }
+                : { background: couleur.fond, color: couleur.texte, border: '1px solid transparent' }
+            }
+          >
             {centre.enseigne || 'Centre indépendant'}
           </span>
         </div>
@@ -137,11 +325,29 @@ function CentreCard({ centre }) {
           </a>
         </div>
         {centre.telephone && <div className="tel">{centre.telephone}</div>}
-        <p className="help-text" style={{ marginTop: 8 }}>
-          {centre.prochain_creneau
-            ? `Prochain créneau : ${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}`
-            : 'Aucun créneau dans les 7 prochains jours'}
-        </p>
+
+        {dateRecherchee ? (
+          <p className="help-text" style={{ marginTop: 8 }}>
+            {centre.creneau_date_souhaitee
+              ? <>✅ Créneau disponible le {formatDateCourte(dateRecherchee)} à <strong>{centre.creneau_date_souhaitee.heure}</strong></>
+              : <>Pas de créneau ce jour-là — prochain disponible : {centre.prochain_creneau ? `${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}` : 'aucun sous 7 jours'}</>}
+          </p>
+        ) : (
+          <p className="help-text" style={{ marginTop: 8 }}>
+            {centre.prochain_creneau
+              ? `Prochain créneau : ${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}`
+              : 'Aucun créneau dans les 7 prochains jours'}
+          </p>
+        )}
+
+        <div className="vehicule-badges">
+          {TYPES_VEHICULES.filter((t) => parseTypes(centre.types_vehicules_acceptes).includes(t.value)).map((t) => (
+            <span key={t.value} className="vehicule-badge" style={{ background: t.couleur }}>
+              <IconeVehicule icone={t.icone} size={13} color="#fff" />
+              {t.label}
+            </span>
+          ))}
+        </div>
       </div>
       <div className={`stamp ${vide ? 'vide' : ''}`}>
         <span className="n">{centre.creneaux_disponibles_7j}</span>

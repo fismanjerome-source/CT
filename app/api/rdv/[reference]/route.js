@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
   const email = searchParams.get('email') || '';
 
   const rdv = await get(
-    `SELECT r.*, c.date, c.heure, ce.nom AS centre_nom, ce.adresse, ce.ville
+    `SELECT r.*, c.date, c.heure, c.centre_id, ce.nom AS centre_nom, ce.adresse, ce.ville
      FROM rdv r JOIN creneaux c ON c.id = r.creneau_id JOIN centres ce ON ce.id = c.centre_id
      WHERE r.reference = ?`,
     [reference]
