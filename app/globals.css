@@ -573,7 +573,7 @@ button:disabled {
 
 /* ---------- Encart pro (page d'accueil) ---------- */
 .pro-cta {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   padding: 40px 0;
 }
 .pro-cta-inner {

@@ -115,7 +115,7 @@ export default function SuiviPage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">Espace client</div>
+          <div className="eyebrow">🔎 Espace client</div>
           <h1>Retrouvez votre rendez-vous</h1>
           <p className="lead">
             Renseignez votre référence de réservation (format CT-XXXXXX) et l'email utilisé lors de la prise de

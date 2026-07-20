@@ -100,7 +100,7 @@ export default function HomePage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">Réservation en ligne</div>
+          <div className="eyebrow">🚗 Réservation en ligne</div>
           <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
           <p className="lead">
             Créneau CT vous permet de réserver facilement votre contrôle technique, où et quand
@@ -129,7 +129,7 @@ export default function HomePage() {
             type="button"
             onClick={trouverProche}
             disabled={rechercheProche}
-            style={{ marginTop: 16, marginBottom: 8 }}
+            style={{ marginTop: 16, marginBottom: 8, background: 'var(--color-highlight)', borderColor: 'var(--color-highlight)' }}
           >
             {rechercheProche ? 'Recherche en cours…' : '📍 Prochain RDV disponible près de chez moi'}
           </button>
@@ -230,7 +230,7 @@ export default function HomePage() {
       <section className="pro-cta">
         <div className="container pro-cta-inner">
           <div>
-            <p className="eyebrow" style={{ color: '#E8ECE6' }}>Vous êtes un centre de contrôle technique ?</p>
+            <p className="eyebrow" style={{ color: '#E8ECE6' }}>🔧 Vous êtes un centre de contrôle technique ?</p>
             <h2 style={{ color: '#fff', margin: '6px 0 8px 0' }}>Comblez vos créneaux vides, sans effort et sans abonnement</h2>
             <p style={{ color: '#cfe0d2', margin: 0, maxWidth: 520 }}>
               Créneau CT connecte votre planning à des automobilistes prêts à réserver dès aujourd'hui. Vous gardez
@@ -250,24 +250,24 @@ export default function HomePage() {
 
       <section className="stats-public">
         <div className="container">
-          <div className="eyebrow">Le contrôle technique en France</div>
+          <div className="eyebrow">📊 Le contrôle technique en France</div>
           <h2>Une obligation prise au sérieux, partout en France</h2>
           <div className="stats-public-grid">
-            <div className="stat-public-card">
-              <span className="stat-public-value">27,6 M</span>
-              <span className="stat-public-label">contrôles techniques réalisés en 2025</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-primary)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-primary)' }}>27,6 M</span>
+              <span className="stat-public-label">🚗 contrôles techniques réalisés en 2025</span>
             </div>
-            <div className="stat-public-card">
-              <span className="stat-public-value">18,58 %</span>
-              <span className="stat-public-label">de véhicules recalés pour défaillance majeure — près d'1 sur 5</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-highlight)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-highlight)' }}>18,58 %</span>
+              <span className="stat-public-label">⚠️ de véhicules recalés pour défaillance majeure — près d'1 sur 5</span>
             </div>
-            <div className="stat-public-card">
-              <span className="stat-public-value">6 700</span>
-              <span className="stat-public-label">centres de contrôle technique agréés en France</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-success)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-success)' }}>6 700</span>
+              <span className="stat-public-label">📍 centres de contrôle technique agréés en France</span>
             </div>
-            <div className="stat-public-card">
-              <span className="stat-public-value">13 329</span>
-              <span className="stat-public-label">contrôleurs agréés sur tout le territoire</span>
+            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-accent)' }}>
+              <span className="stat-public-value" style={{ color: 'var(--color-accent)' }}>13 329</span>
+              <span className="stat-public-label">🔧 contrôleurs agréés sur tout le territoire</span>
             </div>
           </div>
           <p className="help-text" style={{ marginTop: 16 }}>
