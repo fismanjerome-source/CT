@@ -59,6 +59,7 @@ export default function MesCentresPage() {
         <nav>
           <Link href="/pro/dashboard">📊 Tableau de bord</Link>
           <Link href="/pro/clients">🚗 Mes RDV clients</Link>
+          <Link href="/pro/absences">🚫 Client absent</Link>
           <Link href="/pro/centres" className="active">🏢 Mes centres</Link>
           <Link href="/pro/factures">🧾 Mes factures</Link>
           <Link href="/pro/parametres">⚙️ Paramètres</Link>

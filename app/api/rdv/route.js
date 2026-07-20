@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, get, ensureSchema } from '@/lib/db';
-import { generateReference, jsonError } from '@/lib/utils';
+import { generateReference, jsonError, creneauSuffisammentEloigne } from '@/lib/utils';
 import { calculerTauxCommissionEffectif } from '@/lib/facturation';
 import { envoyerEmail } from '@/lib/email';
 import { emailConfirmationReservation } from '@/lib/emails/templates';
@@ -20,6 +20,9 @@ export async function POST(request) {
 
   const creneau = await get('SELECT * FROM creneaux WHERE id = ?', [creneau_id]);
   if (!creneau) return jsonError(404, 'Créneau introuvable.');
+  if (!creneauSuffisammentEloigne(creneau.date, creneau.heure)) {
+    return jsonError(409, "Ce créneau est trop proche dans le temps pour être réservé (minimum 1h30 à l'avance). Choisissez un créneau plus tard.");
+  }
 
   const reference = generateReference();
   const now = new Date().toISOString();

@@ -16,6 +16,7 @@ function SidebarNav({ pathname, centreId }) {
     <nav>
       <Link href={centreId ? `/pro/dashboard?centre=${centreId}` : '/pro/dashboard'} className={pathname === '/pro/dashboard' ? 'active' : ''}>📊 Tableau de bord</Link>
       <Link href="/pro/clients" className={pathname.startsWith('/pro/clients') ? 'active' : ''}>🚗 Mes RDV clients</Link>
+      <Link href="/pro/absences">🚫 Client absent</Link>
       <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}>🏢 Mes centres</Link>
       <Link href={centreId ? `/pro/factures?centre=${centreId}` : '/pro/factures'} className={pathname.startsWith('/pro/factures') ? 'active' : ''}>🧾 Mes factures</Link>
       <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>⚙️ Paramètres</Link>

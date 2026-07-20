@@ -425,13 +425,14 @@ function DashboardPageInner() {
         )}
 
         <nav>
-          <a href="#image" className="active">Image du centre</a>
-          <a href="#agenda">Mon agenda externe</a>
-          <a href="#vehicules">Véhicules acceptés</a>
-          <a href="#combler">Combler des horaires vides</a>
-          <a href="#planning">Mon planning</a>
-          <a href="#rdv">Mes rendez-vous</a>
+          <a href="#image" className="active">🖼️ Image du centre</a>
+          <a href="#agenda">📅 Mon agenda externe</a>
+          <a href="#vehicules">🚗 Véhicules acceptés</a>
+          <a href="#combler">🗓️ Combler des horaires vides</a>
+          <a href="#planning">📆 Mon planning</a>
+          <a href="#rdv">✅ Mes rendez-vous</a>
           <Link href="/pro/clients">🚗 Mes RDV clients</Link>
+          <Link href="/pro/absences">🚫 Client absent</Link>
           <Link href={`/pro/factures?centre=${centre.id}`}>🧾 Mes factures</Link>
           <Link href="/pro/centres">🏢 Mes centres</Link>
           <Link href="/pro/parametres">⚙️ Paramètres</Link>

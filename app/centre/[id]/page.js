@@ -265,6 +265,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
   });
   const typeInfo = TYPES_VEHICULES.find((t) => t.value === typeVehicule);
   const typeLabel = typeInfo?.label || typeVehicule;
+  const estAujourdhui = dateSelectionnee === todayISO();
 
   function handlePasserAuRecap(e) {
     e.preventDefault();
@@ -336,6 +337,12 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
         <div className="modal">
           <h2>Vérifiez vos informations</h2>
           {recapCreneau}
+
+          {estAujourdhui && (
+            <div className="message-banner error" style={{ fontWeight: 700, textAlign: 'center' }}>
+              ⏰ ATTENTION : ce créneau est <strong>AUJOURD'HUI</strong> à {creneau.heure} !
+            </div>
+          )}
 
           <div className="card" style={{ marginTop: 4 }}>
             <p style={{ margin: '0 0 8px 0' }}><span className="help-text">Prénom</span><br /><strong>{prenom}</strong></p>

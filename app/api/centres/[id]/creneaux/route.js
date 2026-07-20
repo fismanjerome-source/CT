@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { all, get } from '@/lib/db';
-import { jsonError } from '@/lib/utils';
+import { jsonError, creneauSuffisammentEloigne } from '@/lib/utils';
 import { creneauCompatible } from '@/lib/vehicules';
 
 export async function GET(request, { params }) {
@@ -20,9 +20,14 @@ export async function GET(request, { params }) {
     [id, date]
   );
 
+  // Un créneau trop proche dans le temps (moins d'1h30) n'est jamais
+  // proposé — le temps pour le client de s'y rendre et pour le centre de
+  // s'organiser.
+  const creneauxAssezLoin = creneaux.filter((c) => creneauSuffisammentEloigne(date, c.heure));
+
   const creneauxFiltres = typeVehicule
-    ? creneaux.filter((c) => creneauCompatible(c.types_vehicules, centre?.types_vehicules_acceptes, typeVehicule))
-    : creneaux;
+    ? creneauxAssezLoin.filter((c) => creneauCompatible(c.types_vehicules, centre?.types_vehicules_acceptes, typeVehicule))
+    : creneauxAssezLoin;
 
   // La commission Créneau CT n'est jamais renvoyée ici : cette route est
   // publique et lue par le client, la promo affichée est uniquement celle

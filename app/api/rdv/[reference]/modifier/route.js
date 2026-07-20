@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, get, ensureSchema } from '@/lib/db';
-import { jsonError } from '@/lib/utils';
+import { jsonError, creneauSuffisammentEloigne } from '@/lib/utils';
 import { calculerTauxCommissionEffectif } from '@/lib/facturation';
 import { envoyerEmail } from '@/lib/email';
 import { emailConfirmationReservation } from '@/lib/emails/templates';
@@ -39,6 +39,9 @@ export async function PATCH(request, { params }) {
   }
   if (nouveauCreneau.statut !== 'disponible') {
     return jsonError(409, "Ce créneau vient d'être réservé par quelqu'un d'autre. Choisissez-en un autre.");
+  }
+  if (!creneauSuffisammentEloigne(nouveauCreneau.date, nouveauCreneau.heure)) {
+    return jsonError(409, "Ce créneau est trop proche dans le temps (minimum 1h30 à l'avance). Choisissez un créneau plus tard.");
   }
 
   const prixInitial = nouveauCreneau.prix || null;
