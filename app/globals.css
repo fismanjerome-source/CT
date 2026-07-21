@@ -179,10 +179,20 @@ a { color: var(--color-primary); }
 }
 .site-header nav a:hover { color: #fff; text-decoration: underline; }
 .site-header nav.nav-mobile { display: none; }
+.brand-tagline { display: none; }
 
 @media (max-width: 720px) {
   .site-header .container { flex-direction: column; }
   .brand { align-self: center; }
+  .brand-tagline {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin: -4px 0 4px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+  }
   .site-header nav.nav-desktop { display: none; }
   .site-header nav.nav-mobile {
     display: flex;
@@ -328,14 +338,14 @@ a { color: var(--color-primary); }
   color: var(--color-text-muted);
   margin-bottom: 8px;
 }
-.side-menu-section a {
+.side-menu-panel .side-menu-section a {
   color: var(--color-text);
   text-decoration: none;
   padding: 9px 4px;
   border-radius: 6px;
   font-size: 0.95rem;
 }
-.side-menu-section a:hover { background: var(--color-bg); }
+.side-menu-panel .side-menu-section a:hover { background: var(--color-bg); }
 
 /* ---------- Hero ---------- */
 .hero {

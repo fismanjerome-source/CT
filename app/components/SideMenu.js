@@ -38,7 +38,7 @@ export default function SideMenu() {
 
       {ouvert && (
         <div className="side-menu-overlay" onClick={(e) => e.target === e.currentTarget && setOuvert(false)}>
-          <nav className="side-menu-panel">
+          <div className="side-menu-panel" role="navigation" aria-label="Menu principal">
             <div className="side-menu-header">
               <span className="side-menu-titre">Menu</span>
               <button type="button" onClick={() => setOuvert(false)} aria-label="Fermer le menu" className="side-menu-close">
@@ -67,7 +67,7 @@ export default function SideMenu() {
               <Link href="/cgu" onClick={() => setOuvert(false)}>📄 Conditions générales d'utilisation</Link>
               <Link href="/mentions-legales" onClick={() => setOuvert(false)}>⚖️ Mentions légales</Link>
             </div>
-          </nav>
+          </div>
         </div>
       )}
     </>

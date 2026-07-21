@@ -13,6 +13,7 @@ export default function Header() {
           <Logo />
           Créneau CT
         </Link>
+        <p className="brand-tagline">Réservation de contrôle technique en ligne</p>
 
         {/* Navigation bureau : une seule ligne, inchangée */}
         <nav className="nav-desktop">
