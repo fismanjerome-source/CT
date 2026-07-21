@@ -67,19 +67,30 @@ export default function CGUPage() {
         </p>
         <p>
           Le prix affiché tient compte, le cas échéant, d'une remise accordée librement par le Centre, à sa seule
-          discrétion. Le prix final affiché avant confirmation de la réservation est celui effectivement dû par
-          l'Utilisateur au Centre.
+          discrétion, ou d'une promotion ponctuelle proposée par la Plateforme elle-même — auquel cas la
+          commission normalement due par le Centre à la Plateforme est réduite en conséquence, sans aucune
+          répercussion sur le prix payé par l'Utilisateur ni sur la rémunération du Centre. Le prix final affiché
+          avant confirmation de la réservation est celui effectivement dû par l'Utilisateur au Centre.
         </p>
 
-        <h2>Article 5 — Annulation</h2>
+        <h2>Article 5 — Modification, annulation et absence</h2>
         <p>
-          L'Utilisateur peut annuler gratuitement son rendez-vous à tout moment avant sa date, depuis la page
-          « Suivre un RDV », à l'aide de sa référence de réservation et de l'adresse email utilisée lors de la
-          réservation. Le créneau annulé est immédiatement remis à disposition des autres Utilisateurs.
+          L'Utilisateur peut, gratuitement et sans justificatif, annuler ou modifier son rendez-vous à tout moment
+          avant sa date, depuis la page « Suivre un RDV », à l'aide de sa référence de réservation et de l'adresse
+          email utilisée lors de la réservation. Le créneau annulé ou libéré par une modification est immédiatement
+          remis à disposition des autres Utilisateurs.
         </p>
         <p>
-          En cas d'absence de l'Utilisateur au rendez-vous sans annulation préalable, le Centre reste libre
-          d'appliquer sa propre politique en la matière ; la Plateforme n'intervient pas dans ce cadre.
+          Par mesure d'organisation, aucun créneau ne peut être réservé ou modifié s'il reste moins d'1h30 avant
+          son horaire.
+        </p>
+        <p>
+          En cas d'absence de l'Utilisateur au rendez-vous sans annulation préalable, le Centre peut le signaler
+          depuis son espace professionnel ; la commission normalement due à la Plateforme sur ce rendez-vous n'est
+          alors pas exigible. L'Utilisateur en est informé par email. Un email de suivi est par ailleurs envoyé à
+          chaque Utilisateur après son rendez-vous afin de vérifier son bon déroulement. En cas d'absences
+          répétées et avérées, la Plateforme se réserve le droit de refuser toute réservation ultérieure de la
+          part de l'Utilisateur concerné.
         </p>
 
         <h2>Article 6 — Obligations des Centres partenaires</h2>
@@ -102,9 +113,13 @@ export default function CGUPage() {
         <p>
           Les données transmises lors d'une réservation (nom, email, téléphone, immatriculation) sont utilisées
           exclusivement pour la gestion du rendez-vous et sa communication au Centre concerné. Conformément au
-          Règlement Général sur la Protection des Données (RGPD), l'Utilisateur dispose d'un droit d'accès, de
-          rectification et de suppression de ses données, qu'il peut exercer en contactant [ADRESSE EMAIL DE CONTACT
-          À COMPLÉTER].
+          Règlement Général sur la Protection des Données (RGPD), toute personne dispose d'un droit d'accès, de
+          rectification et de suppression de ses données, qu'elle peut exercer en écrivant à
+          contact@creneauct.fr. Les Centres partenaires disposent en outre d'un accès direct à la suppression de
+          leurs données personnelles depuis leur espace professionnel (rubrique Paramètres). Par obligation légale
+          de conservation des documents comptables, l'historique des rendez-vous déjà honorés est conservé de
+          façon anonyme après suppression d'un compte, sans qu'aucune donnée ne permette plus d'identifier la
+          personne concernée.
         </p>
 
         <h2>Article 9 — Propriété intellectuelle</h2>

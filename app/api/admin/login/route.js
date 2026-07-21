@@ -1,19 +1,28 @@
 import { NextResponse } from 'next/server';
-import { setAdminSessionCookie } from '@/lib/auth';
+import { get } from '@/lib/db';
+import { verifyPassword, setAdminSessionCookie, creerJetonPrelogin } from '@/lib/auth';
 import { jsonError } from '@/lib/utils';
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
-  const { password } = body;
+  const { email, password } = body;
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) {
-    return jsonError(500, "Aucun mot de passe admin configuré côté serveur (variable ADMIN_PASSWORD manquante).");
-  }
-  if (!password || password !== adminPassword) {
-    return jsonError(401, 'Mot de passe incorrect.');
+  if (!email || !password) {
+    return jsonError(400, 'Email et mot de passe requis.');
   }
 
-  await setAdminSessionCookie();
-  return NextResponse.json({ message: 'Connecté.' });
+  const admin = await get('SELECT * FROM admins WHERE email = ?', [email.toLowerCase()]);
+  if (!admin || !verifyPassword(password, admin.password_hash)) {
+    return jsonError(401, 'Email ou mot de passe incorrect.');
+  }
+
+  if (admin.totp_actif) {
+    return NextResponse.json({
+      besoin_code: true,
+      jeton: creerJetonPrelogin(admin.id),
+    });
+  }
+
+  await setAdminSessionCookie(admin.id, admin.nom);
+  return NextResponse.json({ message: 'Connecté.', nom: admin.nom });
 }

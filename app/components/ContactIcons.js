@@ -31,3 +31,32 @@ export function SmsIcon({ size = 16, color = 'currentColor' }) {
     </svg>
   );
 }
+
+export function InstagramIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill={color} stroke="none" />
+    </svg>
+  );
+}
+
+export function FacebookIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 8.5h-2a1.5 1.5 0 0 0-1.5 1.5v2H15l-.5 3H11.5V21h-3v-6H6v-3h2.5v-2.3C8.5 7 10 5.5 12.5 5.5H15V8.5Z" />
+    </svg>
+  );
+}
+
+export function LinkedInIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <line x1="7.5" y1="10" x2="7.5" y2="16.5" />
+      <circle cx="7.5" cy="7" r="0.6" fill={color} stroke="none" />
+      <path d="M11.5 16.5V10M11.5 12.5c0-1.4 1-2.5 2.25-2.5S16 11.1 16 12.5v4" />
+    </svg>
+  );
+}

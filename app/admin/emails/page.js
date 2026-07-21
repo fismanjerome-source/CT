@@ -65,6 +65,7 @@ export default function AdminEmailsPage() {
           <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>🏢 Centres & utilisateurs</Link>
           <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>✉️ Modèles de mails</Link>
           <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>💬 Contacts</Link>
+          <Link href="/admin/securite">🔐 Sécurité</Link>
         </nav>
       </aside>
 

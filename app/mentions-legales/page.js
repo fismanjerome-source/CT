@@ -28,8 +28,8 @@ export default function MentionsLegalesPage() {
           Statut : [Entrepreneur individuel / Auto-entrepreneur / Société — À COMPLÉTER]<br />
           SIRET : [À COMPLÉTER après immatriculation]<br />
           Adresse : [ADRESSE À COMPLÉTER]<br />
-          Email de contact : [EMAIL À COMPLÉTER]<br />
-          Téléphone : [TÉLÉPHONE À COMPLÉTER, facultatif]
+          Email de contact : contact@creneauct.fr<br />
+          Téléphone : 01 86 76 12 34 [NUMÉRO FICTIF, À REMPLACER PAR LE VÔTRE]
         </p>
 
         <h2>Directeur de la publication</h2>
@@ -47,6 +47,11 @@ export default function MentionsLegalesPage() {
           Turso (Iku Inc.)<br />
           <a href="https://turso.tech" target="_blank" rel="noopener noreferrer">turso.tech</a>
         </p>
+        <p>
+          L'envoi des emails automatiques (confirmation, rappel de rendez-vous) est assuré par :<br />
+          Resend<br />
+          <a href="https://resend.com" target="_blank" rel="noopener noreferrer">resend.com</a>
+        </p>
 
         <h2>Propriété intellectuelle</h2>
         <p>
@@ -60,7 +65,8 @@ export default function MentionsLegalesPage() {
           Le traitement des données personnelles collectées sur le site est décrit dans nos{' '}
           <Link href="/cgu">Conditions Générales d'Utilisation</Link> (article 8). Conformément au RGPD, vous
           disposez d'un droit d'accès, de rectification et de suppression de vos données, exerçable auprès de
-          [EMAIL DE CONTACT À COMPLÉTER].
+          contact@creneauct.fr. Les centres partenaires peuvent également supprimer leurs données personnelles
+          directement depuis leur espace professionnel.
         </p>
 
         <h2>Cookies</h2>

@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
+import SideMenu from './SideMenu';
 
 export default function Header() {
   return (
     <header className="site-header">
       <div className="container">
+        <SideMenu />
+
         <Link href="/" className="brand">
           <Logo />
           Créneau CT

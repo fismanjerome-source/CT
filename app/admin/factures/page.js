@@ -51,6 +51,7 @@ export default function AdminFacturesPage() {
           <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>🏢 Centres & utilisateurs</Link>
           <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>✉️ Modèles de mails</Link>
           <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>💬 Contacts</Link>
+          <Link href="/admin/securite">🔐 Sécurité</Link>
         </nav>
         <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <button className="btn-secondary" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }} onClick={logout}>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { InstagramIcon, FacebookIcon, LinkedInIcon } from './ContactIcons';
 
 export default function Footer() {
   return (
@@ -7,6 +8,17 @@ export default function Footer() {
         <p style={{ margin: 0 }}>
           Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.
         </p>
+        <div className="footer-reseaux">
+          <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn">
+            <InstagramIcon size={16} />
+          </a>
+          <a href="https://facebook.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="footer-reseau-btn">
+            <FacebookIcon size={16} />
+          </a>
+          <a href="https://linkedin.com/company/creneauct" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="footer-reseau-btn">
+            <LinkedInIcon size={16} />
+          </a>
+        </div>
         <nav className="footer-links">
           <Link href="/guide">Contrôle technique : le guide</Link>
           <Link href="/contact">Contact</Link>

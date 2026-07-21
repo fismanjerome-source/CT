@@ -14,6 +14,34 @@ export default function ProParametresPage() {
   const [message, setMessage] = useState(null);
   const [envoi, setEnvoi] = useState(false);
 
+  const [zoneDangerOuverte, setZoneDangerOuverte] = useState(false);
+  const [mdpSuppression, setMdpSuppression] = useState('');
+  const [confirmationSuppression, setConfirmationSuppression] = useState('');
+  const [erreurSuppression, setErreurSuppression] = useState(null);
+  const [envoiSuppression, setEnvoiSuppression] = useState(false);
+
+  async function handleSupprimerCompte(e) {
+    e.preventDefault();
+    setErreurSuppression(null);
+    if (!confirm('Cette action est définitive : vos informations personnelles seront supprimées et vous ne pourrez plus vous reconnecter. Confirmez-vous ?')) {
+      return;
+    }
+    setEnvoiSuppression(true);
+    try {
+      const res = await fetch('/api/pro/supprimer-compte', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: mdpSuppression, confirmation: confirmationSuppression }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErreurSuppression(data.erreur); setEnvoiSuppression(false); return; }
+      router.push('/');
+    } catch {
+      setErreurSuppression('Erreur réseau. Réessayez.');
+      setEnvoiSuppression(false);
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage(null);
@@ -101,6 +129,42 @@ export default function ProParametresPage() {
         <p className="help-text" style={{ maxWidth: 420 }}>
           Mot de passe oublié et déconnecté ? <Link href="/pro/mot-de-passe-oublie">Faites une demande de réinitialisation</Link>.
         </p>
+
+        <p style={{ maxWidth: 420, marginTop: 40 }}>
+          <button
+            type="button"
+            onClick={() => setZoneDangerOuverte(!zoneDangerOuverte)}
+            style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.8rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+          >
+            Options avancées
+          </button>
+        </p>
+
+        {zoneDangerOuverte && (
+          <section className="card" style={{ marginTop: 8, maxWidth: 420, borderColor: 'var(--color-danger)' }}>
+            <div className="card-header"><h2 style={{ margin: 0, fontSize: '1rem' }}>Supprimer mon compte Créneau CT</h2></div>
+            <p className="help-text">
+              Conformément au RGPD, vous pouvez demander la suppression de vos données personnelles à tout moment.
+              Votre nom, email et téléphone seront définitivement effacés et vous ne pourrez plus vous connecter.
+              Par obligation comptable, l'historique des rendez-vous déjà honorés (nécessaire aux factures déjà
+              émises) est conservé de façon anonyme, sans donnée vous identifiant.
+            </p>
+            {erreurSuppression && <div className="message-banner error">{erreurSuppression}</div>}
+            <form onSubmit={handleSupprimerCompte}>
+              <div className="form-row">
+                <label htmlFor="mdp_suppression">Mot de passe actuel</label>
+                <input id="mdp_suppression" type="password" required value={mdpSuppression} onChange={(e) => setMdpSuppression(e.target.value)} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="confirmation_suppression">Tapez SUPPRIMER pour confirmer</label>
+                <input id="confirmation_suppression" type="text" required value={confirmationSuppression} onChange={(e) => setConfirmationSuppression(e.target.value)} />
+              </div>
+              <button type="submit" className="btn-danger" disabled={envoiSuppression} style={{ width: '100%' }}>
+                {envoiSuppression ? 'Suppression…' : 'Supprimer définitivement mon compte'}
+              </button>
+            </form>
+          </section>
+        )}
       </main>
     </div>
   );

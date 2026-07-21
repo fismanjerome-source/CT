@@ -180,8 +180,8 @@ export default function SuiviPage() {
 
             {rdv.statut !== 'annule' && !modeModification && (
               <div className="modal-actions" style={{ justifyContent: 'flex-start', marginTop: 18 }}>
-                <button type="button" onClick={ouvrirModification}>Modifier mon créneau</button>
-                <button type="button" className="btn-danger" onClick={annuler}>Annuler ce rendez-vous</button>
+                <button type="button" onClick={ouvrirModification}>Modifier mon RDV</button>
+                <button type="button" className="btn-danger" onClick={annuler}>Supprimer mon RDV</button>
               </div>
             )}
 

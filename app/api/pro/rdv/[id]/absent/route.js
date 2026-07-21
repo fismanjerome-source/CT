@@ -5,6 +5,7 @@ import { verifierAccesCentre } from '@/lib/pro';
 import { jsonError } from '@/lib/utils';
 import { envoyerEmail } from '@/lib/email';
 import { emailRdvNonHonore } from '@/lib/emails/templates';
+import { envoyerNotificationTelegram } from '@/lib/telegram';
 
 export async function PATCH(request, { params }) {
   const session = await getSession();
@@ -40,6 +41,9 @@ export async function PATCH(request, { params }) {
       heure: rdv.heure,
     });
     envoyerEmail({ to: rdv.client_email, subject, html }).catch(() => {});
+    envoyerNotificationTelegram(
+      `🚫 <b>Client absent signalé</b>\nCentre : ${rdv.centre_nom}\nClient : ${rdv.client_prenom || ''} ${rdv.client_nom}\nRDV du : ${rdv.date} à ${rdv.heure}\nRéférence : ${rdv.reference}\nCommission annulée.`
+    ).catch(() => {});
   }
 
   return NextResponse.json({

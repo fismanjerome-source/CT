@@ -62,9 +62,9 @@ export default function ProContactPage() {
               <PhoneIcon size={16} />
               01 86 76 12 34
             </a>
-            <a href="mailto:contact@creneauct.com" className="contact-btn">
+            <a href="mailto:contact@creneauct.fr" className="contact-btn">
               <MailIcon size={16} />
-              contact@creneauct.com
+              contact@creneauct.fr
             </a>
             <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
               <WhatsAppIcon size={16} />

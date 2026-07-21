@@ -34,6 +34,10 @@ const questions = [
     q: "📍 Que faire si je ne trouve pas de créneau qui me convient ?",
     r: "Essayez le bouton « Prochain RDV disponible près de chez moi » en page d'accueil, qui cherche automatiquement le créneau le plus proche géographiquement. Vous pouvez aussi élargir votre recherche à d'autres villes voisines.",
   },
+  {
+    q: "🚓 Que faire si je me fais arrêter par la police avec un contrôle technique expiré ?",
+    r: "Réservez un créneau au plus vite : la loi n'accorde aucune tolérance une fois la date dépassée, et l'amende (135 € forfaitaire, jusqu'à 375 € en cas de retard de paiement) tombe immédiatement. Les forces de l'ordre peuvent retenir votre carte grise sur place et immobiliser le véhicule — un délai de régularisation (généralement 7 jours) vous est alors accordé pour passer le contrôle. Présentez-vous au centre avec votre carte grise et, si vous l'avez, le procès-verbal remis par les forces de l'ordre. Une fois le contrôle technique favorable obtenu, il faudra ensuite vous rendre au commissariat ou à la gendarmerie qui a retenu votre carte grise pour la récupérer, justificatif du nouveau contrôle à l'appui.",
+  },
 ];
 
 export default function FAQClientsPage() {
