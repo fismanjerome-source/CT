@@ -180,9 +180,10 @@ a { color: var(--color-primary); }
 .site-header nav a:hover { color: #fff; text-decoration: underline; }
 .site-header nav.nav-mobile { display: none; }
 .brand-tagline { display: none; }
+.mobile-theme-toggle-wrap { display: none; }
 
 @media (max-width: 720px) {
-  .site-header .container { flex-direction: column; }
+  .site-header .container { flex-direction: column; padding-left: 0; }
   .brand { align-self: center; }
   .brand-tagline {
     display: block;
@@ -194,39 +195,57 @@ a { color: var(--color-primary); }
     font-weight: 400;
   }
   .site-header nav.nav-desktop { display: none; }
-  .site-header nav.nav-mobile {
+  .hamburger-btn { left: 4px; }
+  .mobile-theme-toggle-wrap {
+    display: block;
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .mobile-theme-toggle-wrap .theme-toggle { margin-left: 0; }
+  .mobile-theme-toggle-wrap .theme-toggle::before { display: none; }
+}
+
+.mobile-subnav { display: none; }
+
+@media (max-width: 720px) {
+  .mobile-subnav {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    width: 100%;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 14px 16px;
   }
-  .nav-mobile-centre {
-    color: #E8ECE6;
+  .mobile-subnav-centre {
+    color: var(--color-text);
     text-decoration: none;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     text-align: center;
+    font-weight: 600;
   }
-  .nav-mobile-centre:hover { color: #fff; text-decoration: underline; }
-  .nav-mobile-colonnes {
+  .mobile-subnav-centre:hover { color: var(--color-primary); }
+  .mobile-subnav-colonnes {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
     width: 100%;
   }
-  .nav-mobile-colonnes a {
+  .mobile-subnav-colonnes a {
     flex: 1;
     text-align: center;
-    color: #E8ECE6;
+    color: var(--color-text-muted);
     text-decoration: none;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
   }
-  .nav-mobile-colonnes a:hover { color: #fff; text-decoration: underline; }
-  .nav-mobile-separateur {
+  .mobile-subnav-colonnes a:hover { color: var(--color-primary); }
+  .mobile-subnav-separateur {
     width: 1px;
     align-self: stretch;
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--color-border);
   }
 }
 .theme-toggle {
