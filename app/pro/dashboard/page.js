@@ -626,6 +626,9 @@ function DashboardPageInner() {
             (toutes les 15 minutes) — aucun risque qu'un créneau déjà pris de votre côté soit proposé en
             double sur Créneau CT.
           </p>
+          <p className="help-text">
+            Une question sur la sécurité de ce lien ? <Link href="/securite" target="_blank">Consultez notre page dédiée</Link>.
+          </p>
         </section>
 
         <section id="vehicules" className="card" style={{ marginTop: 24 }}>

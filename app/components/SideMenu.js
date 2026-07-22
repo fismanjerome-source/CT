@@ -64,6 +64,7 @@ export default function SideMenu() {
             <div className="side-menu-section">
               <span className="side-menu-section-titre">Informations</span>
               <Link href="/contact" onClick={() => setOuvert(false)}>💬 Contact</Link>
+              <Link href="/securite" onClick={() => setOuvert(false)}>🔒 Sécurité et confidentialité</Link>
               <Link href="/cgu" onClick={() => setOuvert(false)}>📄 Conditions générales d'utilisation</Link>
               <Link href="/mentions-legales" onClick={() => setOuvert(false)}>⚖️ Mentions légales</Link>
             </div>

@@ -45,6 +45,20 @@ export default function EspacesProPage() {
     return c.nom.toLowerCase().includes(q) || c.ville.toLowerCase().includes(q);
   });
 
+  async function accederEspace(id, nom) {
+    if (!confirm(`Vous allez accéder à l'espace professionnel de « ${nom} » avec les mêmes droits que son gérant (modification incluse). Votre propre session admin restera active en parallèle. Continuer ?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/centres/${id}/se-connecter`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { setErreur(data.erreur); return; }
+      window.open(`/pro/dashboard?centre=${id}`, '_blank');
+    } catch {
+      setErreur('Erreur réseau. Réessayez.');
+    }
+  }
+
   async function ouvrirCentre(id) {
     if (centreId === id) { setCentreId(null); setApercu(null); return; }
     setCentreId(id);
@@ -96,9 +110,14 @@ export default function EspacesProPage() {
                     <strong>{c.nom}</strong>
                     <span className="help-text" style={{ marginLeft: 8 }}>{c.enseigne || 'Indépendant'} · {c.ville}</span>
                   </div>
-                  <button type="button" className="btn-secondary">
-                    {centreId === c.id ? 'Masquer' : 'Voir son espace'}
-                  </button>
+                  <div style={{ display: 'flex', gap: 8 }} onClick={(e) => e.stopPropagation()}>
+                    <button type="button" className="btn-secondary" onClick={() => ouvrirCentre(c.id)}>
+                      {centreId === c.id ? 'Masquer' : 'Aperçu rapide'}
+                    </button>
+                    <button type="button" onClick={() => accederEspace(c.id, c.nom)}>
+                      Accéder à son espace
+                    </button>
+                  </div>
                 </div>
 
                 {centreId === c.id && (
