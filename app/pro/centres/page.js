@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import ProSidebar from '../../components/ProSidebar';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -54,18 +55,7 @@ export default function MesCentresPage() {
 
   return (
     <div className="pro-shell">
-      <aside className="pro-sidebar">
-        <div className="brand"><Logo /> Espace pro</div>
-        <nav>
-          <Link href="/pro/dashboard">📊 Tableau de bord</Link>
-          <Link href="/pro/clients">🚗 Mes RDV clients</Link>
-          <Link href="/pro/absences">🚫 Client absent</Link>
-          <Link href="/pro/centres" className="active">🏢 Mes centres</Link>
-          <Link href="/pro/factures">🧾 Mes factures</Link>
-          <Link href="/pro/parametres">⚙️ Paramètres</Link>
-          <Link href="/pro/contact">💬 Contact Créneau CT</Link>
-        </nav>
-      </aside>
+      <ProSidebar />
 
       <main className="pro-main">
         <h1>Mes centres</h1>

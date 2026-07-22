@@ -22,9 +22,25 @@ const spaceMono = Space_Mono({
   display: 'swap',
 });
 
+const SITE_URL = process.env.SITE_URL || 'https://ct-rdv.onrender.com';
+
 export const metadata = {
-  title: 'Créneau CT',
-  description: 'Réservez un créneau de contrôle technique en ligne, y compris de dernière minute.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Créneau CT — Réservez votre contrôle technique en ligne',
+    template: '%s — Créneau CT',
+  },
+  description: "Trouvez et réservez en ligne un créneau de contrôle technique près de chez vous, y compris de dernière minute. Comparez les centres, réservez en 2 minutes, sans frais supplémentaires.",
+  keywords: ['contrôle technique', 'contrôle technique en ligne', 'rendez-vous contrôle technique', 'centre de contrôle technique', 'CT voiture', 'CT moto'],
+  openGraph: {
+    title: 'Créneau CT — Réservez votre contrôle technique en ligne',
+    description: "Trouvez et réservez en ligne un créneau de contrôle technique près de chez vous, y compris de dernière minute.",
+    url: SITE_URL,
+    siteName: 'Créneau CT',
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }) {

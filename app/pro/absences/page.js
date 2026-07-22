@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
+import ProSidebar from '../../components/ProSidebar';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -85,18 +86,7 @@ function AbsencesPageInner() {
 
   return (
     <div className="pro-shell">
-      <aside className="pro-sidebar">
-        <div className="brand"><Logo /> Espace pro</div>
-        <nav>
-          <Link href={centre ? `/pro/dashboard?centre=${centre.id}` : '/pro/dashboard'}>📊 Tableau de bord</Link>
-          <Link href="/pro/clients">🚗 Mes RDV clients</Link>
-          <Link href="/pro/absences" className={pathname.startsWith('/pro/absences') ? 'active' : ''}>🚫 Client absent</Link>
-          <Link href="/pro/centres">🏢 Mes centres</Link>
-          <Link href={centre ? `/pro/factures?centre=${centre.id}` : '/pro/factures'}>🧾 Mes factures</Link>
-          <Link href="/pro/parametres">⚙️ Paramètres</Link>
-          <Link href="/pro/contact">💬 Contact Créneau CT</Link>
-        </nav>
-      </aside>
+      <ProSidebar centreId={centre?.id} />
 
       <main className="pro-main">
         <h1>Client absent</h1>

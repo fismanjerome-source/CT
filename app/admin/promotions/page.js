@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import AdminSidebar from '../../components/AdminSidebar';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -88,20 +89,7 @@ export default function AdminPromotionsPage() {
 
   return (
     <div className="pro-shell">
-      <aside className="pro-sidebar">
-        <div className="brand"><Logo /> Espace admin</div>
-        <nav>
-          <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>💰 Commissions</Link>
-          <Link href="/admin/paiements" className={pathname.startsWith('/admin/paiements') ? 'active' : ''}>💳 Paiements</Link>
-          <Link href="/admin/promotions" className={pathname.startsWith('/admin/promotions') ? 'active' : ''}>🏷️ Promotions</Link>
-          <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>📅 Réserver un RDV</Link>
-          <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>🧾 Factures</Link>
-          <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>🏢 Centres & utilisateurs</Link>
-          <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>✉️ Modèles de mails</Link>
-          <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>💬 Contacts</Link>
-          <Link href="/admin/securite">🔐 Sécurité</Link>
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       <main className="pro-main">
         <h1>Promotions</h1>

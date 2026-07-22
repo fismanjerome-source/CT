@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
+import ProSidebar from '../../components/ProSidebar';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -71,10 +72,7 @@ function ClientsPageInner() {
 
   return (
     <div className="pro-shell">
-      <aside className="pro-sidebar">
-        <div className="brand"><Logo /> Espace pro</div>
-        <SidebarNav pathname={pathname} centreId={centre?.id} />
-      </aside>
+      <ProSidebar centreId={centre?.id} />
 
       <main className="pro-main">
         <h1>Mes RDV clients</h1>

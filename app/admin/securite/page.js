@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import AdminSidebar from '../../components/AdminSidebar';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -131,20 +132,7 @@ export default function AdminSecuritePage() {
 
   return (
     <div className="pro-shell">
-      <aside className="pro-sidebar">
-        <div className="brand"><Logo /> Espace admin</div>
-        <nav>
-          <Link href="/admin/dashboard">💰 Commissions</Link>
-          <Link href="/admin/paiements">💳 Paiements</Link>
-          <Link href="/admin/promotions">🏷️ Promotions</Link>
-          <Link href="/admin/reserver">📅 Réserver un RDV</Link>
-          <Link href="/admin/factures">🧾 Factures</Link>
-          <Link href="/admin/centres">🏢 Centres & utilisateurs</Link>
-          <Link href="/admin/emails">✉️ Modèles de mails</Link>
-          <Link href="/admin/contacts">💬 Contacts</Link>
-          <Link href="/admin/securite" className={pathname.startsWith('/admin/securite') ? 'active' : ''}>🔐 Sécurité</Link>
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       <main className="pro-main">
         <h1>Sécurité de mon compte</h1>

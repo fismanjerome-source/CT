@@ -927,7 +927,26 @@ button:disabled {
   padding: 24px 18px;
   flex-shrink: 0;
 }
-.pro-sidebar .brand { color: #fff; font-size: 1.05rem; margin-bottom: 30px; }
+.pro-sidebar .brand { color: #fff; font-size: 1.05rem; margin-bottom: 6px; }
+.sidebar-horloge {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 26px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.sidebar-horloge-date {
+  color: #cfe0d2;
+  font-size: 0.78rem;
+  text-transform: capitalize;
+}
+.sidebar-horloge-heure {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
 .pro-sidebar nav a {
   display: block;
   color: #cfe0d2;

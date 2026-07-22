@@ -3,6 +3,7 @@ import Header from '../components/Header';
 
 export const metadata = {
   title: 'Partenaires — Créneau CT',
+  description: "Découvrez les centres de contrôle technique partenaires de Créneau CT partout en France.",
 };
 
 const partenaires = [

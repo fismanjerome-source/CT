@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
+import Horloge from '../../components/Horloge';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
@@ -408,6 +409,7 @@ function DashboardPageInner() {
     <div className="pro-shell">
       <aside className="pro-sidebar">
         <div className="brand"><Logo /> Espace pro</div>
+        <Horloge />
 
         {mesCentres.length > 1 && (
           <div style={{ marginBottom: 20 }}>

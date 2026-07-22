@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, use, Suspense } from 'react';
+import ProSidebar from '../../../components/ProSidebar';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../../components/Logo';
@@ -33,18 +34,7 @@ function ProFactureDetailInner({ mois }) {
 
   return (
     <div className="pro-shell">
-      <aside className="pro-sidebar no-print">
-        <div className="brand"><Logo /> Espace pro</div>
-        <nav>
-          <Link href="/pro/dashboard">📊 Tableau de bord</Link>
-          <Link href="/pro/clients">🚗 Mes RDV clients</Link>
-          <Link href="/pro/absences">🚫 Client absent</Link>
-          <Link href="/pro/centres">🏢 Mes centres</Link>
-          <Link href="/pro/factures" className={pathname.startsWith('/pro/factures') ? 'active' : ''}>🧾 Mes factures</Link>
-          <Link href="/pro/parametres">⚙️ Paramètres</Link>
-          <Link href="/pro/contact">💬 Contact Créneau CT</Link>
-        </nav>
-      </aside>
+      <ProSidebar className="no-print" />
 
       <main className="pro-main">
         {erreur && <div className="message-banner error">{erreur}</div>}
