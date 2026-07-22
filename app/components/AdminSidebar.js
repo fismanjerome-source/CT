@@ -25,6 +25,7 @@ export default function AdminSidebar({ className = '' }) {
         <Link href="/admin/reserver" className={pathname.startsWith('/admin/reserver') ? 'active' : ''}>📅 Réserver un RDV</Link>
         <Link href="/admin/factures" className={pathname.startsWith('/admin/factures') ? 'active' : ''}>🧾 Factures</Link>
         <Link href="/admin/centres" className={pathname.startsWith('/admin/centres') ? 'active' : ''}>🏢 Centres & utilisateurs</Link>
+        <Link href="/admin/espaces-pro" className={pathname.startsWith('/admin/espaces-pro') ? 'active' : ''}>👁️ Espaces pro</Link>
         <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}>✉️ Modèles de mails</Link>
         <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}>💬 Contacts</Link>
         <Link href="/admin/securite" className={pathname.startsWith('/admin/securite') ? 'active' : ''}>🔐 Sécurité</Link>

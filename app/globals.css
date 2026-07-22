@@ -1243,6 +1243,15 @@ td.mono, .mono { font-family: var(--font-mono); }
   color: var(--color-primary);
 }
 
+.facture-rib {
+  margin-top: 24px;
+  padding: 16px 18px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+.facture-rib table td { border: none !important; }
+
 @media print {
   .site-header, .pro-sidebar, .no-print { display: none !important; }
   .pro-main, .facture-shell { padding: 0; max-width: none; }

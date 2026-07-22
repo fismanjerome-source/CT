@@ -87,6 +87,20 @@ export default function FactureDocument({ centre, mois, lignes, total }) {
           {lignes.length} rendez-vous confirmé{lignes.length > 1 ? 's' : ''} via Créneau CT sur cette période.
           Commission calculée sur le prix payé par le client, selon le délai entre la réservation et la date du contrôle.
         </p>
+
+        <div className="facture-rib">
+          <p className="eyebrow" style={{ marginBottom: 6 }}>Coordonnées bancaires pour le règlement</p>
+          <table style={{ marginTop: 0 }}>
+            <tbody>
+              <tr><td className="help-text" style={{ border: 'none', padding: '2px 12px 2px 0' }}>Titulaire</td><td className="mono" style={{ border: 'none', padding: '2px 0' }}>Créneau CT [À COMPLÉTER]</td></tr>
+              <tr><td className="help-text" style={{ border: 'none', padding: '2px 12px 2px 0' }}>IBAN</td><td className="mono" style={{ border: 'none', padding: '2px 0' }}>FR76 XXXX XXXX XXXX XXXX XXXX XXX [À COMPLÉTER]</td></tr>
+              <tr><td className="help-text" style={{ border: 'none', padding: '2px 12px 2px 0' }}>BIC</td><td className="mono" style={{ border: 'none', padding: '2px 0' }}>XXXXXXXX [À COMPLÉTER]</td></tr>
+            </tbody>
+          </table>
+          <p className="help-text" style={{ marginTop: 8, marginBottom: 0 }}>
+            Merci d'indiquer la référence « {centre.nom} — {formatMois(mois)} » lors du virement.
+          </p>
+        </div>
       </div>
     </div>
   );
