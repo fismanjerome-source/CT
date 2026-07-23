@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Logo from './Logo';
 import Horloge from './Horloge';
+import { InstagramIcon, FacebookIcon, LinkedInIcon } from './ContactIcons';
 
 export default function ProSidebar({ centreId, className = '' }) {
   const pathname = usePathname();
@@ -36,7 +37,18 @@ export default function ProSidebar({ centreId, className = '' }) {
         <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>⚙️ Paramètres</Link>
         <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>💬 Contact Créneau CT</Link>
       </nav>
-      <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+      <div className="sidebar-reseaux">
+        <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn footer-reseau-instagram">
+          <InstagramIcon size={15} />
+        </a>
+        <a href="https://facebook.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="footer-reseau-btn footer-reseau-facebook">
+          <FacebookIcon size={15} />
+        </a>
+        <a href="https://linkedin.com/company/creneauct" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="footer-reseau-btn footer-reseau-linkedin">
+          <LinkedInIcon size={15} />
+        </a>
+      </div>
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
         <button className="btn-secondary" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }} onClick={logout}>
           Se déconnecter
         </button>

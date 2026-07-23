@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { all, get } from '@/lib/db';
-import { jsonError, todayISO, distanceKm } from '@/lib/utils';
+import { all } from '@/lib/db';
+import { jsonError, todayISO, distanceKm, creneauSuffisammentEloigne } from '@/lib/utils';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -25,12 +25,13 @@ export async function GET(request) {
   const finFenetre = date || todayISO(21); // sans date précise, on cherche sur 3 semaines
 
   for (const centre of centresAvecDistance) {
-    const creneau = await get(
+    const candidats = await all(
       `SELECT id, date, heure, prix, promo_pourcentage FROM creneaux
        WHERE centre_id = ? AND statut = 'disponible' AND date BETWEEN ? AND ?
-       ORDER BY date, heure LIMIT 1`,
+       ORDER BY date, heure LIMIT 10`,
       [centre.id, debut, finFenetre]
     );
+    const creneau = candidats.find((c) => creneauSuffisammentEloigne(c.date, c.heure));
     if (creneau) {
       return NextResponse.json({
         centre: {

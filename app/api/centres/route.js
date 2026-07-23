@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { all } from '@/lib/db';
-import { todayISO } from '@/lib/utils';
+import { todayISO, creneauSuffisammentEloigne } from '@/lib/utils';
 import { parseTypes, creneauCompatible } from '@/lib/vehicules';
 
 export async function GET(request) {
@@ -38,9 +38,13 @@ export async function GET(request) {
         [c.id, debut]
       );
 
-      const filtrer = (liste) => vehiculeSouhaite
-        ? liste.filter((cr) => creneauCompatible(cr.types_vehicules, c.types_vehicules_acceptes, vehiculeSouhaite))
-        : liste;
+      const filtrer = (liste) => {
+        let l = liste.filter((cr) => creneauSuffisammentEloigne(cr.date, cr.heure));
+        if (vehiculeSouhaite) {
+          l = l.filter((cr) => creneauCompatible(cr.types_vehicules, c.types_vehicules_acceptes, vehiculeSouhaite));
+        }
+        return l;
+      };
 
       const creneauxCompatibles = filtrer(creneauxFenetre);
       const n2 = creneauxCompatibles.filter((cr) => cr.date <= fin2).length;

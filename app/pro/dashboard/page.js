@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Logo from '../../components/Logo';
 import Horloge from '../../components/Horloge';
 import { IconeVehicule } from '../../components/VehiculeIcons';
+import { InstagramIcon, FacebookIcon, LinkedInIcon } from '../../components/ContactIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
 
@@ -488,7 +489,18 @@ function DashboardPageInner() {
           <Link href="/pro/parametres">⚙️ Paramètres</Link>
           <Link href="/pro/contact">💬 Contact Créneau CT</Link>
         </nav>
-        <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+        <div className="sidebar-reseaux">
+          <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn footer-reseau-instagram">
+            <InstagramIcon size={15} />
+          </a>
+          <a href="https://facebook.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="footer-reseau-btn footer-reseau-facebook">
+            <FacebookIcon size={15} />
+          </a>
+          <a href="https://linkedin.com/company/creneauct" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="footer-reseau-btn footer-reseau-linkedin">
+            <LinkedInIcon size={15} />
+          </a>
+        </div>
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <p style={{ fontSize: '0.85rem', color: '#cfe0d2', marginBottom: 10 }}>{controleur.nom}</p>
           <button className="btn-secondary" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }} onClick={logout}>
             Se déconnecter
@@ -1021,7 +1033,7 @@ function DashboardPageInner() {
           ) : (
             <div className="table-scroll">
             <table>
-              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th></th></tr></thead>
+              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th className="colonne-figee">Actions</th></tr></thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
@@ -1034,13 +1046,28 @@ function DashboardPageInner() {
                     </td>
                     <td className="help-text">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
                     <td>{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
-                    <td className="mono">{c.prix != null ? `${c.prix.toFixed(2)} €` : '—'}</td>
-                    <td className="mono">{c.commission_montant_estime != null ? `${c.commission_montant_estime.toFixed(2)} €` : '—'}</td>
+                    <td className="mono">
+                      {c.prix != null ? (
+                        c.promo_pourcentage ? (
+                          <>
+                            <s className="help-text" style={{ marginRight: 6 }}>{c.prix.toFixed(2)} €</s>
+                            <span style={{ color: 'var(--color-promo)', fontWeight: 700 }}>
+                              {(c.prix * (1 - c.promo_pourcentage / 100)).toFixed(2)} €
+                            </span>
+                          </>
+                        ) : (
+                          `${c.prix.toFixed(2)} €`
+                        )
+                      ) : '—'}
+                    </td>
+                    <td className="mono" style={c.promo_pourcentage ? { color: 'var(--color-promo)', opacity: 0.75 } : undefined}>
+                      {c.commission_montant_estime != null ? `${c.commission_montant_estime.toFixed(2)} €` : '—'}
+                    </td>
                     <td className="mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
                       {c.prix != null && c.commission_montant_estime != null ? `${(c.prix - c.commission_montant_estime).toFixed(2)} €` : '—'}
                     </td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
-                    <td style={{ display: 'flex', gap: 6 }}>
+                    <td className="colonne-figee" style={{ display: 'flex', gap: 6 }}>
                       {c.statut === 'disponible' && (
                         <button type="button" onClick={() => ouvrirReservationManuelle(c)}>Prendre un RDV</button>
                       )}
