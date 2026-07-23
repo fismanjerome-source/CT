@@ -1033,7 +1033,7 @@ function DashboardPageInner() {
           ) : (
             <div className="table-scroll">
             <table>
-              <thead><tr><th>Date &amp; heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th className="colonne-figee">Actions</th></tr></thead>
+              <thead><tr><th>Date &amp; heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Net pour vous</th><th>Client</th><th>Actions</th></tr></thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
@@ -1079,16 +1079,20 @@ function DashboardPageInner() {
                       {c.prix != null && c.commission_montant_estime != null ? `${(c.prix - c.commission_montant_estime).toFixed(2)} €` : '—'}
                     </td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
-                    <td className="colonne-figee" style={{ display: 'flex', gap: 6 }}>
-                      {c.statut === 'disponible' && (
-                        <button type="button" onClick={() => ouvrirReservationManuelle(c)}>Prendre un RDV</button>
-                      )}
-                      {c.statut !== 'reserve' && c.prix != null && (
-                        <button type="button" className="btn-secondary" onClick={() => modifierPromoCreneau(c)}>
-                          {c.promo_pourcentage ? 'Modifier promo' : '+ Promo'}
-                        </button>
-                      )}
-                      {c.statut !== 'reserve' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 110 }}>
+                        {c.statut === 'disponible' && (
+                          <button type="button" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => ouvrirReservationManuelle(c)}>Prendre RDV</button>
+                        )}
+                        {c.statut !== 'reserve' && c.prix != null && (
+                          <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => modifierPromoCreneau(c)}>
+                            {c.promo_pourcentage ? 'Modifier promo' : '+ Promo'}
+                          </button>
+                        )}
+                        {c.statut !== 'reserve' && (
+                          <button className="btn-danger" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => supprimerCreneau(c.id)}>Supprimer</button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
