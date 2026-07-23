@@ -103,6 +103,12 @@ export default function AdminCentresPage() {
         <AlertePaiements />
         <p className="help-text">Tous les centres inscrits sur la plateforme, avec les coordonnées de leur gérant.</p>
 
+        <div className="message-banner" style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)', marginTop: 12 }}>
+          📱 <strong>À rappeler aux centres si besoin :</strong> leur espace professionnel fonctionne aussi bien
+          depuis un smartphone ou une tablette que depuis un ordinateur — aucune application à installer, il leur
+          suffit d'ouvrir creneauct.fr/pro/login dans leur navigateur habituel, où qu'ils soient.
+        </div>
+
         {erreur && <div className="message-banner error" style={{ marginTop: 16 }}>{erreur}</div>}
 
         {reinitResultat && (

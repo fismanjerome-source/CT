@@ -22,57 +22,81 @@ export async function GET(request) {
     centres = centres.filter((c) => parseTypes(c.types_vehicules_acceptes).includes(vehiculeSouhaite));
   }
 
+  if (centres.length === 0) {
+    return NextResponse.json({ centres: [] });
+  }
+
   const debut = todayISO();
+  const fin45 = todayISO(45); // fenêtre large unique, couvre les stats 14j et le "prochain créneau"
   const fin14 = todayISO(14);
   const fin7 = todayISO(7);
   const fin2 = todayISO(2);
 
-  const result = await Promise.all(
-    centres.map(async (c) => {
-      const creneauxFenetre = await all(
-        `SELECT date, heure, types_vehicules FROM creneaux WHERE centre_id = ? AND statut = 'disponible' AND date BETWEEN ? AND ? ORDER BY date, heure`,
-        [c.id, debut, fin14]
-      );
-      const creneauxApresAujourdhui = await all(
-        `SELECT date, heure, types_vehicules FROM creneaux WHERE centre_id = ? AND statut = 'disponible' AND date >= ? ORDER BY date, heure LIMIT 30`,
-        [c.id, debut]
-      );
+  const idsCentres = centres.map((c) => c.id);
+  const placeholders = idsCentres.map(() => '?').join(',');
 
-      const filtrer = (liste) => {
-        let l = liste.filter((cr) => creneauSuffisammentEloigne(cr.date, cr.heure));
-        if (vehiculeSouhaite) {
-          l = l.filter((cr) => creneauCompatible(cr.types_vehicules, c.types_vehicules_acceptes, vehiculeSouhaite));
-        }
-        return l;
-      };
-
-      const creneauxCompatibles = filtrer(creneauxFenetre);
-      const n2 = creneauxCompatibles.filter((cr) => cr.date <= fin2).length;
-      const n7 = creneauxCompatibles.filter((cr) => cr.date <= fin7).length;
-      const n14 = creneauxCompatibles.length;
-      const prochain = filtrer(creneauxApresAujourdhui)[0] || null;
-
-      let creneauDateSouhaitee = null;
-      if (dateSouhaitee) {
-        const creneauxJour = await all(
-          `SELECT heure, types_vehicules FROM creneaux WHERE centre_id = ? AND statut = 'disponible' AND date = ? ORDER BY heure`,
-          [c.id, dateSouhaitee]
-        );
-        const compatiblesJour = filtrer(creneauxJour);
-        creneauDateSouhaitee = compatiblesJour[0] ? { date: dateSouhaitee, heure: compatiblesJour[0].heure } : null;
-      }
-
-      return {
-        ...c,
-        creneaux_2j: n2,
-        creneaux_7j: n7,
-        creneaux_14j: n14,
-        creneaux_disponibles_7j: n7, // conservé pour compatibilité
-        prochain_creneau: prochain ? { date: prochain.date, heure: prochain.heure } : null,
-        creneau_date_souhaitee: creneauDateSouhaitee,
-      };
-    })
+  // Une seule requête groupée pour tous les centres, au lieu d'une requête
+  // par centre — évite le problème de performance dit "N+1".
+  const tousLesCreneaux = await all(
+    `SELECT centre_id, date, heure, types_vehicules FROM creneaux
+     WHERE centre_id IN (${placeholders}) AND statut = 'disponible' AND date BETWEEN ? AND ?
+     ORDER BY centre_id, date, heure`,
+    [...idsCentres, debut, fin45]
   );
+
+  const creneauxParCentre = new Map();
+  for (const cr of tousLesCreneaux) {
+    if (!creneauxParCentre.has(cr.centre_id)) creneauxParCentre.set(cr.centre_id, []);
+    creneauxParCentre.get(cr.centre_id).push(cr);
+  }
+
+  let creneauxDateSouhaiteeParCentre = new Map();
+  if (dateSouhaitee) {
+    const creneauxJour = await all(
+      `SELECT centre_id, heure, types_vehicules FROM creneaux
+       WHERE centre_id IN (${placeholders}) AND statut = 'disponible' AND date = ?
+       ORDER BY centre_id, heure`,
+      [...idsCentres, dateSouhaitee]
+    );
+    for (const cr of creneauxJour) {
+      if (!creneauxDateSouhaiteeParCentre.has(cr.centre_id)) creneauxDateSouhaiteeParCentre.set(cr.centre_id, []);
+      creneauxDateSouhaiteeParCentre.get(cr.centre_id).push(cr);
+    }
+  }
+
+  const result = centres.map((c) => {
+    const creneauxCentre = creneauxParCentre.get(c.id) || [];
+
+    const filtrer = (liste) => {
+      let l = liste.filter((cr) => creneauSuffisammentEloigne(cr.date, cr.heure));
+      if (vehiculeSouhaite) {
+        l = l.filter((cr) => creneauCompatible(cr.types_vehicules, c.types_vehicules_acceptes, vehiculeSouhaite));
+      }
+      return l;
+    };
+
+    const creneauxCompatiblesFenetre = filtrer(creneauxCentre.filter((cr) => cr.date <= fin14));
+    const n2 = creneauxCompatiblesFenetre.filter((cr) => cr.date <= fin2).length;
+    const n7 = creneauxCompatiblesFenetre.filter((cr) => cr.date <= fin7).length;
+    const n14 = creneauxCompatiblesFenetre.length;
+    const prochain = filtrer(creneauxCentre)[0] || null;
+
+    let creneauDateSouhaitee = null;
+    if (dateSouhaitee) {
+      const compatiblesJour = filtrer(creneauxDateSouhaiteeParCentre.get(c.id) || []);
+      creneauDateSouhaitee = compatiblesJour[0] ? { date: dateSouhaitee, heure: compatiblesJour[0].heure } : null;
+    }
+
+    return {
+      ...c,
+      creneaux_2j: n2,
+      creneaux_7j: n7,
+      creneaux_14j: n14,
+      creneaux_disponibles_7j: n7, // conservé pour compatibilité
+      prochain_creneau: prochain ? { date: prochain.date, heure: prochain.heure } : null,
+      creneau_date_souhaitee: creneauDateSouhaitee,
+    };
+  });
 
   // Si une date est demandée, on remonte en premier les centres qui ont
   // effectivement un créneau ce jour-là.

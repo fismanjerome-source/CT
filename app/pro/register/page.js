@@ -58,6 +58,9 @@ export default function ProRegisterPage() {
         <p className="help-text" style={{ marginBottom: 20 }}>
           Aucun abonnement, aucun engagement — vous pourrez gérer vos créneaux dès la création de votre compte.
         </p>
+        <p className="help-text" style={{ marginBottom: 20 }}>
+          📱 Ordinateur, smartphone ou tablette : votre espace vous suit partout, sans rien installer.
+        </p>
 
         {erreur && <div className="message-banner error">{erreur}</div>}
 

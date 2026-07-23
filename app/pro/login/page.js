@@ -41,6 +41,9 @@ export default function ProLoginPage() {
         <p className="help-text" style={{ marginBottom: 20 }}>
           Connectez-vous pour gérer vos créneaux et consulter vos rendez-vous.
         </p>
+        <p className="help-text" style={{ marginBottom: 20 }}>
+          📱 Accessible depuis votre ordinateur, smartphone ou tablette — rien à installer.
+        </p>
 
         {erreur && <div className="message-banner error">{erreur}</div>}
 

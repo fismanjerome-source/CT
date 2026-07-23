@@ -36,6 +36,10 @@ const questions = [
     q: "📅 Comment sont sélectionnés les créneaux à publier ?",
     r: "C'est entièrement vous qui décidez : ouverture ponctuelle d'un créneau, ou en un clic via « Combler des horaires vides » pour publier automatiquement tous vos créneaux libres sur une période donnée.",
   },
+  {
+    q: "📱 Puis-je gérer mon planning depuis mon téléphone ou ma tablette ?",
+    r: "Oui, entièrement. Votre espace professionnel fonctionne aussi bien sur ordinateur que sur smartphone ou tablette, sans rien à installer — juste à vous connecter depuis un navigateur. Pratique pour ouvrir un créneau de dernière minute ou vérifier vos rendez-vous du jour, même loin du bureau.",
+  },
 ];
 
 export default function FAQCentresPage() {
