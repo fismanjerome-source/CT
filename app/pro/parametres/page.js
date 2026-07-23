@@ -120,6 +120,10 @@ export default function ProParametresPage() {
           Mot de passe oublié et déconnecté ? <Link href="/pro/mot-de-passe-oublie">Faites une demande de réinitialisation</Link>.
         </p>
 
+        <p className="help-text" style={{ maxWidth: 420 }}>
+          Pour toute question, contactez Créneau CT : <Link href="/pro/contact">accédez au formulaire de contact</Link>.
+        </p>
+
         <p style={{ maxWidth: 420, marginTop: 40 }}>
           <button
             type="button"

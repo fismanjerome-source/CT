@@ -52,6 +52,8 @@ function DashboardPageInner() {
     intervalle_minutes: 30, duree_minutes: 30, prix: '', promo_pourcentage: '', types_vehicules: [],
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
+  const [promoPeriodeForm, setPromoPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), promo_pourcentage: '' });
+  const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
 
   const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', prix: '', promo_pourcentage: '', types_vehicules: [] });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
@@ -363,6 +365,27 @@ function DashboardPageInner() {
     }
   }
 
+  async function handleAppliquerPromoSubmit(e) {
+    e.preventDefault();
+    setPromoPeriodeEnvoi(true);
+    try {
+      const data = await api('/api/pro/creneaux/appliquer-promo', {
+        method: 'POST',
+        body: JSON.stringify({
+          centre_id: centre.id,
+          date_debut: promoPeriodeForm.date_debut,
+          date_fin: promoPeriodeForm.date_fin,
+          promo_pourcentage: promoPeriodeForm.promo_pourcentage ? Number(promoPeriodeForm.promo_pourcentage) : null,
+        }),
+      });
+      setMessage({ type: 'success', text: data.message });
+      chargerPlanning();
+    } catch (e) {
+      setMessage({ type: 'error', text: e.message });
+    } finally {
+      setPromoPeriodeEnvoi(false);
+    }
+
   async function handleSingleSubmit(e) {
     e.preventDefault();
     setSingleEnvoi(true);
@@ -396,6 +419,24 @@ function DashboardPageInner() {
     }
   }
 
+  async function modifierPromoCreneau(creneau) {
+    const saisie = prompt(
+      `Remise pour le créneau du ${new Date(creneau.date + 'T00:00:00').toLocaleDateString('fr-FR')} à ${creneau.heure} (en %, vide pour retirer la remise) :`,
+      creneau.promo_pourcentage || ''
+    );
+    if (saisie === null) return; // annulé
+    try {
+      await api(`/api/pro/creneaux/${creneau.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ promo_pourcentage: saisie.trim() === '' ? null : Number(saisie) }),
+      });
+      setMessage({ type: 'success', text: 'Créneau mis à jour.' });
+      chargerPlanning();
+    } catch (e) {
+      setMessage({ type: 'error', text: e.message });
+    }
+  }
+
   async function logout() {
     await api('/api/pro/logout', { method: 'POST' });
     router.push('/pro/login');
@@ -408,7 +449,13 @@ function DashboardPageInner() {
   return (
     <div className="pro-shell">
       <aside className="pro-sidebar">
-        <div className="brand"><Logo /> Espace pro</div>
+        <div className="brand">
+          <Logo />
+          <div>
+            <div className="brand-nom">Créneau CT</div>
+            <div className="brand-sous-titre">Espace pro</div>
+          </div>
+        </div>
         <Horloge />
 
         {mesCentres.length > 1 && (
@@ -691,6 +738,8 @@ function DashboardPageInner() {
                     { label: '1 mois', jours: 30 },
                     { label: '2 mois', jours: 60 },
                     { label: '3 mois', jours: 90 },
+                    { label: '6 mois', jours: 182 },
+                    { label: 'Durée illimitée', jours: 730 },
                   ].map((opt) => (
                     <button
                       key={opt.jours}
@@ -785,7 +834,7 @@ function DashboardPageInner() {
                 </select>
               </div>
               <div className="form-row">
-                <label htmlFor="combler_prix">Prix du contrôle technique (€)</label>
+                <label htmlFor="combler_prix">Prix du contrôle technique (€ TTC)</label>
                 <input id="combler_prix" type="number" min="1" step="0.01" required placeholder="ex: 78" value={comblerForm.prix}
                   onChange={(e) => setComblerForm({ ...comblerForm, prix: e.target.value })} />
               </div>
@@ -849,6 +898,39 @@ function DashboardPageInner() {
         </section>
 
         <section className="card">
+          <div className="card-header"><h2 style={{ margin: 0 }}>Appliquer une promotion sur une période</h2></div>
+          <p className="help-text">
+            Contrairement à « Combler des horaires vides » (qui crée de nouveaux créneaux), cet outil modifie
+            directement les créneaux disponibles déjà ouverts. Vous pouvez l'utiliser plusieurs fois de suite avec
+            des périodes et des taux différents — par exemple 20 % sur la semaine du 3 au 9, puis 25 % sur celle
+            du 10 au 16, chaque période reste indépendante.
+          </p>
+          <form onSubmit={handleAppliquerPromoSubmit}>
+            <div className="grid-2">
+              <div className="form-row">
+                <label htmlFor="promo_date_debut">Du</label>
+                <input id="promo_date_debut" type="date" required value={promoPeriodeForm.date_debut}
+                  onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, date_debut: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="promo_date_fin">Au</label>
+                <input id="promo_date_fin" type="date" required value={promoPeriodeForm.date_fin}
+                  onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, date_fin: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="promo_periode_pourcentage">Remise à appliquer (%, vide pour la retirer)</label>
+                <input id="promo_periode_pourcentage" type="number" min="1" max="90" placeholder="ex: 20"
+                  value={promoPeriodeForm.promo_pourcentage}
+                  onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, promo_pourcentage: e.target.value })} />
+              </div>
+            </div>
+            <button type="submit" disabled={promoPeriodeEnvoi}>
+              {promoPeriodeEnvoi ? 'Application…' : 'Appliquer à cette période'}
+            </button>
+          </form>
+        </section>
+
+        <section className="card">
           <div className="card-header"><h2 style={{ margin: 0 }}>Ajouter un créneau ponctuel</h2></div>
           <form className="grid-2" onSubmit={handleSingleSubmit}>
             <div className="form-row">
@@ -862,7 +944,7 @@ function DashboardPageInner() {
                 onChange={(e) => setSingleForm({ ...singleForm, heure: e.target.value })} />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="s_prix">Prix du contrôle technique (€)</label>
+              <label htmlFor="s_prix">Prix du contrôle technique (€ TTC)</label>
               <input id="s_prix" type="number" min="1" step="0.01" required placeholder="ex: 78" value={singleForm.prix}
                 onChange={(e) => setSingleForm({ ...singleForm, prix: e.target.value })} />
             </div>
@@ -938,7 +1020,7 @@ function DashboardPageInner() {
           ) : (
             <div className="table-scroll">
             <table>
-              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th></th></tr></thead>
+              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th></th></tr></thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
@@ -960,6 +1042,11 @@ function DashboardPageInner() {
                     <td style={{ display: 'flex', gap: 6 }}>
                       {c.statut === 'disponible' && (
                         <button type="button" onClick={() => ouvrirReservationManuelle(c)}>Prendre un RDV</button>
+                      )}
+                      {c.statut !== 'reserve' && c.prix != null && (
+                        <button type="button" className="btn-secondary" onClick={() => modifierPromoCreneau(c)}>
+                          {c.promo_pourcentage ? 'Modifier promo' : '+ Promo'}
+                        </button>
                       )}
                       {c.statut !== 'reserve' && <button className="btn-danger" onClick={() => supprimerCreneau(c.id)}>Supprimer</button>}
                     </td>

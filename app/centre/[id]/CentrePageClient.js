@@ -212,7 +212,7 @@ export default function CentrePageClient({ params }) {
                       {aPromo ? (
                         <>
                           <s className="prix-barre">{c.prix.toFixed(2)}€</s>{' '}
-                          <span className="prix-final">{c.prix_final.toFixed(2)}€</span>
+                          <span className="prix-final">{c.prix_final.toFixed(2)}€ TTC</span>
                         </>
                       ) : (
                         <span>{c.prix.toFixed(2)}€ TTC</span>

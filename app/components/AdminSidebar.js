@@ -16,7 +16,13 @@ export default function AdminSidebar({ className = '' }) {
 
   return (
     <aside className={`pro-sidebar ${className}`.trim()}>
-      <div className="brand"><Logo /> Espace admin</div>
+      <div className="brand">
+        <Logo />
+        <div>
+          <div className="brand-nom">Créneau CT</div>
+          <div className="brand-sous-titre">Espace admin</div>
+        </div>
+      </div>
       <Horloge />
       <nav>
         <Link href="/admin/dashboard" className={pathname === '/admin/dashboard' ? 'active' : ''}>💰 Commissions</Link>

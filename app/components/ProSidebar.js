@@ -19,7 +19,13 @@ export default function ProSidebar({ centreId, className = '' }) {
 
   return (
     <aside className={`pro-sidebar ${className}`.trim()}>
-      <div className="brand"><Logo /> Espace pro</div>
+      <div className="brand">
+        <Logo />
+        <div>
+          <div className="brand-nom">Créneau CT</div>
+          <div className="brand-sous-titre">Espace pro</div>
+        </div>
+      </div>
       <Horloge />
       <nav>
         <Link href={hrefDashboard} className={pathname === '/pro/dashboard' ? 'active' : ''}>📊 Tableau de bord</Link>
