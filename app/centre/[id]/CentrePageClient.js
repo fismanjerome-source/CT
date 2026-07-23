@@ -44,8 +44,6 @@ export default function CentrePageClient({ params }) {
         if (annule) return;
 
         setCentre(centreData.centre);
-        const typesAcceptes = parseTypes(centreData.centre.types_vehicules_acceptes);
-        setTypeVehicule(typesAcceptes[0] || null);
 
         const map = Object.fromEntries(dispoData.disponibilites.map((d) => [d.date, d.n]));
         setDispoParJour(map);
@@ -194,7 +192,11 @@ export default function CentrePageClient({ params }) {
         </h2>
 
         <div className="slots-grid">
-          {chargementCreneaux ? (
+          {typeVehicule === null ? (
+            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
+              👆 Choisissez d'abord votre type de véhicule ci-dessus pour voir les créneaux disponibles.
+            </div>
+          ) : chargementCreneaux ? (
             <p className="help-text">Chargement des créneaux…</p>
           ) : !creneaux || creneaux.length === 0 ? (
             <div className="empty-state" style={{ gridColumn: '1 / -1' }}>

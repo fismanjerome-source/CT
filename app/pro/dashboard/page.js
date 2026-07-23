@@ -1033,15 +1033,14 @@ function DashboardPageInner() {
           ) : (
             <div className="table-scroll">
             <table>
-              <thead><tr><th>Date</th><th>Heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th className="colonne-figee">Actions</th></tr></thead>
+              <thead><tr><th>Date &amp; heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Prix après commission</th><th>Client</th><th className="colonne-figee">Actions</th></tr></thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
-                    <td className="mono">{formatDate(c.date)}</td>
-                    <td className="mono">{c.heure}</td>
+                    <td className="mono">{formatDate(c.date)} {c.heure}</td>
                     <td>
                       <span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>
-                        {c.statut === 'disponible' ? 'Disponible' : c.statut === 'bloque' ? 'Bloqué (agenda)' : 'Réservé'}
+                        {c.statut === 'disponible' ? 'Dispo' : c.statut === 'bloque' ? 'Bloqué' : 'Réservé'}
                       </span>
                     </td>
                     <td className="help-text">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
@@ -1060,8 +1059,21 @@ function DashboardPageInner() {
                         )
                       ) : '—'}
                     </td>
-                    <td className="mono" style={c.promo_pourcentage ? { color: 'var(--color-promo)', opacity: 0.75 } : undefined}>
-                      {c.commission_montant_estime != null ? `${c.commission_montant_estime.toFixed(2)} €` : '—'}
+                    <td className="mono">
+                      {c.commission_montant_estime != null ? (
+                        c.promo_pourcentage && c.prix != null && c.commission_taux_estime != null ? (
+                          <>
+                            <s className="help-text" style={{ marginRight: 6 }}>
+                              {(c.prix * c.commission_taux_estime / 100).toFixed(2)} €
+                            </s>
+                            <span style={{ color: 'var(--color-promo)', opacity: 0.85, fontWeight: 700 }}>
+                              {c.commission_montant_estime.toFixed(2)} €
+                            </span>
+                          </>
+                        ) : (
+                          `${c.commission_montant_estime.toFixed(2)} €`
+                        )
+                      ) : '—'}
                     </td>
                     <td className="mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
                       {c.prix != null && c.commission_montant_estime != null ? `${(c.prix - c.commission_montant_estime).toFixed(2)} €` : '—'}
