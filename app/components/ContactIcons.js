@@ -34,29 +34,27 @@ export function SmsIcon({ size = 16, color = 'currentColor' }) {
 
 export function InstagramIcon({ size = 16, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="1" fill={color} stroke="none" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4.2" />
+      <circle cx="17" cy="7" r="1.1" fill={color} stroke="none" />
     </svg>
   );
 }
 
 export function FacebookIcon({ size = 16, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M15 8.5h-2a1.5 1.5 0 0 0-1.5 1.5v2H15l-.5 3H11.5V21h-3v-6H6v-3h2.5v-2.3C8.5 7 10 5.5 12.5 5.5H15V8.5Z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
+      <path d="M14.5 8.75H16V5.9c-.9-.1-1.83-.15-2.75-.15C11 5.75 9.5 7.4 9.5 10v2.25H7v3.25h2.5V21h3.25v-5.5h2.6l.4-3.25h-3V10c0-.8.25-1.25 1.25-1.25Z" />
     </svg>
   );
 }
 
 export function LinkedInIcon({ size = 16, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="3" />
-      <line x1="7.5" y1="10" x2="7.5" y2="16.5" />
-      <circle cx="7.5" cy="7" r="0.6" fill={color} stroke="none" />
-      <path d="M11.5 16.5V10M11.5 12.5c0-1.4 1-2.5 2.25-2.5S16 11.1 16 12.5v4" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
+      <circle cx="6.5" cy="7" r="1.6" />
+      <rect x="5.1" y="10.2" width="2.8" height="9.3" rx="0.4" />
+      <path d="M10.6 10.2h2.7v1.4c.5-.9 1.5-1.6 3-1.6 2.5 0 3.7 1.6 3.7 4.4v5.1h-2.8v-4.6c0-1.4-.5-2.3-1.75-2.3-1 0-1.6.7-1.85 1.35-.1.24-.12.55-.12.87v4.68h-2.8c0-.1.04-8.5.04-9.3Z" />
     </svg>
   );
 }
