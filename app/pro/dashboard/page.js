@@ -385,6 +385,7 @@ function DashboardPageInner() {
     } finally {
       setPromoPeriodeEnvoi(false);
     }
+  }
 
   async function handleSingleSubmit(e) {
     e.preventDefault();
