@@ -1073,14 +1073,16 @@ td.mono, .mono { font-family: var(--font-mono); }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }
   .stamps-groupe { align-self: center; }
-  .contact-humain { flex-direction: column; align-items: flex-start; }
+  .contact-humain { flex-direction: column; align-items: stretch; }
   .contact-humain-label { white-space: normal; }
-  .contact-btn-whatsapp {
-    order: 10;
-    flex-basis: 100%;
-    width: fit-content;
-    margin: 4px auto 0;
+  .contact-humain-boutons { flex-direction: column; }
+  .contact-btn {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 11px 14px;
   }
+  .contact-btn-whatsapp { order: 0; flex-basis: auto; width: 100%; margin: 0; }
   .facture-shell { padding: 12px; }
   .facture-document { padding: 20px 16px; }
   .facture-header { flex-direction: column; gap: 14px; align-items: flex-start; }
