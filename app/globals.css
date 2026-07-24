@@ -402,13 +402,16 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  max-width: 620px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 .contact-humain-label {
-  display: block;
   font-size: 0.82rem;
   color: var(--color-text-muted);
-  margin-bottom: 8px;
+  white-space: nowrap;
 }
 .contact-humain-boutons {
   display: flex;
@@ -657,7 +660,7 @@ button:disabled {
 .stamp {
   border: 2px dashed var(--color-accent);
   border-radius: 50%;
-  width: 68px; height: 68px;
+  width: 88px; height: 88px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -666,26 +669,26 @@ button:disabled {
   flex-shrink: 0;
   color: var(--color-accent);
   text-align: center;
-  padding: 3px;
+  padding: 4px;
 }
 .stamp .n {
   font-family: var(--font-mono);
-  font-size: 1.15rem;
+  font-size: 1.55rem;
   font-weight: 700;
   line-height: 1;
 }
 .stamp .label {
   font-family: var(--font-mono);
-  font-size: 0.42rem;
+  font-size: 0.56rem;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   line-height: 1.25;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 .stamp-marque {
   display: block;
   font-weight: 700;
-  font-size: 0.46rem;
+  font-size: 0.6rem;
   letter-spacing: 0.01em;
 }
 .stamp.vide { border-color: var(--color-text-muted); color: var(--color-text-muted); opacity: 0.6; }
@@ -1070,6 +1073,14 @@ td.mono, .mono { font-family: var(--font-mono); }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }
   .stamps-groupe { align-self: center; }
+  .contact-humain { flex-direction: column; align-items: flex-start; }
+  .contact-humain-label { white-space: normal; }
+  .contact-btn-whatsapp {
+    order: 10;
+    flex-basis: 100%;
+    width: fit-content;
+    margin: 4px auto 0;
+  }
   .facture-shell { padding: 12px; }
   .facture-document { padding: 20px 16px; }
   .facture-header { flex-direction: column; gap: 14px; align-items: flex-start; }
