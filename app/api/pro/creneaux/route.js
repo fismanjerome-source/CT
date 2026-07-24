@@ -50,9 +50,9 @@ export async function POST(request) {
   if (!session) return jsonError(401, 'Non authentifié. Veuillez vous connecter.');
 
   const body = await request.json().catch(() => ({}));
-  const { date, heure, duree_minutes, prix, promo_pourcentage, types_vehicules, centre_id } = body;
+  const { date, heure, duree_minutes, type_visite, prix, promo_pourcentage, types_vehicules, centre_id } = body;
   if (!date || !heure) return jsonError(400, 'Date et heure requises.');
-  if (!prix || Number(prix) <= 0) return jsonError(400, 'Le prix du contrôle technique est requis.');
+  if (prix === '' || prix == null || Number(prix) < 0) return jsonError(400, 'Le prix est requis (0 accepté pour une contre-visite gratuite).');
 
   const centreId = await resoudreCentreActif(session.controleurId, centre_id);
   if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
@@ -63,8 +63,8 @@ export async function POST(request) {
 
   try {
     const result = await run(
-      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
-      [centreId, session.controleurId, date, heure, duree_minutes || 30, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
+      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
+      [centreId, session.controleurId, date, heure, duree_minutes || 30, type_visite === 'contre_visite' ? 'contre_visite' : 'normale', Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
     );
     return NextResponse.json({ id: Number(result.lastInsertRowid) }, { status: 201 });
   } catch {

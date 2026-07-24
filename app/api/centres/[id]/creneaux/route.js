@@ -8,16 +8,17 @@ export async function GET(request, { params }) {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get('date');
   const typeVehicule = searchParams.get('type_vehicule');
+  const typeVisite = searchParams.get('type_visite') === 'contre_visite' ? 'contre_visite' : 'normale';
   if (!date) return jsonError(400, 'Paramètre "date" requis (YYYY-MM-DD).');
 
   const centre = await get('SELECT types_vehicules_acceptes FROM centres WHERE id = ?', [id]);
 
   const creneaux = await all(
-    `SELECT c.id, c.heure, c.duree_minutes, c.prix, c.promo_pourcentage, c.types_vehicules, ctrl.nom AS controleur_nom
+    `SELECT c.id, c.heure, c.duree_minutes, c.type_visite, c.prix, c.promo_pourcentage, c.types_vehicules, ctrl.nom AS controleur_nom
      FROM creneaux c JOIN controleurs ctrl ON ctrl.id = c.controleur_id
-     WHERE c.centre_id = ? AND c.date = ? AND c.statut = 'disponible'
+     WHERE c.centre_id = ? AND c.date = ? AND c.statut = 'disponible' AND c.type_visite = ?
      ORDER BY c.heure`,
-    [id, date]
+    [id, date, typeVisite]
   );
 
   // Un créneau trop proche dans le temps (moins d'1h30) n'est jamais

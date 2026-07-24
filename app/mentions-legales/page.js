@@ -69,10 +69,15 @@ export default function MentionsLegalesPage() {
           directement depuis leur espace professionnel.
         </p>
 
-        <h2>Cookies</h2>
+        <h2>Cookies et mesure d'audience</h2>
         <p>
           Le site utilise uniquement des cookies strictement nécessaires à son fonctionnement (maintien de la
           connexion à l'espace professionnel ou admin). Aucun cookie publicitaire ou de traçage tiers n'est déposé.
+        </p>
+        <p>
+          La fréquentation du site est mesurée à des fins statistiques internes (pages consultées, ville et région
+          estimées à partir de l'adresse IP), sans recours à un cookie de mesure d'audience. L'adresse IP n'est
+          jamais conservée telle quelle.
         </p>
 
         <h2>Médiation de la consommation</h2>

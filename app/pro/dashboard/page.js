@@ -7,6 +7,8 @@ import Logo from '../../components/Logo';
 import Horloge from '../../components/Horloge';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from '../../components/ContactIcons';
+import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit, IconRecu, IconBatiment, IconEngrenage, IconMessage } from '../../components/UISvgIcons';
+import { SquelletteLigne, SquelletteCarte, SquelletteTableau } from '../../components/Squelette';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
 
@@ -50,13 +52,13 @@ function DashboardPageInner() {
     heure_debut_matin: '09:00', heure_fin_matin: '12:00',
     heure_debut_apresmidi: '14:00', heure_fin_apresmidi: '18:00',
     heure_debut_continue: '09:00', heure_fin_continue: '18:00',
-    intervalle_minutes: 30, duree_minutes: 30, prix: '', promo_pourcentage: '', types_vehicules: [],
+    intervalle_minutes: 30, duree_minutes: 30, type_visite: 'normale', prix: '', promo_pourcentage: '', types_vehicules: [],
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
   const [promoPeriodeForm, setPromoPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), promo_pourcentage: '' });
   const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
 
-  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', prix: '', promo_pourcentage: '', types_vehicules: [] });
+  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', duree_minutes: 30, type_visite: 'normale', prix: '', promo_pourcentage: '', types_vehicules: [] });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
 
   const [typesVehiculesCentre, setTypesVehiculesCentre] = useState([]);
@@ -351,6 +353,7 @@ function DashboardPageInner() {
           plages,
           intervalle_minutes: Number(comblerForm.intervalle_minutes),
           duree_minutes: Number(comblerForm.duree_minutes),
+          type_visite: comblerForm.type_visite,
           prix: Number(comblerForm.prix),
           promo_pourcentage: comblerForm.promo_pourcentage ? Number(comblerForm.promo_pourcentage) : null,
           types_vehicules: comblerForm.types_vehicules,
@@ -445,7 +448,15 @@ function DashboardPageInner() {
   }
 
   if (!controleur || !centre) {
-    return <div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>;
+    return (
+      <div className="pro-shell">
+        <div className="pro-sidebar" style={{ opacity: 0.5 }} />
+        <main className="pro-main">
+          <SquelletteLigne largeur="220px" hauteur={30} style={{ marginBottom: 20 }} />
+          <SquelletteCarte lignes={4} />
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -476,18 +487,18 @@ function DashboardPageInner() {
         )}
 
         <nav>
-          <a href="#image" className="active">🖼️ Image du centre</a>
-          <a href="#agenda">📅 Mon agenda externe</a>
-          <a href="#vehicules">🚗 Véhicules acceptés</a>
-          <a href="#combler">🗓️ Combler des horaires vides</a>
-          <a href="#planning">📆 Mon planning</a>
-          <a href="#rdv">✅ Mes rendez-vous</a>
-          <Link href="/pro/clients">🚗 Mes RDV clients</Link>
-          <Link href="/pro/absences">🚫 Client absent</Link>
-          <Link href={`/pro/factures?centre=${centre.id}`}>🧾 Mes factures</Link>
-          <Link href="/pro/centres">🏢 Mes centres</Link>
-          <Link href="/pro/parametres">⚙️ Paramètres</Link>
-          <Link href="/pro/contact">💬 Contact Créneau CT</Link>
+          <a href="#image" className="active"><IconImage /> Image du centre</a>
+          <a href="#agenda"><IconCalendrier /> Mon agenda externe</a>
+          <a href="#vehicules"><IconVoiture /> Véhicules acceptés</a>
+          <a href="#combler"><IconCalendrierPlus /> Combler des horaires vides</a>
+          <a href="#planning"><IconTableauBord /> Mon planning</a>
+          <a href="#rdv"><IconCoche /> Mes rendez-vous</a>
+          <Link href="/pro/clients"><IconVoiture /> Mes RDV clients</Link>
+          <Link href="/pro/absences"><IconInterdit /> Client absent</Link>
+          <Link href={`/pro/factures?centre=${centre.id}`}><IconRecu /> Mes factures</Link>
+          <Link href="/pro/centres"><IconBatiment /> Mes centres</Link>
+          <Link href="/pro/parametres"><IconEngrenage /> Paramètres</Link>
+          <Link href="/pro/contact"><IconMessage /> Contact Créneau CT</Link>
         </nav>
         <div className="sidebar-reseaux">
           <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn footer-reseau-instagram">
@@ -827,6 +838,25 @@ function DashboardPageInner() {
                 </>
               )}
 
+              <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                <label>Type de visite</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    type="button"
+                    className={comblerForm.type_visite === 'normale' ? '' : 'btn-secondary'}
+                    onClick={() => setComblerForm({ ...comblerForm, type_visite: 'normale', duree_minutes: 30 })}
+                  >
+                    Visite normale
+                  </button>
+                  <button
+                    type="button"
+                    className={comblerForm.type_visite === 'contre_visite' ? '' : 'btn-secondary'}
+                    onClick={() => setComblerForm({ ...comblerForm, type_visite: 'contre_visite', duree_minutes: 15 })}
+                  >
+                    Contre-visite
+                  </button>
+                </div>
+              </div>
               <div className="form-row">
                 <label htmlFor="intervalle">Intervalle entre créneaux (min)</label>
                 <select id="intervalle" value={comblerForm.intervalle_minutes}
@@ -838,17 +868,15 @@ function DashboardPageInner() {
                 </select>
               </div>
               <div className="form-row">
-                <label htmlFor="duree">Durée d'un contrôle (min)</label>
-                <select id="duree" value={comblerForm.duree_minutes}
-                  onChange={(e) => setComblerForm({ ...comblerForm, duree_minutes: e.target.value })}>
-                  <option value="30">30</option>
-                  <option value="45">45</option>
-                  <option value="60">60</option>
-                </select>
+                <label htmlFor="duree">Durée d'une visite (minutes, libre)</label>
+                <input id="duree" type="number" min="5" max="120" step="5" required value={comblerForm.duree_minutes}
+                  onChange={(e) => setComblerForm({ ...comblerForm, duree_minutes: Number(e.target.value) })} />
               </div>
               <div className="form-row">
-                <label htmlFor="combler_prix">Prix du contrôle technique (€ TTC)</label>
-                <input id="combler_prix" type="number" min="1" step="0.01" required placeholder="ex: 78" value={comblerForm.prix}
+                <label htmlFor="combler_prix">
+                  {comblerForm.type_visite === 'contre_visite' ? 'Prix de la contre-visite (€ TTC, 0 si gratuite)' : 'Prix du contrôle technique (€ TTC)'}
+                </label>
+                <input id="combler_prix" type="number" min="0" step="0.01" required placeholder="ex: 78" value={comblerForm.prix}
                   onChange={(e) => setComblerForm({ ...comblerForm, prix: e.target.value })} />
               </div>
               <div className="form-row">
@@ -946,6 +974,34 @@ function DashboardPageInner() {
         <section className="card">
           <div className="card-header"><h2 style={{ margin: 0 }}>Ajouter un créneau ponctuel</h2></div>
           <form className="grid-2" onSubmit={handleSingleSubmit}>
+            <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+              <label>Type de visite</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  className={singleForm.type_visite === 'normale' ? '' : 'btn-secondary'}
+                  onClick={() => setSingleForm({ ...singleForm, type_visite: 'normale', duree_minutes: 30 })}
+                >
+                  Visite normale
+                </button>
+                <button
+                  type="button"
+                  className={singleForm.type_visite === 'contre_visite' ? '' : 'btn-secondary'}
+                  onClick={() => setSingleForm({ ...singleForm, type_visite: 'contre_visite', duree_minutes: 15 })}
+                >
+                  Contre-visite
+                </button>
+              </div>
+              <p className="help-text">
+                Une contre-visite est généralement plus courte et moins chère qu'un contrôle complet — libre à vous
+                de fixer la durée et le prix qui vous conviennent.
+              </p>
+            </div>
+            <div className="form-row">
+              <label htmlFor="s_duree">Durée (minutes)</label>
+              <input id="s_duree" type="number" min="5" max="120" step="5" required value={singleForm.duree_minutes}
+                onChange={(e) => setSingleForm({ ...singleForm, duree_minutes: Number(e.target.value) })} />
+            </div>
             <div className="form-row">
               <label htmlFor="s_date">Date</label>
               <input id="s_date" type="date" required value={singleForm.date}
@@ -957,8 +1013,10 @@ function DashboardPageInner() {
                 onChange={(e) => setSingleForm({ ...singleForm, heure: e.target.value })} />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="s_prix">Prix du contrôle technique (€ TTC)</label>
-              <input id="s_prix" type="number" min="1" step="0.01" required placeholder="ex: 78" value={singleForm.prix}
+              <label htmlFor="s_prix">
+                {singleForm.type_visite === 'contre_visite' ? 'Prix de la contre-visite (€ TTC, 0 si gratuite)' : 'Prix du contrôle technique (€ TTC)'}
+              </label>
+              <input id="s_prix" type="number" min="0" step="0.01" required placeholder="ex: 78" value={singleForm.prix}
                 onChange={(e) => setSingleForm({ ...singleForm, prix: e.target.value })} />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
@@ -1027,7 +1085,7 @@ function DashboardPageInner() {
           </div>
 
           {planning === null ? (
-            <p className="help-text">Chargement…</p>
+            <SquelletteTableau lignes={6} colonnes={9} />
           ) : planning.length === 0 ? (
             <div className="empty-state">Aucun créneau programmé cette semaine-là. Utilisez le formulaire ci-dessus pour en ouvrir.</div>
           ) : (
@@ -1037,7 +1095,14 @@ function DashboardPageInner() {
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
-                    <td className="mono">{formatDate(c.date)} {c.heure}</td>
+                    <td className="mono">
+                      {formatDate(c.date)} {c.heure}
+                      {c.type_visite === 'contre_visite' && (
+                        <span className="promo-badge-inline" style={{ marginLeft: 6, color: 'var(--color-primary)', background: 'transparent', borderColor: 'var(--color-primary)' }}>
+                          Contre-visite
+                        </span>
+                      )}
+                    </td>
                     <td>
                       <span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>
                         {c.statut === 'disponible' ? 'Dispo' : c.statut === 'bloque' ? 'Bloqué' : 'Réservé'}

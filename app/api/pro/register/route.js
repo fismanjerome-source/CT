@@ -8,10 +8,13 @@ import { envoyerNotificationTelegram } from '@/lib/telegram';
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
-  const { email, password, nom, nom_centre, adresse, code_postal, ville, telephone } = body;
+  const { email, password, nom, nom_centre, adresse, code_postal, ville, telephone, cgu_acceptees } = body;
 
   if (!email || !password || !nom || !nom_centre || !adresse || !code_postal || !ville) {
     return jsonError(400, 'Tous les champs marqués obligatoires doivent être renseignés.');
+  }
+  if (!cgu_acceptees) {
+    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation pour créer un compte.");
   }
   if (password.length < 8) {
     return jsonError(400, 'Le mot de passe doit contenir au moins 8 caractères.');

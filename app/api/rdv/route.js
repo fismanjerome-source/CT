@@ -10,10 +10,13 @@ import { libelleType } from '@/lib/vehicules';
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
-  const { creneau_id, client_prenom, client_nom, client_email, client_telephone, immatriculation, type_vehicule } = body;
+  const { creneau_id, client_prenom, client_nom, client_email, client_telephone, immatriculation, type_vehicule, cgu_acceptees } = body;
 
   if (!creneau_id || !client_prenom || !client_nom || !client_email || !client_telephone || !immatriculation) {
     return jsonError(400, 'Champs requis manquants (prénom, nom, email, téléphone, immatriculation).');
+  }
+  if (!cgu_acceptees) {
+    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation pour réserver.");
   }
 
   await ensureSchema();

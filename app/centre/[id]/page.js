@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { get } from '@/lib/db';
 import CentrePageClient from './CentrePageClient';
 
@@ -57,7 +58,9 @@ export default async function CentrePage({ params }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(donneesStructurees) }}
         />
       )}
-      <CentrePageClient params={params} />
+      <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+        <CentrePageClient params={params} />
+      </Suspense>
     </>
   );
 }

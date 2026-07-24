@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
 import { IconeVehicule } from '../../components/VehiculeIcons';
@@ -23,6 +23,8 @@ export default function CentrePageClient({ params }) {
   const [dispoParJour, setDispoParJour] = useState({});
   const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
   const [typeVehicule, setTypeVehicule] = useState(null);
+  const searchParams = useSearchParams();
+  const [typeVisite, setTypeVisite] = useState(() => (searchParams.get('visite') === 'contre_visite' ? 'contre_visite' : 'normale'));
   const [creneaux, setCreneaux] = useState(null);
   const [chargementCreneaux, setChargementCreneaux] = useState(true);
   const [modalCreneau, setModalCreneau] = useState(null); // { heure } | null
@@ -64,7 +66,7 @@ export default function CentrePageClient({ params }) {
     async function chargerCreneaux() {
       setChargementCreneaux(true);
       try {
-        const params = new URLSearchParams({ date: dateSelectionnee });
+        const params = new URLSearchParams({ date: dateSelectionnee, type_visite: typeVisite });
         if (typeVehicule) params.set('type_vehicule', typeVehicule);
         const res = await fetch(`/api/centres/${id}/creneaux?${params.toString()}`);
         const data = await res.json();
@@ -77,7 +79,7 @@ export default function CentrePageClient({ params }) {
     }
     if (dateSelectionnee && typeVehicule !== null) chargerCreneaux();
     return () => { annule = true; };
-  }, [id, dateSelectionnee, typeVehicule]);
+  }, [id, dateSelectionnee, typeVehicule, typeVisite]);
 
   function rafraichirApresReservation() {
     const params = new URLSearchParams({ date: dateSelectionnee });
@@ -127,7 +129,6 @@ export default function CentrePageClient({ params }) {
               </div>
               <p className="help-text">
                 {centre.adresse}, {centre.code_postal} {centre.ville}
-                {centre.telephone ? ` · ${centre.telephone}` : ''}
                 {' · '}
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${centre.adresse}, ${centre.code_postal} ${centre.ville}`)}`}
@@ -138,6 +139,9 @@ export default function CentrePageClient({ params }) {
                   Voir sur Google Maps
                 </a>
               </p>
+              <a href="tel:+33186761234" className="tel-btn-creneau" style={{ marginTop: 10 }}>
+                📞 Prendre RDV par téléphone
+              </a>
             </>
           ) : (
             <p className="help-text">Chargement…</p>
@@ -146,6 +150,29 @@ export default function CentrePageClient({ params }) {
       </section>
 
       <section className="container">
+        <h2 style={{ marginTop: 20, marginBottom: 10 }}>Type de visite</h2>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <button
+            type="button"
+            className={typeVisite === 'normale' ? '' : 'btn-secondary'}
+            onClick={() => setTypeVisite('normale')}
+          >
+            Contrôle technique
+          </button>
+          <button
+            type="button"
+            className={typeVisite === 'contre_visite' ? '' : 'btn-secondary'}
+            onClick={() => setTypeVisite('contre_visite')}
+          >
+            Contre-visite
+          </button>
+        </div>
+        <p className="help-text" style={{ marginBottom: 16 }}>
+          {typeVisite === 'contre_visite'
+            ? "Votre véhicule a déjà été contrôlé et présente des défauts à corriger ? Réservez une contre-visite, généralement plus courte et moins chère."
+            : "Premier contrôle technique, ou contrôle périodique classique."}
+        </p>
+
         {typesAcceptesCentre.length > 0 && (
           <>
             <h2 style={{ marginTop: 20, marginBottom: 10 }}>Votre véhicule</h2>
@@ -254,6 +281,7 @@ export default function CentrePageClient({ params }) {
 
 function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onClose, onSuccess }) {
   const [etape, setEtape] = useState('formulaire'); // 'formulaire' | 'recapitulatif'
+  const [cguAcceptees, setCguAcceptees] = useState(false);
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
@@ -290,6 +318,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
           client_telephone: telephone.trim(),
           immatriculation: immatriculation.trim(),
           type_vehicule: typeVehicule,
+          cgu_acceptees: cguAcceptees,
         }),
       });
       const data = await res.json();
@@ -377,11 +406,24 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
 
           {erreur && <div className="message-banner error">{erreur}</div>}
 
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 14, fontSize: '0.88rem' }}>
+            <input
+              type="checkbox"
+              checked={cguAcceptees}
+              onChange={(e) => setCguAcceptees(e.target.checked)}
+              style={{ marginTop: 3 }}
+            />
+            <span>
+              J'ai lu et j'accepte les{' '}
+              <Link href="/cgu" target="_blank" rel="noopener noreferrer">Conditions Générales d'Utilisation</Link> de Créneau CT.
+            </span>
+          </label>
+
           <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={() => setEtape('formulaire')} disabled={envoi}>
+            <button type="button" className="btn-secondary" onClick={() => { setEtape('formulaire'); setCguAcceptees(false); }} disabled={envoi}>
               ← Modifier
             </button>
-            <button type="button" onClick={handleConfirmerDefinitivement} disabled={envoi}>
+            <button type="button" onClick={handleConfirmerDefinitivement} disabled={envoi || !cguAcceptees}>
               {envoi ? 'Réservation en cours…' : 'Confirmer définitivement'}
             </button>
           </div>

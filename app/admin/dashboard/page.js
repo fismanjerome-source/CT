@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
+import { SquelletteTableau } from '../../components/Squelette';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -49,7 +50,7 @@ export default function AdminDashboardPage() {
         {erreur && <div className="message-banner error" style={{ marginTop: 16 }}>{erreur}</div>}
 
         {!data ? (
-          <p className="help-text" style={{ marginTop: 20 }}>Chargement…</p>
+          <div style={{ marginTop: 20 }}><SquelletteTableau lignes={6} colonnes={4} /></div>
         ) : (
           <>
             <div className="card" style={{ marginTop: 24 }}>

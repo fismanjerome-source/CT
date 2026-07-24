@@ -9,6 +9,7 @@ export async function GET(request) {
   const cp = (searchParams.get('cp') || '').trim();
   const dateSouhaitee = (searchParams.get('date') || '').trim();
   const vehiculeSouhaite = (searchParams.get('vehicule') || '').trim();
+  const typeVisite = searchParams.get('type_visite') === 'contre_visite' ? 'contre_visite' : 'normale';
 
   let sql = 'SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes, image_data, image_mime FROM centres WHERE 1=1';
   const args = [];
@@ -39,9 +40,9 @@ export async function GET(request) {
   // par centre — évite le problème de performance dit "N+1".
   const tousLesCreneaux = await all(
     `SELECT centre_id, date, heure, types_vehicules FROM creneaux
-     WHERE centre_id IN (${placeholders}) AND statut = 'disponible' AND date BETWEEN ? AND ?
+     WHERE centre_id IN (${placeholders}) AND statut = 'disponible' AND type_visite = ? AND date BETWEEN ? AND ?
      ORDER BY centre_id, date, heure`,
-    [...idsCentres, debut, fin45]
+    [...idsCentres, typeVisite, debut, fin45]
   );
 
   const creneauxParCentre = new Map();
@@ -54,9 +55,9 @@ export async function GET(request) {
   if (dateSouhaitee) {
     const creneauxJour = await all(
       `SELECT centre_id, heure, types_vehicules FROM creneaux
-       WHERE centre_id IN (${placeholders}) AND statut = 'disponible' AND date = ?
+       WHERE centre_id IN (${placeholders}) AND statut = 'disponible' AND type_visite = ? AND date = ?
        ORDER BY centre_id, heure`,
-      [...idsCentres, dateSouhaitee]
+      [...idsCentres, typeVisite, dateSouhaitee]
     );
     for (const cr of creneauxJour) {
       if (!creneauxDateSouhaiteeParCentre.has(cr.centre_id)) creneauxDateSouhaiteeParCentre.set(cr.centre_id, []);

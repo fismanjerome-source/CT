@@ -20,6 +20,16 @@
   --color-promo-bg: #FBEEE1;
   --color-border: #DDE2DA;
 
+  /* Échelle d'espacement de référence — base 4px, à privilégier pour toute
+     nouvelle marge/padding/gap plutôt que des valeurs choisies au hasard. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
   /* --font-display, --font-body, --font-mono sont injectées par next/font
      (voir app/layout.js) directement sur la balise <html> — inutile de les
      redéfinir ici, cela écraserait les polices chargées par Next.js. */
@@ -116,13 +126,13 @@ h1, h2, h3 {
   letter-spacing: -0.01em;
 }
 
-h1 { font-size: 2.3rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.1rem; }
+h1 { font-size: 2.3rem; margin: 0 0 var(--space-4) 0; }
+h2 { font-size: 1.5rem; margin: 0 0 var(--space-3) 0; }
+h3 { font-size: 1.1rem; margin: 0 0 var(--space-2) 0; }
 
 p { margin: 0 0 1em 0; }
 
-a { color: var(--color-primary); }
+a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s ease; }
 
 .container {
   max-width: var(--max-width);
@@ -408,7 +418,7 @@ a { color: var(--color-primary); }
 .contact-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--space-2);
   padding: 8px 14px;
   border-radius: 20px;
   border: 1.5px solid var(--color-primary);
@@ -526,6 +536,7 @@ button, .btn {
   border: 1px solid var(--color-primary);
   background: var(--color-primary);
   color: #fff;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
@@ -546,6 +557,7 @@ button:hover, .btn:hover { background: var(--color-primary-light); }
   color: var(--color-danger);
 }
 .btn-danger:hover { background: var(--color-danger-bg); }
+button:active, .btn:active { transform: scale(0.98); }
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -587,7 +599,20 @@ button:disabled {
 }
 .centre-card-image img { width: 100%; height: 100%; object-fit: cover; }
 .centre-card .adresse { color: var(--color-text-muted); font-size: 0.92rem; }
-.centre-card .tel { color: var(--color-text-muted); font-size: 0.88rem; font-family: var(--font-mono); }
+.tel-btn-creneau {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--color-primary);
+  border-radius: 20px;
+  padding: 5px 14px;
+  margin-top: 2px;
+}
+.tel-btn-creneau:hover { background: var(--color-primary); color: #fff; }
 
 .centre-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 
@@ -595,7 +620,7 @@ button:disabled {
 .vehicule-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1);
   padding: 4px 10px 4px 8px;
   border-radius: 20px;
   color: #fff;
@@ -664,6 +689,16 @@ button:disabled {
   letter-spacing: 0.01em;
 }
 .stamp.vide { border-color: var(--color-text-muted); color: var(--color-text-muted); opacity: 0.6; }
+
+.squelette {
+  background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+  animation: squelette-brillance 1.4s ease-in-out infinite;
+}
+@keyframes squelette-brillance {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 
 .empty-state {
   padding: 48px 24px;
@@ -956,7 +991,9 @@ button:disabled {
   letter-spacing: 0.03em;
 }
 .pro-sidebar nav a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   color: #cfe0d2;
   text-decoration: none;
   padding: 9px 10px;
@@ -964,6 +1001,8 @@ button:disabled {
   font-size: 0.92rem;
   margin-bottom: 4px;
 }
+.pro-sidebar nav a svg { flex-shrink: 0; opacity: 0.85; }
+.pro-sidebar nav a.active svg, .pro-sidebar nav a:hover svg { opacity: 1; }
 .pro-sidebar nav a.active, .pro-sidebar nav a:hover { background: rgba(255,255,255,0.12); color: #fff; }
 .sidebar-reseaux {
   display: flex;

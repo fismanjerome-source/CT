@@ -23,6 +23,7 @@ export default function AdminReserverPage() {
   const [rechercheCentre, setRechercheCentre] = useState('');
   const [centreId, setCentreId] = useState('');
   const [typeVehicule, setTypeVehicule] = useState('');
+  const [typeVisite, setTypeVisite] = useState('normale');
   const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
   const [creneaux, setCreneaux] = useState(null);
   const [chargementCreneaux, setChargementCreneaux] = useState(false);
@@ -70,7 +71,7 @@ export default function AdminReserverPage() {
     async function chargerCreneaux() {
       setChargementCreneaux(true);
       try {
-        const params = new URLSearchParams({ date: dateSelectionnee, type_vehicule: typeVehicule });
+        const params = new URLSearchParams({ date: dateSelectionnee, type_vehicule: typeVehicule, type_visite: typeVisite });
         const res = await fetch(`/api/centres/${centreId}/creneaux?${params.toString()}`);
         const data = await res.json();
         if (!annule) setCreneaux(data.creneaux);
@@ -82,7 +83,7 @@ export default function AdminReserverPage() {
     }
     chargerCreneaux();
     return () => { annule = true; };
-  }, [centreId, typeVehicule, dateSelectionnee]);
+  }, [centreId, typeVehicule, dateSelectionnee, typeVisite]);
 
   function ouvrirReservation(creneau) {
     setModalCreneau(creneau);
@@ -112,7 +113,7 @@ export default function AdminReserverPage() {
       if (!res.ok) { setMessage({ type: 'error', text: data.erreur }); setEnvoi(false); return; }
       setModalCreneau(null);
       setMessage({ type: 'success', text: `Rendez-vous enregistré pour ${form.prenom} ${form.nom} — référence ${data.rdv.reference}. Email de confirmation envoyé.` });
-      const params = new URLSearchParams({ date: dateSelectionnee, type_vehicule: typeVehicule });
+      const params = new URLSearchParams({ date: dateSelectionnee, type_vehicule: typeVehicule, type_visite: typeVisite });
       const res2 = await fetch(`/api/centres/${centreId}/creneaux?${params.toString()}`);
       const data2 = await res2.json();
       setCreneaux(data2.creneaux);
@@ -161,6 +162,26 @@ export default function AdminReserverPage() {
 
         {centre && (
           <>
+            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+              <button
+                type="button"
+                className={typeVisite === 'normale' ? '' : 'btn-secondary'}
+                onClick={() => setTypeVisite('normale')}
+              >
+                Contrôle technique
+              </button>
+              <button
+                type="button"
+                className={typeVisite === 'contre_visite' ? '' : 'btn-secondary'}
+                onClick={() => setTypeVisite('contre_visite')}
+              >
+                Contre-visite
+              </button>
+            </div>
+            <p className="help-text" style={{ marginTop: 6 }}>
+              Une contre-visite n'apparaît ici que si le centre a lui-même ouvert ce type de créneau.
+            </p>
+
             {typesAcceptes.length > 0 && (
               <div className="type-vehicule-picker" style={{ marginTop: 16 }}>
                 {TYPES_VEHICULES.filter((t) => typesAcceptes.includes(t.value)).map((t) => (

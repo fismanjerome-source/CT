@@ -13,6 +13,7 @@ export default function ProRegisterPage() {
   });
   const [erreur, setErreur] = useState(null);
   const [envoi, setEnvoi] = useState(false);
+  const [cguAcceptees, setCguAcceptees] = useState(false);
 
   function champ(id, patch = {}) {
     return {
@@ -37,7 +38,7 @@ export default function ProRegisterPage() {
       const res = await fetch('/api/pro/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, cgu_acceptees: cguAcceptees }),
       });
       const data = await res.json();
       if (!res.ok) { setErreur(data.erreur); setEnvoi(false); return; }
@@ -111,6 +112,20 @@ export default function ProRegisterPage() {
               <input type="text" required {...champ('ville')} />
             </div>
           </div>
+
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 16, fontSize: '0.88rem' }}>
+            <input
+              type="checkbox"
+              required
+              checked={cguAcceptees}
+              onChange={(e) => setCguAcceptees(e.target.checked)}
+              style={{ marginTop: 3 }}
+            />
+            <span>
+              J'ai lu et j'accepte les{' '}
+              <Link href="/cgu" target="_blank" rel="noopener noreferrer">Conditions Générales d'Utilisation</Link> de Créneau CT.
+            </span>
+          </label>
 
           <button type="submit" style={{ width: '100%', marginTop: 10 }} disabled={envoi}>
             {envoi ? 'Création du compte…' : 'Créer mon compte'}

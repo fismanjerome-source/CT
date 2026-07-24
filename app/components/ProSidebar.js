@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Logo from './Logo';
 import Horloge from './Horloge';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from './ContactIcons';
+import { IconTableauBord, IconVoiture, IconInterdit, IconBatiment, IconRecu, IconEngrenage, IconMessage } from './UISvgIcons';
 
 export default function ProSidebar({ centreId, className = '' }) {
   const pathname = usePathname();
@@ -29,13 +30,13 @@ export default function ProSidebar({ centreId, className = '' }) {
       </div>
       <Horloge />
       <nav>
-        <Link href={hrefDashboard} className={pathname === '/pro/dashboard' ? 'active' : ''}>📊 Tableau de bord</Link>
-        <Link href="/pro/clients" className={pathname.startsWith('/pro/clients') ? 'active' : ''}>🚗 Mes RDV clients</Link>
-        <Link href="/pro/absences" className={pathname.startsWith('/pro/absences') ? 'active' : ''}>🚫 Client absent</Link>
-        <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}>🏢 Mes centres</Link>
-        <Link href={hrefFactures} className={pathname.startsWith('/pro/factures') ? 'active' : ''}>🧾 Mes factures</Link>
-        <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>⚙️ Paramètres</Link>
-        <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>💬 Contact Créneau CT</Link>
+        <Link href={hrefDashboard} className={pathname === '/pro/dashboard' ? 'active' : ''}><IconTableauBord /> Tableau de bord</Link>
+        <Link href="/pro/clients" className={pathname.startsWith('/pro/clients') ? 'active' : ''}><IconVoiture /> Mes RDV clients</Link>
+        <Link href="/pro/absences" className={pathname.startsWith('/pro/absences') ? 'active' : ''}><IconInterdit /> Client absent</Link>
+        <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}><IconBatiment /> Mes centres</Link>
+        <Link href={hrefFactures} className={pathname.startsWith('/pro/factures') ? 'active' : ''}><IconRecu /> Mes factures</Link>
+        <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}><IconEngrenage /> Paramètres</Link>
+        <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}><IconMessage /> Contact Créneau CT</Link>
       </nav>
       <div className="sidebar-reseaux">
         <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn footer-reseau-instagram">

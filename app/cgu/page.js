@@ -108,6 +108,13 @@ export default function CGUPage() {
           minute par un Centre. La Plateforme ne saurait être tenue responsable de la qualité, de la conformité ou
           des conditions de réalisation du contrôle technique lui-même, qui relèvent exclusivement du Centre.
         </p>
+        <p>
+          Conformément à l'article L.441-10 du Code de commerce, tout retard de paiement d'une commission par un
+          Centre donne lieu, de plein droit et sans mise en demeure préalable, à des pénalités calculées au taux
+          d'intérêt de la Banque Centrale Européenne majoré de 10 points, ainsi qu'à une indemnité forfaitaire pour
+          frais de recouvrement de 40 €. Ce montant peut être révisé par la Plateforme sur présentation des frais
+          réellement engagés.
+        </p>
 
         <h2>Article 8 — Données personnelles</h2>
         <p>
@@ -120,6 +127,12 @@ export default function CGUPage() {
           de conservation des documents comptables, l'historique des rendez-vous déjà honorés est conservé de
           façon anonyme après suppression d'un compte, sans qu'aucune donnée ne permette plus d'identifier la
           personne concernée.
+        </p>
+        <p>
+          Par ailleurs, la Plateforme mesure sa fréquentation à des fins statistiques internes (pages consultées,
+          ville et région estimées à partir de l'adresse IP de connexion). Cette mesure ne repose sur aucun cookie
+          ni traceur, et l'adresse IP elle-même n'est jamais conservée : seule une localisation approximative
+          (ville, région) en est déduite au moment de la visite, sans lien possible avec l'identité de la personne.
         </p>
 
         <h2>Article 9 — Propriété intellectuelle</h2>

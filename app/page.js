@@ -26,6 +26,7 @@ export default function HomePage() {
   const [cp, setCp] = useState('');
   const [date, setDate] = useState('');
   const [vehicule, setVehicule] = useState('');
+  const [typeVisite, setTypeVisite] = useState('normale');
   const [centres, setCentres] = useState(null); // null = chargement initial
   const [totalRdv, setTotalRdv] = useState(null);
 
@@ -37,12 +38,13 @@ export default function HomePage() {
     fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
   }, []);
 
-  const rechercher = useCallback(async (villeQ = '', cpQ = '', dateQ = '', vehiculeQ = '') => {
+  const rechercher = useCallback(async (villeQ = '', cpQ = '', dateQ = '', vehiculeQ = '', typeVisiteQ = 'normale') => {
     const params = new URLSearchParams();
     if (villeQ) params.set('ville', villeQ);
     if (cpQ) params.set('cp', cpQ);
     if (dateQ) params.set('date', dateQ);
     if (vehiculeQ) params.set('vehicule', vehiculeQ);
+    if (typeVisiteQ === 'contre_visite') params.set('type_visite', 'contre_visite');
     try {
       const res = await fetch(`/api/centres?${params.toString()}`);
       const data = await res.json();
@@ -57,7 +59,7 @@ export default function HomePage() {
   function handleSubmit(e) {
     e.preventDefault();
     setResultatProche(null);
-    rechercher(ville.trim(), cp.trim(), date, vehicule);
+    rechercher(ville.trim(), cp.trim(), date, vehicule, typeVisite);
   }
 
   function trouverProche() {
@@ -193,6 +195,16 @@ export default function HomePage() {
                 </optgroup>
               </select>
             </div>
+            <div className="field" style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400, fontSize: '0.88rem', whiteSpace: 'nowrap' }}>
+                <input
+                  type="checkbox"
+                  checked={typeVisite === 'contre_visite'}
+                  onChange={(e) => setTypeVisite(e.target.checked ? 'contre_visite' : 'normale')}
+                />
+                Je cherche une contre-visite
+              </label>
+            </div>
             <div className="field" style={{ flex: 0, alignSelf: 'flex-end' }}>
               <button type="submit">Rechercher</button>
             </div>
@@ -224,7 +236,7 @@ export default function HomePage() {
                   <p>Essayez une autre ville ou un autre code postal.</p>
                 </div>
               ) : (
-                centres.map((c) => <CentreCard key={c.id} centre={c} dateRecherchee={date} />)
+                centres.map((c) => <CentreCard key={c.id} centre={c} dateRecherchee={date} typeVisite={typeVisite} />)
               )}
             </>
           )}
@@ -285,8 +297,9 @@ export default function HomePage() {
   );
 }
 
-function CentreCard({ centre, dateRecherchee }) {
+function CentreCard({ centre, dateRecherchee, typeVisite }) {
   const router = useRouter();
+  const hrefCentre = typeVisite === 'contre_visite' ? `/centre/${centre.id}?visite=contre_visite` : `/centre/${centre.id}`;
   const couleur = couleurEnseigne(centre.enseigne);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${centre.adresse}, ${centre.code_postal} ${centre.ville}`
@@ -298,8 +311,8 @@ function CentreCard({ centre, dateRecherchee }) {
       style={{ cursor: 'pointer', borderColor: couleur.degrade ? (couleur.bordure || couleur.texte) : couleur.fond }}
       role="link"
       tabIndex={0}
-      onClick={() => router.push(`/centre/${centre.id}`)}
-      onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/centre/${centre.id}`); }}
+      onClick={() => router.push(hrefCentre)}
+      onKeyDown={(e) => { if (e.key === 'Enter') router.push(hrefCentre); }}
     >
       {centre.image_data && (
         <div className="centre-card-image">
@@ -327,7 +340,13 @@ function CentreCard({ centre, dateRecherchee }) {
             Voir sur Google Maps
           </a>
         </div>
-        {centre.telephone && <div className="tel">{centre.telephone}</div>}
+        <a
+          href="tel:+33186761234"
+          className="tel-btn-creneau"
+          onClick={(e) => e.stopPropagation()}
+        >
+          📞 Prendre RDV par téléphone
+        </a>
 
         {dateRecherchee ? (
           <p className="help-text" style={{ marginTop: 8 }}>
