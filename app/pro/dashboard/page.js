@@ -1141,7 +1141,11 @@ function DashboardPageInner() {
                       ) : '—'}
                     </td>
                     <td className="mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
-                      {c.prix != null && c.commission_montant_estime != null ? `${(c.prix - c.commission_montant_estime).toFixed(2)} €` : '—'}
+                      {(() => {
+                        if (c.prix == null || c.commission_montant_estime == null) return '—';
+                        const prixEffectif = c.promo_pourcentage ? c.prix * (1 - c.promo_pourcentage / 100) : c.prix;
+                        return `${(prixEffectif - c.commission_montant_estime).toFixed(2)} €`;
+                      })()}
                     </td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
                     <td>
