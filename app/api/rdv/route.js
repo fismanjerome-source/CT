@@ -16,7 +16,7 @@ export async function POST(request) {
     return jsonError(400, 'Champs requis manquants (prénom, nom, email, téléphone, immatriculation).');
   }
   if (!cgu_acceptees) {
-    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation pour réserver.");
+    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation (CGU) pour réserver.");
   }
 
   await ensureSchema();

@@ -415,7 +415,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
             />
             <span>
               J'ai lu et j'accepte les{' '}
-              <Link href="/cgu" target="_blank" rel="noopener noreferrer">Conditions Générales d'Utilisation</Link> de Créneau CT.
+              <Link href="/cgu" target="_blank" rel="noopener noreferrer">Conditions Générales d'Utilisation (CGU)</Link> de Créneau CT.
             </span>
           </label>
 

@@ -14,7 +14,7 @@ export async function POST(request) {
     return jsonError(400, 'Tous les champs marqués obligatoires doivent être renseignés.');
   }
   if (!cgu_acceptees) {
-    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation pour créer un compte.");
+    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation (CGU) pour créer un compte.");
   }
   if (password.length < 8) {
     return jsonError(400, 'Le mot de passe doit contenir au moins 8 caractères.');
