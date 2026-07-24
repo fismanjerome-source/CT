@@ -7,7 +7,7 @@ import Logo from '../../components/Logo';
 import Horloge from '../../components/Horloge';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from '../../components/ContactIcons';
-import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit, IconRecu, IconBatiment, IconEngrenage, IconMessage } from '../../components/UISvgIcons';
+import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit, IconRecu, IconBatiment, IconEngrenage, IconMessage, IconBalance } from '../../components/UISvgIcons';
 import { SquelletteLigne, SquelletteCarte, SquelletteTableau } from '../../components/Squelette';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
@@ -498,6 +498,7 @@ function DashboardPageInner() {
           <Link href={`/pro/factures?centre=${centre.id}`}><IconRecu /> Mes factures</Link>
           <Link href="/pro/centres"><IconBatiment /> Mes centres</Link>
           <Link href="/pro/parametres"><IconEngrenage /> Paramètres</Link>
+          <Link href="/pro/juridique"><IconBalance /> Juridique</Link>
           <Link href="/pro/contact"><IconMessage /> Contact Créneau CT</Link>
         </nav>
         <div className="sidebar-reseaux">

@@ -61,7 +61,7 @@ export async function POST(request) {
   const { subject, html } = emailBienvenuePro({ nom, nomCentre: nom_centre });
   envoyerEmail({ to: email.toLowerCase(), subject, html }).catch(() => {});
   envoyerNotificationTelegram(
-    `🏢 <b>Nouveau compte professionnel</b>\nCentre : ${nom_centre}\nGérant : ${nom}\nEmail : ${email.toLowerCase()}\nVille : ${ville}`
+    `🏢 <b>Nouveau compte professionnel</b>\nCentre : ${nom_centre}\nGérant : ${nom}\nEmail : ${email.toLowerCase()}\nTéléphone : ${telephone || 'non renseigné'}\nVille : ${ville}`
   ).catch(() => {});
 
   return NextResponse.json({ message: 'Compte créé.' }, { status: 201 });

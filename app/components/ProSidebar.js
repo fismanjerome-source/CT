@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Logo from './Logo';
 import Horloge from './Horloge';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from './ContactIcons';
-import { IconTableauBord, IconVoiture, IconInterdit, IconBatiment, IconRecu, IconEngrenage, IconMessage } from './UISvgIcons';
+import { IconTableauBord, IconVoiture, IconInterdit, IconBatiment, IconRecu, IconEngrenage, IconMessage, IconBalance } from './UISvgIcons';
 
 export default function ProSidebar({ centreId, className = '' }) {
   const pathname = usePathname();
@@ -36,6 +36,7 @@ export default function ProSidebar({ centreId, className = '' }) {
         <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}><IconBatiment /> Mes centres</Link>
         <Link href={hrefFactures} className={pathname.startsWith('/pro/factures') ? 'active' : ''}><IconRecu /> Mes factures</Link>
         <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}><IconEngrenage /> Paramètres</Link>
+        <Link href="/pro/juridique" className={pathname.startsWith('/pro/juridique') ? 'active' : ''}><IconBalance /> Juridique</Link>
         <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}><IconMessage /> Contact Créneau CT</Link>
       </nav>
       <div className="sidebar-reseaux">

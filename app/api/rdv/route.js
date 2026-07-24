@@ -92,7 +92,7 @@ export async function POST(request) {
     attachments: [{ filename: 'rendez-vous-controle-technique.ics', content: icsBase64 }],
   }).catch(() => {});
   envoyerNotificationTelegram(
-    `📅 <b>Nouvelle réservation client</b>\nCentre : ${centre.nom}\nDate : ${creneau.date} à ${creneau.heure}\nClient : ${nomComplet}\n🚗 Véhicule : ${type_vehicule ? libelleType(type_vehicule) : 'non renseigné'}\nRéférence : ${reference}\nPrix payé : ${prixPaye != null ? `${prixPaye.toFixed(2)} €` : 'non renseigné'}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
+    `📅 <b>Nouvelle réservation client</b>\nCentre : ${centre.nom}\nDate : ${creneau.date} à ${creneau.heure}\nClient : ${nomComplet}\n📧 Email : ${client_email}\n📱 Téléphone : ${client_telephone}\n🚗 Véhicule : ${type_vehicule ? libelleType(type_vehicule) : 'non renseigné'}\nRéférence : ${reference}\nPrix payé : ${prixPaye != null ? `${prixPaye.toFixed(2)} €` : 'non renseigné'}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
   ).catch(() => {});
 
   return NextResponse.json(
