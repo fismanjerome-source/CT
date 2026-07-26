@@ -7,7 +7,7 @@ import Logo from '../../components/Logo';
 import Horloge from '../../components/Horloge';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from '../../components/ContactIcons';
-import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit, IconRecu, IconBatiment, IconEngrenage, IconMessage } from '../../components/UISvgIcons';
+import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit, IconRecu, IconBatiment, IconEngrenage, IconMessage, IconBalance } from '../../components/UISvgIcons';
 import { SquelletteLigne, SquelletteCarte, SquelletteTableau } from '../../components/Squelette';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
@@ -498,6 +498,7 @@ function DashboardPageInner() {
           <Link href={`/pro/factures?centre=${centre.id}`}><IconRecu /> Mes factures</Link>
           <Link href="/pro/centres"><IconBatiment /> Mes centres</Link>
           <Link href="/pro/parametres"><IconEngrenage /> Paramètres</Link>
+          <Link href="/pro/juridique"><IconBalance /> Juridique</Link>
           <Link href="/pro/contact"><IconMessage /> Contact Créneau CT</Link>
         </nav>
         <div className="sidebar-reseaux">
@@ -601,6 +602,10 @@ function DashboardPageInner() {
                 <strong>Aucune commission due pour le moment.</strong>
               )}
             </div>
+            <p className="help-text" style={{ marginTop: 8, marginBottom: 0 }}>
+              💶 Rappel : la prise de rendez-vous via Créneau CT n'entraîne aucun paiement en ligne — le client
+              vous règle directement le prix affiché par vos soins après son contrôle technique.
+            </p>
           </div>
         )}
 
@@ -1141,7 +1146,11 @@ function DashboardPageInner() {
                       ) : '—'}
                     </td>
                     <td className="mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
-                      {c.prix != null && c.commission_montant_estime != null ? `${(c.prix - c.commission_montant_estime).toFixed(2)} €` : '—'}
+                      {(() => {
+                        if (c.prix == null || c.commission_montant_estime == null) return '—';
+                        const prixEffectif = c.promo_pourcentage ? c.prix * (1 - c.promo_pourcentage / 100) : c.prix;
+                        return `${(prixEffectif - c.commission_montant_estime).toFixed(2)} €`;
+                      })()}
                     </td>
                     <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
                     <td>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Logo from './Logo';
 import Horloge from './Horloge';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from './ContactIcons';
-import { IconArgent, IconGraphique, IconCarte, IconEtiquette, IconCalendrier, IconRecu, IconBatiment, IconOeil, IconEnveloppe, IconMessage, IconCadenas } from './UISvgIcons';
+import { IconArgent, IconGraphique, IconCarte, IconEtiquette, IconCalendrier, IconRecu, IconBatiment, IconOeil, IconEnveloppe, IconMessage, IconCadenas, IconBalance } from './UISvgIcons';
 
 export default function AdminSidebar({ className = '' }) {
   const pathname = usePathname();
@@ -38,6 +38,8 @@ export default function AdminSidebar({ className = '' }) {
         <Link href="/admin/emails" className={pathname.startsWith('/admin/emails') ? 'active' : ''}><IconEnveloppe /> Modèles de mails</Link>
         <Link href="/admin/contacts" className={pathname.startsWith('/admin/contacts') ? 'active' : ''}><IconMessage /> Contacts</Link>
         <Link href="/admin/securite" className={pathname.startsWith('/admin/securite') ? 'active' : ''}><IconCadenas /> Sécurité</Link>
+        <Link href="/admin/juridique" className={pathname.startsWith('/admin/juridique') ? 'active' : ''}><IconBalance /> Juridique</Link>
+        <Link href="/admin/cgu" className={pathname.startsWith('/admin/cgu') ? 'active' : ''}><IconRecu /> Modifier les CGU</Link>
       </nav>
       <div className="sidebar-reseaux">
         <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn footer-reseau-instagram">

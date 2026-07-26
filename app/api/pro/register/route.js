@@ -14,7 +14,7 @@ export async function POST(request) {
     return jsonError(400, 'Tous les champs marqués obligatoires doivent être renseignés.');
   }
   if (!cgu_acceptees) {
-    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation pour créer un compte.");
+    return jsonError(400, "Vous devez accepter les Conditions Générales d'Utilisation (CGU) pour créer un compte.");
   }
   if (password.length < 8) {
     return jsonError(400, 'Le mot de passe doit contenir au moins 8 caractères.');
@@ -61,7 +61,7 @@ export async function POST(request) {
   const { subject, html } = emailBienvenuePro({ nom, nomCentre: nom_centre });
   envoyerEmail({ to: email.toLowerCase(), subject, html }).catch(() => {});
   envoyerNotificationTelegram(
-    `🏢 <b>Nouveau compte professionnel</b>\nCentre : ${nom_centre}\nGérant : ${nom}\nEmail : ${email.toLowerCase()}\nVille : ${ville}`
+    `🏢 <b>Nouveau compte professionnel</b>\nCentre : ${nom_centre}\nGérant : ${nom}\nEmail : ${email.toLowerCase()}\nTéléphone : ${telephone || 'non renseigné'}\nVille : ${ville}`
   ).catch(() => {});
 
   return NextResponse.json({ message: 'Compte créé.' }, { status: 201 });

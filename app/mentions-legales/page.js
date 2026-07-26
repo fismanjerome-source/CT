@@ -63,7 +63,7 @@ export default function MentionsLegalesPage() {
         <h2>Données personnelles</h2>
         <p>
           Le traitement des données personnelles collectées sur le site est décrit dans nos{' '}
-          <Link href="/cgu">Conditions Générales d'Utilisation</Link> (article 8). Conformément au RGPD, vous
+          <Link href="/cgu">Conditions Générales d'Utilisation (CGU)</Link> (article 8). Conformément au RGPD, vous
           disposez d'un droit d'accès, de rectification et de suppression de vos données, exerçable auprès de
           contact@creneauct.fr. Les centres partenaires peuvent également supprimer leurs données personnelles
           directement depuis leur espace professionnel.

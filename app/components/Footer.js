@@ -29,6 +29,7 @@ export default function Footer() {
           <Link href="/cgu">CGU</Link>
           <Link href="/mentions-legales">Mentions légales</Link>
         </nav>
+        <p className="footer-copyright">© {new Date().getFullYear()} Créneau CT. Tous droits réservés.</p>
       </div>
     </footer>
   );

@@ -124,6 +124,10 @@ export default function ProParametresPage() {
           Pour toute question, contactez Créneau CT : <Link href="/pro/contact">accédez au formulaire de contact</Link>.
         </p>
 
+        <p className="help-text" style={{ maxWidth: 420 }}>
+          Consultez à tout moment nos <Link href="/cgu" target="_blank" rel="noopener noreferrer">Conditions Générales d'Utilisation (CGU)</Link>.
+        </p>
+
         <p style={{ maxWidth: 420, marginTop: 40 }}>
           <button
             type="button"
