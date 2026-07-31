@@ -41,6 +41,20 @@ export const metadata = {
     type: 'website',
   },
   robots: { index: true, follow: true },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Créneau CT',
+  },
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icons/apple-touch-icon.png',
+  },
+};
+
+export const viewport = {
+  themeColor: '#1B3A5C',
 };
 
 export default function RootLayout({ children }) {
@@ -57,6 +71,15 @@ export default function RootLayout({ children }) {
                 document.documentElement.dataset.theme = 'dark';
               }
             } catch (e) {}`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js').catch(function () {});
+              });
+            }`,
           }}
         />
       </head>

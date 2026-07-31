@@ -13,6 +13,11 @@ export default function AdminSecuritePage() {
 
   const [statut, setStatut] = useState(null);
   const [erreur, setErreur] = useState(null);
+  const [nouveauNom, setNouveauNom] = useState('');
+  const [nouvelEmail, setNouvelEmail] = useState('');
+  const [motDePasseNouveauCompte, setMotDePasseNouveauCompte] = useState('');
+  const [envoiNouveauCompte, setEnvoiNouveauCompte] = useState(false);
+  const [messageNouveauCompte, setMessageNouveauCompte] = useState(null);
   const [message, setMessage] = useState(null);
 
   const [setupEnCours, setSetupEnCours] = useState(false);
@@ -221,6 +226,51 @@ export default function AdminSecuritePage() {
             </div>
             <button type="submit" disabled={envoiMdp} style={{ width: '100%' }}>
               {envoiMdp ? 'Enregistrement…' : 'Mettre à jour le mot de passe'}
+            </button>
+          </form>
+        </section>
+
+        <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Ajouter un administrateur</h2></div>
+          <p className="help-text">
+            Utile pour donner accès à un tiers de confiance (expert-comptable, associé...) avec son propre compte
+            nominatif, plutôt que de partager le vôtre.
+          </p>
+          {messageNouveauCompte && <div className={`message-banner ${messageNouveauCompte.type}`}>{messageNouveauCompte.text}</div>}
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setEnvoiNouveauCompte(true);
+            setMessageNouveauCompte(null);
+            try {
+              const res = await fetch('/api/admin/creer-compte', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom: nouveauNom, email: nouvelEmail, password: motDePasseNouveauCompte }),
+              });
+              const data = await res.json();
+              if (!res.ok) { setMessageNouveauCompte({ type: 'error', text: data.erreur }); setEnvoiNouveauCompte(false); return; }
+              setMessageNouveauCompte({ type: 'success', text: `Compte créé pour ${nouveauNom}.` });
+              setNouveauNom(''); setNouvelEmail(''); setMotDePasseNouveauCompte('');
+            } catch {
+              setMessageNouveauCompte({ type: 'error', text: 'Erreur réseau. Réessayez.' });
+            } finally {
+              setEnvoiNouveauCompte(false);
+            }
+          }}>
+            <div className="form-row">
+              <label htmlFor="nouveau_nom">Nom</label>
+              <input id="nouveau_nom" type="text" required value={nouveauNom} onChange={(e) => setNouveauNom(e.target.value)} />
+            </div>
+            <div className="form-row">
+              <label htmlFor="nouvel_email">Email</label>
+              <input id="nouvel_email" type="email" required value={nouvelEmail} onChange={(e) => setNouvelEmail(e.target.value)} />
+            </div>
+            <div className="form-row">
+              <label htmlFor="mdp_nouveau_compte">Mot de passe initial (à faire changer ensuite)</label>
+              <input id="mdp_nouveau_compte" type="password" required minLength={8} value={motDePasseNouveauCompte} onChange={(e) => setMotDePasseNouveauCompte(e.target.value)} />
+            </div>
+            <button type="submit" disabled={envoiNouveauCompte} style={{ width: '100%' }}>
+              {envoiNouveauCompte ? 'Création…' : 'Créer le compte'}
             </button>
           </form>
         </section>

@@ -602,6 +602,10 @@ function DashboardPageInner() {
                 <strong>Aucune commission due pour le moment.</strong>
               )}
             </div>
+            <p className="help-text" style={{ marginTop: 8, marginBottom: 0 }}>
+              💶 Rappel : la prise de rendez-vous via Créneau CT n'entraîne aucun paiement en ligne — le client
+              vous règle directement le prix affiché par vos soins après son contrôle technique.
+            </p>
           </div>
         )}
 
