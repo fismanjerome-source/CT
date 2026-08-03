@@ -72,39 +72,6 @@
   background: var(--color-surface);
 }
 
-[data-theme="dim"] {
-  --color-bg: #383F49;
-  --color-surface: #444C57;
-  --color-primary: #5688B8;
-  --color-primary-light: #6C9CC9;
-  --color-accent: #D9A62E;
-  --color-highlight: #E4572E;
-  --color-text: #EAEDEF;
-  --color-text-muted: #A7AFB8;
-  --color-success: #4CAF6D;
-  --color-success-bg: #28332B;
-  --color-danger: #D97A63;
-  --color-danger-bg: #3B2D28;
-  --color-promo: #D99456;
-  --color-promo-bg: #3B2F21;
-  --color-border: #545C67;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-[data-theme="dim"] .centre-card,
-[data-theme="dim"] .search-box,
-[data-theme="dim"] .card,
-[data-theme="dim"] .facture-document,
-[data-theme="dim"] .modal,
-[data-theme="dim"] .login-card {
-  background: var(--color-surface);
-}
-
-[data-theme="dim"] .day-chip,
-[data-theme="dim"] .slot-btn:not(.promo) {
-  background: var(--color-surface);
-}
-
 * { box-sizing: border-box; }
 
 html, body {

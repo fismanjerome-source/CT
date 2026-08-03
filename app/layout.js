@@ -65,7 +65,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{
             __html: `try {
               var t = localStorage.getItem('creneau-ct-theme');
-              if (t === 'dark' || t === 'dim') {
+              if (t === 'dark') {
                 document.documentElement.dataset.theme = t;
               } else if (!t && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 document.documentElement.dataset.theme = 'dark';
