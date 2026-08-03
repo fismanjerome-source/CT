@@ -128,6 +128,25 @@ export default function ProParametresPage() {
           Consultez à tout moment nos <Link href="/cgu" target="_blank" rel="noopener noreferrer">Conditions Générales d'Utilisation (CGU)</Link>.
         </p>
 
+        <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>📱 Installer l'application sur votre téléphone</h2></div>
+          <p className="help-text">
+            Créneau CT peut s'installer comme une vraie application, avec sa propre icône sur votre écran d'accueil
+            — pratique pour y accéder en un geste, sans passer par un navigateur.
+          </p>
+          <p style={{ marginBottom: 6 }}><strong>Sur iPhone / iPad (Safari uniquement)</strong></p>
+          <ol style={{ marginTop: 0, paddingLeft: 20, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+            <li>Ouvrez ce site dans <strong>Safari</strong> (Chrome ne le permet pas sur iPhone)</li>
+            <li>Appuyez sur le bouton Partager (le carré avec une flèche vers le haut)</li>
+            <li>Choisissez « Sur l'écran d'accueil », puis « Ajouter »</li>
+          </ol>
+          <p style={{ marginBottom: 6 }}><strong>Sur Android</strong></p>
+          <ol style={{ marginTop: 0, paddingLeft: 20, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+            <li>Une bannière « Installer l'application » apparaît généralement automatiquement</li>
+            <li>À défaut, menu ⋮ de Chrome → « Installer l'application »</li>
+          </ol>
+        </section>
+
         <p style={{ maxWidth: 420, marginTop: 40 }}>
           <button
             type="button"

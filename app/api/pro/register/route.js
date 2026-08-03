@@ -37,8 +37,8 @@ export async function POST(request) {
     const centreId = Number(centreResult.lastInsertRowid);
 
     const controleurResult = await tx.execute({
-      sql: `INSERT INTO controleurs (centre_id, nom, email, telephone, password_hash) VALUES (?, ?, ?, ?, ?)`,
-      args: [centreId, nom, email.toLowerCase(), telephone || null, hashPassword(password)],
+      sql: `INSERT INTO controleurs (centre_id, nom, email, telephone, password_hash, created_at, email_details_envoye) VALUES (?, ?, ?, ?, ?, ?, 0)`,
+      args: [centreId, nom, email.toLowerCase(), telephone || null, hashPassword(password), new Date().toISOString()],
     });
     controleurId = Number(controleurResult.lastInsertRowid);
 
