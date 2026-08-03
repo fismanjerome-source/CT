@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { get, run } from '@/lib/db';
 import { getSession, hashPassword, verifyPassword } from '@/lib/auth';
 import { jsonError } from '@/lib/utils';
+import { envoyerEmail } from '@/lib/email';
+import { emailMotDePasseModifie } from '@/lib/emails/templates';
 
 export async function PATCH(request) {
   const session = await getSession();
@@ -26,6 +28,9 @@ export async function PATCH(request) {
     hashPassword(nouveau_mot_de_passe),
     session.controleurId,
   ]);
+
+  const { subject, html } = emailMotDePasseModifie({ nom: controleur.nom });
+  envoyerEmail({ to: controleur.email, subject, html }).catch(() => {});
 
   return NextResponse.json({ message: 'Mot de passe mis à jour.' });
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { get } from '@/lib/db';
-import { verifyPassword, setSessionCookie } from '@/lib/auth';
+import { verifyPassword, setSessionCookie, creerJetonPreloginPro } from '@/lib/auth';
 import { jsonError } from '@/lib/utils';
 import { verifierLimite, enregistrerEchec, reinitialiser, obtenirIp } from '@/lib/rateLimit';
 
@@ -24,6 +24,14 @@ export async function POST(request) {
   }
 
   reinitialiser(cle);
+
+  if (controleur.totp_actif) {
+    return NextResponse.json({
+      besoin_code: true,
+      jeton: creerJetonPreloginPro(controleur.id),
+    });
+  }
+
   await setSessionCookie(controleur.id);
 
   return NextResponse.json({

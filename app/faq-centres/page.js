@@ -40,6 +40,10 @@ const questions = [
     q: "📱 Puis-je gérer mon planning depuis mon téléphone ou ma tablette ?",
     r: "Oui, entièrement. Votre espace professionnel fonctionne aussi bien sur ordinateur que sur smartphone ou tablette, sans rien à installer — juste à vous connecter depuis un navigateur. Pratique pour ouvrir un créneau de dernière minute ou vérifier vos rendez-vous du jour, même loin du bureau.",
   },
+  {
+    q: "🔐 Puis-je activer une double authentification sur mon compte ?",
+    r: "Oui. Depuis l'onglet « Paramètres » de votre espace, vous pouvez activer une double authentification (le même principe que sur une banque en ligne) : un code à 6 chiffres généré par une application comme Google Authenticator, en plus de votre mot de passe. Totalement facultatif, mais recommandé si le service informatique de votre centre le demande.",
+  },
 ];
 
 export default function FAQCentresPage() {

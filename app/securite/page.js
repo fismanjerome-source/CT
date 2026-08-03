@@ -42,7 +42,7 @@ export default function SecuritePage() {
           <li>Les mots de passe ne sont <strong>jamais stockés en clair</strong> : ils sont chiffrés (hachés) avec un algorithme moderne (scrypt), impossible à retrouver même en cas d'accès à la base de données</li>
           <li>Toutes les connexions au site passent par <strong>HTTPS</strong> (chiffrement des données en transit)</li>
           <li>Les sessions de connexion sont signées cryptographiquement pour empêcher toute falsification</li>
-          <li>L'espace admin est protégé par <strong>double authentification</strong> (le même principe que sur une banque en ligne)</li>
+          <li>Une <strong>double authentification</strong> (le même principe que sur une banque en ligne) est disponible aussi bien pour l'espace admin que pour chaque centre partenaire, activable librement depuis son espace</li>
           <li>Chaque centre ne voit que ses propres données — jamais celles d'un autre centre</li>
         </ul>
 

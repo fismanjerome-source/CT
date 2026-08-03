@@ -23,6 +23,11 @@ export default function SuiviPage() {
   const [creneauxModif, setCreneauxModif] = useState(null);
   const [chargementCreneaux, setChargementCreneaux] = useState(false);
   const [envoiModif, setEnvoiModif] = useState(false);
+  const [autreCentre, setAutreCentre] = useState(false);
+  const [villeRecherche, setVilleRecherche] = useState('');
+  const [centresTrouves, setCentresTrouves] = useState(null);
+  const [centreChoisi, setCentreChoisi] = useState(null);
+  const [rechercheCentres, setRechercheCentres] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -64,16 +69,40 @@ export default function SuiviPage() {
     setModeModification(true);
     setMessage(null);
     setDateModif(todayISO());
-    chargerCreneauxModif(todayISO());
+    setAutreCentre(false);
+    setCentresTrouves(null);
+    setCentreChoisi(null);
+    chargerCreneauxModif(todayISO(), rdv.centre_id);
   }
 
-  async function chargerCreneauxModif(date) {
+  async function chercherCentres(e) {
+    e.preventDefault();
+    setRechercheCentres(true);
+    try {
+      const params = new URLSearchParams({ ville: villeRecherche.trim() });
+      if (rdv.type_vehicule) params.set('vehicule', rdv.type_vehicule);
+      const res = await fetch(`/api/centres?${params.toString()}`);
+      const data = await res.json();
+      setCentresTrouves(data.centres.filter((c) => c.id !== rdv.centre_id));
+    } catch {
+      setCentresTrouves([]);
+    } finally {
+      setRechercheCentres(false);
+    }
+  }
+
+  function choisirCentre(centre) {
+    setCentreChoisi(centre);
+    chargerCreneauxModif(dateModif, centre.id);
+  }
+
+  async function chargerCreneauxModif(date, centreId) {
     setDateModif(date);
     setChargementCreneaux(true);
     try {
       const params = new URLSearchParams({ date });
       if (rdv.type_vehicule) params.set('type_vehicule', rdv.type_vehicule);
-      const res = await fetch(`/api/centres/${rdv.centre_id}/creneaux?${params.toString()}`);
+      const res = await fetch(`/api/centres/${centreId ?? (centreChoisi ? centreChoisi.id : rdv.centre_id)}/creneaux?${params.toString()}`);
       const data = await res.json();
       setCreneauxModif(data.creneaux);
     } catch {
@@ -188,34 +217,89 @@ export default function SuiviPage() {
             {modeModification && (
               <div style={{ marginTop: 20, borderTop: '1px solid var(--color-border)', paddingTop: 16 }}>
                 <h3 style={{ marginBottom: 10 }}>Choisir un nouveau créneau</h3>
-                <div className="day-picker">
-                  {Array.from({ length: 14 }, (_, i) => todayISO(i)).map((d) => {
-                    const date = new Date(d + 'T00:00:00');
-                    return (
-                      <div
-                        key={d}
-                        className={`day-chip ${d === dateModif ? 'selected' : ''}`}
-                        onClick={() => chargerCreneauxModif(d)}
-                      >
-                        <span className="dow">{date.toLocaleDateString('fr-FR', { weekday: 'short' })}</span>
-                        <span className="num">{date.getDate()}</span>
-                      </div>
-                    );
-                  })}
+
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                  <button
+                    type="button"
+                    className={!autreCentre ? '' : 'btn-secondary'}
+                    onClick={() => { setAutreCentre(false); setCentreChoisi(null); chargerCreneauxModif(dateModif, rdv.centre_id); }}
+                  >
+                    Rester chez {rdv.centre_nom}
+                  </button>
+                  <button
+                    type="button"
+                    className={autreCentre ? '' : 'btn-secondary'}
+                    onClick={() => { setAutreCentre(true); setCreneauxModif(null); }}
+                  >
+                    Changer de centre
+                  </button>
                 </div>
-                <div className="slots-grid">
-                  {chargementCreneaux ? (
-                    <p className="help-text">Chargement…</p>
-                  ) : !creneauxModif || creneauxModif.length === 0 ? (
-                    <div className="empty-state" style={{ gridColumn: '1 / -1' }}>Aucun créneau disponible ce jour-là.</div>
-                  ) : (
-                    creneauxModif.map((c) => (
-                      <button key={c.id} className="slot-btn" disabled={envoiModif} onClick={() => confirmerModification(c.id)}>
-                        <span className="slot-heure">{c.heure}</span>
-                      </button>
-                    ))
-                  )}
-                </div>
+
+                {autreCentre && !centreChoisi && (
+                  <div style={{ marginBottom: 16 }}>
+                    <form onSubmit={chercherCentres} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                      <input
+                        type="text" placeholder="Ville" value={villeRecherche}
+                        onChange={(e) => setVilleRecherche(e.target.value)} style={{ flex: 1 }}
+                      />
+                      <button type="submit" disabled={rechercheCentres}>{rechercheCentres ? 'Recherche…' : 'Chercher'}</button>
+                    </form>
+                    {centresTrouves && (
+                      centresTrouves.length === 0 ? (
+                        <div className="empty-state">Aucun autre centre trouvé pour cette ville.</div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {centresTrouves.map((c) => (
+                            <button key={c.id} type="button" className="btn-secondary" style={{ textAlign: 'left' }} onClick={() => choisirCentre(c)}>
+                              <strong>{c.nom}</strong> — {c.ville}
+                            </button>
+                          ))}
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+
+                {(!autreCentre || centreChoisi) && (
+                  <>
+                    {autreCentre && centreChoisi && (
+                      <p className="help-text" style={{ marginBottom: 10 }}>
+                        Nouveau centre : <strong>{centreChoisi.nom}</strong> ({centreChoisi.ville}) —{' '}
+                        <button type="button" onClick={() => { setCentreChoisi(null); setCreneauxModif(null); }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>
+                          changer
+                        </button>
+                      </p>
+                    )}
+                    <div className="day-picker">
+                      {Array.from({ length: 14 }, (_, i) => todayISO(i)).map((d) => {
+                        const date = new Date(d + 'T00:00:00');
+                        return (
+                          <div
+                            key={d}
+                            className={`day-chip ${d === dateModif ? 'selected' : ''}`}
+                            onClick={() => chargerCreneauxModif(d, autreCentre && centreChoisi ? centreChoisi.id : rdv.centre_id)}
+                          >
+                            <span className="dow">{date.toLocaleDateString('fr-FR', { weekday: 'short' })}</span>
+                            <span className="num">{date.getDate()}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="slots-grid">
+                      {chargementCreneaux ? (
+                        <p className="help-text">Chargement…</p>
+                      ) : !creneauxModif || creneauxModif.length === 0 ? (
+                        <div className="empty-state" style={{ gridColumn: '1 / -1' }}>Aucun créneau disponible ce jour-là.</div>
+                      ) : (
+                        creneauxModif.map((c) => (
+                          <button key={c.id} className="slot-btn" disabled={envoiModif} onClick={() => confirmerModification(c.id)}>
+                            <span className="slot-heure">{c.heure}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
                 <button type="button" className="btn-secondary" onClick={() => setModeModification(false)}>Annuler la modification</button>
               </div>
             )}

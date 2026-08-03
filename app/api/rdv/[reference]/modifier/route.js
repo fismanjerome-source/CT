@@ -3,7 +3,7 @@ import { db, get, ensureSchema } from '@/lib/db';
 import { jsonError, creneauSuffisammentEloigne } from '@/lib/utils';
 import { calculerTauxCommissionEffectif } from '@/lib/facturation';
 import { envoyerEmail } from '@/lib/email';
-import { emailConfirmationReservation } from '@/lib/emails/templates';
+import { emailConfirmationReservation, emailChangementRdvCentre, emailNouvelleReservationCentre } from '@/lib/emails/templates';
 import { genererICSRendezVous } from '@/lib/ics';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
 import { libelleType } from '@/lib/vehicules';
@@ -20,7 +20,7 @@ export async function PATCH(request, { params }) {
   await ensureSchema();
 
   const rdv = await get(
-    `SELECT r.*, c.centre_id AS ancien_centre_id, c.id AS ancien_creneau_id
+    `SELECT r.*, c.centre_id AS ancien_centre_id, c.id AS ancien_creneau_id, c.date AS ancienne_date, c.heure AS ancienne_heure, c.controleur_id AS ancien_controleur_id
      FROM rdv r JOIN creneaux c ON c.id = r.creneau_id
      WHERE r.reference = ?`,
     [reference]
@@ -34,9 +34,7 @@ export async function PATCH(request, { params }) {
 
   const nouveauCreneau = await get('SELECT * FROM creneaux WHERE id = ?', [nouveau_creneau_id]);
   if (!nouveauCreneau) return jsonError(404, 'Nouveau créneau introuvable.');
-  if (nouveauCreneau.centre_id !== rdv.ancien_centre_id) {
-    return jsonError(400, 'Le nouveau créneau doit appartenir au même centre.');
-  }
+  const changeDeCentre = nouveauCreneau.centre_id !== rdv.ancien_centre_id;
   if (nouveauCreneau.statut !== 'disponible') {
     return jsonError(409, "Ce créneau vient d'être réservé par quelqu'un d'autre. Choisissez-en un autre.");
   }
@@ -100,6 +98,52 @@ export async function PATCH(request, { params }) {
     html,
     attachments: [{ filename: 'rendez-vous-controle-technique.ics', content: icsBase64 }],
   }).catch(() => {});
+
+  const controleur = await get('SELECT nom, email FROM controleurs WHERE id = ?', [nouveauCreneau.controleur_id]);
+  const ancienneDateLisible = new Date(rdv.ancienne_date + 'T00:00:00').toLocaleDateString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+  if (changeDeCentre) {
+    // Le centre d'origine perd ce rendez-vous : on le prévient comme pour une annulation.
+    const ancienControleur = await get('SELECT nom, email FROM controleurs WHERE id = ?', [rdv.ancien_controleur_id]);
+    if (ancienControleur) {
+      const { subject: subjectAncien, html: htmlAncien } = emailChangementRdvCentre({
+        nomControleur: ancienControleur.nom,
+        type: 'annulation',
+        clientNom: `${rdv.client_prenom || ''} ${rdv.client_nom}`.trim(),
+        ancienneDateLisible, ancienneHeure: rdv.ancienne_heure,
+        reference,
+      });
+      envoyerEmail({ to: ancienControleur.email, subject: subjectAncien, html: htmlAncien }).catch(() => {});
+    }
+    // Le nouveau centre découvre ce client : on le prévient comme pour une nouvelle réservation.
+    if (controleur) {
+      const { subject: subjectNouveau, html: htmlNouveau } = emailNouvelleReservationCentre({
+        nomControleur: controleur.nom,
+        clientNom: `${rdv.client_prenom || ''} ${rdv.client_nom}`.trim(),
+        clientTelephone: rdv.client_telephone,
+        clientEmail: rdv.client_email,
+        dateLisible, heure: nouveauCreneau.heure,
+        typeVehiculeLabel: rdv.type_vehicule ? libelleType(rdv.type_vehicule) : null,
+        immatriculation: rdv.immatriculation,
+        reference,
+        prixPaye,
+      });
+      envoyerEmail({ to: controleur.email, subject: subjectNouveau, html: htmlNouveau }).catch(() => {});
+    }
+  } else if (controleur) {
+    const { subject: subjectCentre, html: htmlCentre } = emailChangementRdvCentre({
+      nomControleur: controleur.nom,
+      type: 'modification',
+      clientNom: `${rdv.client_prenom || ''} ${rdv.client_nom}`.trim(),
+      dateLisible, heure: nouveauCreneau.heure,
+      ancienneDateLisible, ancienneHeure: rdv.ancienne_heure,
+      reference,
+    });
+    envoyerEmail({ to: controleur.email, subject: subjectCentre, html: htmlCentre }).catch(() => {});
+  }
+
   envoyerNotificationTelegram(
     `🔄 <b>RDV modifié par le client</b>\nCentre : ${centre.nom}\nNouvelle date : ${nouveauCreneau.date} à ${nouveauCreneau.heure}\n🚗 Véhicule : ${rdv.type_vehicule ? libelleType(rdv.type_vehicule) : 'non renseigné'}\nRéférence : ${reference}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
   ).catch(() => {});

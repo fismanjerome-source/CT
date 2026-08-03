@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProSidebar from '../../components/ProSidebar';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -20,6 +20,94 @@ export default function ProParametresPage() {
   const [confirmationSuppression, setConfirmationSuppression] = useState('');
   const [erreurSuppression, setErreurSuppression] = useState(null);
   const [envoiSuppression, setEnvoiSuppression] = useState(false);
+
+  const [statutTotp, setStatutTotp] = useState(null);
+  const [setupEnCours, setSetupEnCours] = useState(false);
+  const [qrUrl, setQrUrl] = useState(null);
+  const [secret, setSecret] = useState(null);
+  const [codeConfirmation, setCodeConfirmation] = useState('');
+  const [envoiTotp, setEnvoiTotp] = useState(false);
+  const [motDePasseDesactivation, setMotDePasseDesactivation] = useState('');
+  const [messageTotp, setMessageTotp] = useState(null);
+  const [erreurTotp, setErreurTotp] = useState(null);
+
+  useEffect(() => {
+    async function chargerStatutTotp() {
+      try {
+        const res = await fetch('/api/pro/securite');
+        if (res.status === 401) return;
+        const data = await res.json();
+        if (res.ok) setStatutTotp(data);
+      } catch {
+        // Pas grave, l'utilisateur peut recharger la page.
+      }
+    }
+    chargerStatutTotp();
+  }, []);
+
+  async function demarrerActivationTotp() {
+    setEnvoiTotp(true);
+    setErreurTotp(null);
+    try {
+      const res = await fetch('/api/pro/securite/generer', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { setErreurTotp(data.erreur); return; }
+      setQrUrl(data.qr_url);
+      setSecret(data.secret);
+      setSetupEnCours(true);
+    } catch {
+      setErreurTotp('Erreur réseau. Réessayez.');
+    } finally {
+      setEnvoiTotp(false);
+    }
+  }
+
+  async function confirmerActivationTotp(e) {
+    e.preventDefault();
+    setEnvoiTotp(true);
+    setErreurTotp(null);
+    try {
+      const res = await fetch('/api/pro/securite/confirmer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: codeConfirmation }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErreurTotp(data.erreur); setEnvoiTotp(false); return; }
+      setMessageTotp({ type: 'success', text: data.message });
+      setSetupEnCours(false);
+      setCodeConfirmation('');
+      const res2 = await fetch('/api/pro/securite');
+      setStatutTotp(await res2.json());
+    } catch {
+      setErreurTotp('Erreur réseau. Réessayez.');
+    } finally {
+      setEnvoiTotp(false);
+    }
+  }
+
+  async function desactiverTotp(e) {
+    e.preventDefault();
+    setEnvoiTotp(true);
+    setErreurTotp(null);
+    try {
+      const res = await fetch('/api/pro/securite/desactiver', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: motDePasseDesactivation }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErreurTotp(data.erreur); setEnvoiTotp(false); return; }
+      setMessageTotp({ type: 'success', text: data.message });
+      setMotDePasseDesactivation('');
+      const res2 = await fetch('/api/pro/securite');
+      setStatutTotp(await res2.json());
+    } catch {
+      setErreurTotp('Erreur réseau. Réessayez.');
+    } finally {
+      setEnvoiTotp(false);
+    }
+  }
 
   async function handleSupprimerCompte(e) {
     e.preventDefault();
@@ -114,6 +202,66 @@ export default function ProParametresPage() {
               {envoi ? 'Enregistrement…' : 'Mettre à jour le mot de passe'}
             </button>
           </form>
+        </section>
+
+        <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>🔐 Double authentification</h2></div>
+          <p className="help-text">
+            Ajoute un code à 6 chiffres (généré par une application comme Google Authenticator) en plus de votre
+            mot de passe — un vrai plus de sécurité, notamment si le service informatique de votre centre le
+            demande.
+          </p>
+
+          {erreurTotp && <div className="message-banner error">{erreurTotp}</div>}
+          {messageTotp && <div className={`message-banner ${messageTotp.type}`}>{messageTotp.text}</div>}
+
+          {!statutTotp ? (
+            <p className="help-text">Chargement…</p>
+          ) : statutTotp.totp_actif ? (
+            <>
+              <div className="message-banner success">✅ Double authentification activée sur ce compte.</div>
+              <form onSubmit={desactiverTotp} style={{ marginTop: 12 }}>
+                <div className="form-row">
+                  <label htmlFor="mdp_desactivation">Mot de passe (pour désactiver)</label>
+                  <input
+                    id="mdp_desactivation" type="password" required
+                    value={motDePasseDesactivation} onChange={(e) => setMotDePasseDesactivation(e.target.value)}
+                  />
+                </div>
+                <button type="submit" className="btn-danger" disabled={envoiTotp}>
+                  {envoiTotp ? 'Désactivation…' : 'Désactiver la double authentification'}
+                </button>
+              </form>
+            </>
+          ) : !setupEnCours ? (
+            <button type="button" onClick={demarrerActivationTotp} disabled={envoiTotp}>
+              {envoiTotp ? 'Préparation…' : 'Activer la double authentification'}
+            </button>
+          ) : (
+            <div>
+              <p style={{ marginBottom: 10 }}>
+                1. Scannez ce QR code avec Google Authenticator (ou une application équivalente) :
+              </p>
+              {qrUrl && <img src={qrUrl} alt="QR code de double authentification" style={{ display: 'block', marginBottom: 12 }} />}
+              <p className="help-text" style={{ marginBottom: 12 }}>
+                Impossible de scanner ? Entrez ce code manuellement dans l'application : <span className="mono">{secret}</span>
+              </p>
+              <form onSubmit={confirmerActivationTotp}>
+                <div className="form-row">
+                  <label htmlFor="code_confirmation">2. Entrez le code affiché pour confirmer</label>
+                  <input
+                    id="code_confirmation" type="text" inputMode="numeric" maxLength={6} required
+                    value={codeConfirmation} onChange={(e) => setCodeConfirmation(e.target.value.replace(/\D/g, ''))}
+                    style={{ fontSize: '1.2rem', letterSpacing: '0.3em', textAlign: 'center' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button type="submit" disabled={envoiTotp}>{envoiTotp ? 'Vérification…' : 'Confirmer et activer'}</button>
+                  <button type="button" className="btn-secondary" onClick={() => setSetupEnCours(false)}>Annuler</button>
+                </div>
+              </form>
+            </div>
+          )}
         </section>
 
         <p className="help-text" style={{ maxWidth: 420 }}>
