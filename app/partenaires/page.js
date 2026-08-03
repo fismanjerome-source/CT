@@ -10,8 +10,9 @@ const partenaires = [
   {
     nom: 'CT en Folie',
     url: 'https://ct-en-folie.com',
+    logo: '/partenaires/ct-en-folie-logo.jpg',
     description:
-      "Agence de recrutement spécialisée dans le contrôle technique automobile, moto et poids lourd. Issue d'une communauté de plus de 8 800 professionnels du secteur, elle met en relation les centres de contrôle technique avec des contrôleurs qualifiés partout en France.",
+      "Agence de recrutement spécialisée dans le contrôle technique automobile, moto et poids lourd. Issue d'une communauté de plus de 9 800 professionnels du secteur, elle met en relation les centres de contrôle technique avec des contrôleurs qualifiés partout en France.",
   },
 ];
 
@@ -33,7 +34,14 @@ export default function PartenairesPage() {
       <section className="container" style={{ padding: '32px 24px 64px' }}>
         {partenaires.map((p) => (
           <div key={p.nom} className="card">
-            <div className="card-header">
+            <div className="card-header" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              {p.logo && (
+                <img
+                  src={p.logo}
+                  alt={`Logo ${p.nom}`}
+                  style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }}
+                />
+              )}
               <h2 style={{ margin: 0 }}>{p.nom}</h2>
             </div>
             <p>{p.description}</p>

@@ -42,7 +42,7 @@ const questions = [
   },
   {
     q: "🔐 Puis-je activer une double authentification sur mon compte ?",
-    r: "Oui. Depuis l'onglet « Paramètres » de votre espace, vous pouvez activer une double authentification (le même principe que sur une banque en ligne) : un code à 6 chiffres généré par une application comme Google Authenticator, en plus de votre mot de passe. Totalement facultatif, mais recommandé si le service informatique de votre centre le demande.",
+    r: "Oui. Depuis l'onglet « Paramètres » de votre espace, vous pouvez activer une double authentification (le même principe que sur une banque en ligne) : un code à 6 chiffres généré par une application comme Google Authenticator, en plus de votre mot de passe. Totalement facultatif, mais recommandé si le service informatique de votre réseau vous le demande par exemple.",
   },
 ];
 
