@@ -1,5 +1,5 @@
 // app/api/cron/sync-agendas/route.js — à appeler régulièrement (toutes les
-// 5 minutes par exemple) par un service de tâche planifiée externe et gratuit
+// heures par exemple) par un service de tâche planifiée externe et gratuit
 // (ex: cron-job.org), avec le paramètre ?cle=VOTRE_CRON_SECRET dans l'URL.
 // Synchronise automatiquement l'agenda externe de TOUS les centres qui en
 // ont renseigné un, sans qu'un humain ait besoin de cliquer sur

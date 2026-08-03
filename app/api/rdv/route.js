@@ -3,7 +3,7 @@ import { db, get, ensureSchema } from '@/lib/db';
 import { generateReference, jsonError, creneauSuffisammentEloigne } from '@/lib/utils';
 import { calculerTauxCommissionEffectif } from '@/lib/facturation';
 import { envoyerEmail } from '@/lib/email';
-import { emailConfirmationReservation } from '@/lib/emails/templates';
+import { emailConfirmationReservation, emailNouvelleReservationCentre } from '@/lib/emails/templates';
 import { genererICSRendezVous } from '@/lib/ics';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
 import { libelleType } from '@/lib/vehicules';
@@ -91,6 +91,23 @@ export async function POST(request) {
     html,
     attachments: [{ filename: 'rendez-vous-controle-technique.ics', content: icsBase64 }],
   }).catch(() => {});
+
+  const controleur = await get('SELECT nom, email FROM controleurs WHERE id = ?', [creneau.controleur_id]);
+  if (controleur) {
+    const { subject: subjectCentre, html: htmlCentre } = emailNouvelleReservationCentre({
+      nomControleur: controleur.nom,
+      clientNom: nomComplet,
+      clientTelephone: client_telephone,
+      clientEmail: client_email,
+      dateLisible, heure: creneau.heure,
+      typeVehiculeLabel: type_vehicule ? libelleType(type_vehicule) : null,
+      immatriculation: immatriculation.toUpperCase(),
+      reference,
+      prixPaye,
+    });
+    envoyerEmail({ to: controleur.email, subject: subjectCentre, html: htmlCentre }).catch(() => {});
+  }
+
   envoyerNotificationTelegram(
     `📅 <b>Nouvelle réservation client</b>\nCentre : ${centre.nom}\nDate : ${creneau.date} à ${creneau.heure}\nClient : ${nomComplet}\n📧 Email : ${client_email}\n📱 Téléphone : ${client_telephone}\n🚗 Véhicule : ${type_vehicule ? libelleType(type_vehicule) : 'non renseigné'}\nRéférence : ${reference}\nPrix payé : ${prixPaye != null ? `${prixPaye.toFixed(2)} €` : 'non renseigné'}\n💰 Commission Créneau CT : ${commissionMontant != null ? `${commissionMontant.toFixed(2)} € (${commissionPourcentage}%)` : 'non calculable'}`
   ).catch(() => {});
