@@ -56,7 +56,7 @@ export default function ProContactPage() {
               <MailIcon size={16} />
               contact@creneauct.fr
             </a>
-            <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
+            <a href="https://wa.me/33608129145" target="_blank" rel="noopener noreferrer" className="contact-btn contact-btn-whatsapp">
               <WhatsAppIcon size={16} />
               WhatsApp
             </a>
