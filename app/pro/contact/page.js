@@ -48,9 +48,9 @@ export default function ProContactPage() {
         <div className="contact-humain" style={{ marginTop: 20, maxWidth: 460 }}>
           <span className="contact-humain-label">Nous joindre :</span>
           <div className="contact-humain-boutons">
-            <a href="tel:+33186761234" className="contact-btn">
+            <a href="tel:+33608129145" className="contact-btn">
               <PhoneIcon size={16} />
-              01 86 76 12 34
+              06 08 12 91 45
             </a>
             <a href="mailto:contact@creneauct.fr" className="contact-btn">
               <MailIcon size={16} />

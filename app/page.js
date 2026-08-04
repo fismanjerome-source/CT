@@ -112,9 +112,9 @@ export default function HomePage() {
           <div className="contact-humain">
             <span className="contact-humain-label">Un RDV pour votre contrôle technique ? Une question ? Un vrai contact, toujours disponible :</span>
             <div className="contact-humain-boutons">
-              <a href="tel:+33186761234" className="contact-btn">
+              <a href="tel:+33608129145" className="contact-btn">
                 <PhoneIcon size={16} />
-                01 86 76 12 34
+                06 08 12 91 45
               </a>
               <a href="sms:+33612345678" className="contact-btn">
                 <SmsIcon size={16} />
@@ -341,7 +341,7 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
           </a>
         </div>
         <a
-          href="tel:+33186761234"
+          href="tel:+33608129145"
           className="tel-btn-creneau"
           onClick={(e) => e.stopPropagation()}
         >

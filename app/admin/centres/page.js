@@ -76,6 +76,38 @@ export default function AdminCentresPage() {
     }
   }
 
+  async function renommerCentre(id, nomActuel) {
+    const nouveauNom = prompt('Nouveau nom du centre :', nomActuel);
+    if (nouveauNom === null || !nouveauNom.trim() || nouveauNom === nomActuel) return;
+    setStatut(id, { enCours: true, message: null });
+    try {
+      const res = await fetch(`/api/admin/centres/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom: nouveauNom }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
+      setStatut(id, { enCours: false, message: 'Nom mis à jour.', type: 'success' });
+      charger();
+    } catch {
+      setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
+    }
+  }
+
+  async function supprimerCentre(id, nom) {
+    if (!confirm(`Supprimer définitivement « ${nom} » ? Cette action retire aussi tous ses créneaux et son historique. Impossible s'il reste des rendez-vous confirmés à venir.`)) return;
+    setStatut(id, { enCours: true, message: null });
+    try {
+      const res = await fetch(`/api/admin/centres/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
+      charger();
+    } catch {
+      setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
+    }
+  }
+
   async function synchroniser(id) {
     setStatut(id, { enCours: true, message: null });
     try {
@@ -232,7 +264,17 @@ export default function AdminCentresPage() {
               const s = statutParCentre[c.id] || {};
               return (
                 <div key={c.id} style={{ borderTop: '1px solid var(--color-border)', padding: '16px 0' }}>
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>{c.nom}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <p style={{ margin: 0, fontWeight: 600 }}>{c.nom}</p>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button type="button" className="btn-secondary" onClick={() => renommerCentre(c.id, c.nom)} disabled={s.enCours}>
+                        Renommer
+                      </button>
+                      <button type="button" className="btn-danger" onClick={() => supprimerCentre(c.id, c.nom)} disabled={s.enCours}>
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
                   {s.message && <div className={`message-banner ${s.type}`} style={{ marginBottom: 10 }}>{s.message}</div>}
                   <div className="grid-2">
                     <div className="form-row" style={{ gridColumn: '1 / -1' }}>

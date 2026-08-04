@@ -29,7 +29,7 @@ export default function MentionsLegalesPage() {
           SIRET : [À COMPLÉTER après immatriculation]<br />
           Adresse : [ADRESSE À COMPLÉTER]<br />
           Email de contact : contact@creneauct.fr<br />
-          Téléphone : 01 86 76 12 34 [NUMÉRO FICTIF, À REMPLACER PAR LE VÔTRE]
+          Téléphone : 06 08 12 91 45
         </p>
 
         <h2>Directeur de la publication</h2>

@@ -139,7 +139,7 @@ export default function CentrePageClient({ params }) {
                   Voir sur Google Maps
                 </a>
               </p>
-              <a href="tel:+33186761234" className="tel-btn-creneau" style={{ marginTop: 10 }}>
+              <a href="tel:+33608129145" className="tel-btn-creneau" style={{ marginTop: 10 }}>
                 📞 Prendre RDV par téléphone
               </a>
             </>
