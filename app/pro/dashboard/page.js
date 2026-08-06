@@ -467,7 +467,7 @@ function DashboardPageInner() {
           <div>
             <div className="brand-nom">Créneau CT</div>
             <div className="brand-sous-titre">Espace pro</div>
-            {centre.est_premium && <div className="sidebar-premium-badge">★ Compte Premium</div>}
+            {!!centre.est_premium && <div className="sidebar-premium-badge">★ Compte Premium</div>}
           </div>
         </div>
         <Horloge />

@@ -283,7 +283,7 @@ export default function AdminCentresPage() {
                 <div key={c.id} style={{ borderTop: '1px solid var(--color-border)', padding: '16px 0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <p style={{ margin: 0, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {c.est_premium && <span className="premium-badge">★ Premium</span>}
+                      {!!c.est_premium && <span className="premium-badge">★ Premium</span>}
                       {c.nom}
                     </p>
                     <div style={{ display: 'flex', gap: 8 }}>
