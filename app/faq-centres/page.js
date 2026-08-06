@@ -14,7 +14,7 @@ const questions = [
   },
   {
     q: "🧮 Comment est calculée la commission ?",
-    r: "Elle est calculée automatiquement à chaque réservation, sur le prix effectivement payé par le client (donc après une éventuelle remise que vous avez vous-même choisie) : 30% si le rendez-vous est pris dans les 7 jours, 25% entre 7 et 14 jours, 20% au-delà. Le taux dépend uniquement du délai entre la réservation et la date du contrôle — jamais d'autre critère caché.",
+    r: "Elle est calculée automatiquement à chaque réservation, sur le prix effectivement payé par le client (donc après une éventuelle remise que vous avez vous-même choisie) : 25% si le rendez-vous est pris dans les 7 jours, 20% entre 7 et 14 jours, 15% au-delà. Le taux dépend uniquement du délai entre la réservation et la date du contrôle — jamais d'autre critère caché.",
   },
   {
     q: "🏷️ Suis-je obligé d'offrir une remise à mes clients ?",

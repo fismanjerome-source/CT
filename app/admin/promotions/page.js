@@ -95,7 +95,7 @@ export default function AdminPromotionsPage() {
         <h1>Promotions</h1>
         <AlertePaiements />
         <p className="help-text">
-          Remplacez temporairement les taux de commission par défaut (30% / 25% / 20%) pour un centre précis ou
+          Remplacez temporairement les taux de commission par défaut (25% / 20% / 15%) pour un centre précis ou
           pour l'ensemble de la plateforme — utile pour offrir un premier mois, ou ajuster les taux pendant une
           période de lancement. Le centre concerné voit la promotion active dans son tableau de bord.
         </p>

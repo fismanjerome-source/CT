@@ -623,7 +623,7 @@ function DashboardPageInner() {
               🎉 <strong>Promotion en cours : {promotionActive.nom}</strong>
               <span className="mono" style={{ display: 'block', marginTop: 4 }}>
                 Taux réduits : {promotionActive.taux_semaine1}% / {promotionActive.taux_semaine2}% / {promotionActive.taux_semaine3}%
-                (au lieu de 30% / 25% / 20%)
+                (au lieu de 25% / 20% / 15%)
               </span>
               <span className="help-text" style={{ display: 'block', marginTop: 4, color: 'inherit', opacity: 0.8 }}>
                 Valable jusqu'au {new Date(promotionActive.date_fin).toLocaleDateString('fr-FR')}.
@@ -970,8 +970,8 @@ function DashboardPageInner() {
             </p>
             <p className="help-text">
               Pour rappel (information interne, jamais affichée au client) : la commission Créneau CT est calculée
-              automatiquement sur le prix payé par le client, selon le délai de réservation (30% sous 7 jours, 25%
-              entre 7 et 14 jours, 20% au-delà) — vous la retrouverez dans le tableau ci-dessous.
+              automatiquement sur le prix payé par le client, selon le délai de réservation (25% sous 7 jours, 20%
+              entre 7 et 14 jours, 15% au-delà) — vous la retrouverez dans le tableau ci-dessous.
             </p>
             <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture…' : 'Ouvrir les créneaux'}</button>
           </form>

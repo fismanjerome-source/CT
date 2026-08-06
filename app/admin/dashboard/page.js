@@ -43,8 +43,8 @@ export default function AdminDashboardPage() {
         <h1>Commissions dues par les centres</h1>
         <AlertePaiements />
         <p className="help-text">
-          Calculées automatiquement à la réservation : 30% si le RDV est pris dans les 7 jours, 25% entre 7 et 14 jours,
-          20% au-delà — appliqué sur le prix renseigné par chaque centre.
+          Calculées automatiquement à la réservation : 25% si le RDV est pris dans les 7 jours, 20% entre 7 et 14 jours,
+          15% au-delà — appliqué sur le prix renseigné par chaque centre.
         </p>
 
         {erreur && <div className="message-banner error" style={{ marginTop: 16 }}>{erreur}</div>}

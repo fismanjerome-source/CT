@@ -169,6 +169,24 @@ export default function ProParametresPage() {
         <h1>Paramètres du compte</h1>
         <p className="help-text">Modifiez votre mot de passe de connexion.</p>
 
+        <section className="card" style={{ marginTop: 24, maxWidth: 460 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>💶 Commissions Créneau CT</h2></div>
+          <p className="help-text">
+            Calculée automatiquement sur le prix effectivement payé par le client, uniquement sur les rendez-vous
+            honorés — jamais sur une absence signalée.
+          </p>
+          <table style={{ width: '100%' }}>
+            <thead>
+              <tr><th>Délai entre réservation et rendez-vous</th><th>Taux</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Moins de 7 jours</td><td className="mono">25 %</td></tr>
+              <tr><td>Entre 7 et 14 jours</td><td className="mono">20 %</td></tr>
+              <tr><td>Plus de 14 jours</td><td className="mono">15 %</td></tr>
+            </tbody>
+          </table>
+        </section>
+
         <section className="card" style={{ marginTop: 24, maxWidth: 420 }}>
           <div className="card-header">
             <h2 style={{ margin: 0 }}>Changer mon mot de passe</h2>
