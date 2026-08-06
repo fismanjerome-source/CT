@@ -467,6 +467,7 @@ function DashboardPageInner() {
           <div>
             <div className="brand-nom">Créneau CT</div>
             <div className="brand-sous-titre">Espace pro</div>
+            {centre.est_premium && <div className="sidebar-premium-badge">★ Compte Premium</div>}
           </div>
         </div>
         <Horloge />
@@ -595,8 +596,13 @@ function DashboardPageInner() {
                 </>
               ) : statutPaiement.mois_en_cours.montant > 0 ? (
                 <>
-                  <strong>{statutPaiement.mois_en_cours.montant.toFixed(2)} €</strong> de commission générés ce
-                  mois-ci — à régler avant le 10 du mois suivant.
+                  <strong>{statutPaiement.mois_en_cours.montant.toFixed(2)} €</strong> dus ce mois-ci
+                  {statutPaiement.mois_en_cours.montant_premium > 0 && (
+                    <span className="help-text" style={{ display: 'block', color: 'inherit', opacity: 0.85 }}>
+                      (dont {statutPaiement.mois_en_cours.montant_premium.toFixed(2)} € de forfait Premium)
+                    </span>
+                  )}
+                  {' '}— à régler avant le 10 du mois suivant.
                 </>
               ) : (
                 <strong>Aucune commission due pour le moment.</strong>
@@ -623,6 +629,37 @@ function DashboardPageInner() {
             </div>
           </div>
         )}
+
+        <div className="paiements-banner ok" style={{ marginTop: 16, borderColor: 'var(--color-accent)' }}>
+          {centre.est_premium ? (
+            <div>
+              <strong style={{ color: 'var(--color-accent)' }}>★ {centre.nom} est en statut Premium</strong>
+              <p className="help-text" style={{ margin: '4px 0 0' }}>
+                Ce centre apparaît en tête des résultats de recherche, avec un badge doré visible par les clients.
+              </p>
+              <p className="help-text" style={{ margin: '4px 0 0' }}>
+                Forfait de 30 € par mois, facturé comme votre commission : à régler avant le 10 du
+                mois suivant. Il apparaît automatiquement, additionné à votre commission, dans le bandeau
+                ci-dessus.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <strong>★ Passez ce centre en Premium</strong>
+              <p className="help-text" style={{ margin: '4px 0 0' }}>
+                Pour 30 €/mois, {centre.nom} apparaît en tête des résultats de recherche avec un
+                badge doré visible — plus de visibilité, plus de réservations. Si vous gérez plusieurs centres,
+                vous choisissez librement lesquels passer en Premium, indépendamment les uns des autres.
+              </p>
+              <p className="help-text" style={{ margin: '4px 0 0' }}>
+                Facturé de la même façon que votre commission : à régler avant le 10 du mois suivant.
+              </p>
+              <Link href="/pro/contact" style={{ display: 'inline-block', marginTop: 8 }}>
+                Nous contacter pour l'activer →
+              </Link>
+            </div>
+          )}
+        </div>
 
         {message && (
           <div className={`message-banner ${message.type}`} style={{ marginTop: 16 }}>{message.text}</div>

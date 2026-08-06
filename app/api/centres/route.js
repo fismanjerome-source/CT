@@ -11,11 +11,11 @@ export async function GET(request) {
   const vehiculeSouhaite = (searchParams.get('vehicule') || '').trim();
   const typeVisite = searchParams.get('type_visite') === 'contre_visite' ? 'contre_visite' : 'normale';
 
-  let sql = 'SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes, image_data, image_mime FROM centres WHERE 1=1';
+  let sql = 'SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes, image_data, image_mime, est_premium FROM centres WHERE 1=1';
   const args = [];
   if (ville) { sql += ' AND ville LIKE ?'; args.push(`%${ville}%`); }
   if (cp) { sql += ' AND code_postal LIKE ?'; args.push(`${cp}%`); }
-  sql += ' ORDER BY ville, nom';
+  sql += ' ORDER BY est_premium DESC, ville, nom';
 
   let centres = await all(sql, args);
 
@@ -99,11 +99,13 @@ export async function GET(request) {
     };
   });
 
-  // Si une date est demandée, on remonte en premier les centres qui ont
-  // effectivement un créneau ce jour-là.
-  if (dateSouhaitee) {
-    result.sort((a, b) => (b.creneau_date_souhaitee ? 1 : 0) - (a.creneau_date_souhaitee ? 1 : 0));
-  }
+  // Les centres premium restent toujours en tête ; à statut égal, on
+  // remonte ceux qui ont effectivement un créneau à la date demandée.
+  result.sort((a, b) => {
+    if (a.est_premium !== b.est_premium) return b.est_premium - a.est_premium;
+    if (dateSouhaitee) return (b.creneau_date_souhaitee ? 1 : 0) - (a.creneau_date_souhaitee ? 1 : 0);
+    return 0;
+  });
 
   return NextResponse.json({ centres: result });
 }

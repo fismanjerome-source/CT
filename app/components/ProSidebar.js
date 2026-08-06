@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Logo from './Logo';
 import Horloge from './Horloge';
@@ -10,6 +11,16 @@ import { IconTableauBord, IconVoiture, IconInterdit, IconBatiment, IconRecu, Ico
 export default function ProSidebar({ centreId, className = '' }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [estPremium, setEstPremium] = useState(false);
+
+  useEffect(() => {
+    let annule = false;
+    fetch(`/api/pro/me${centreId ? `?centre=${centreId}` : ''}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (!annule && data?.centre) setEstPremium(!!data.centre.est_premium); })
+      .catch(() => {});
+    return () => { annule = true; };
+  }, [centreId]);
 
   async function logout() {
     await fetch('/api/pro/logout', { method: 'POST' });
@@ -26,6 +37,7 @@ export default function ProSidebar({ centreId, className = '' }) {
         <div>
           <div className="brand-nom">Créneau CT</div>
           <div className="brand-sous-titre">Espace pro</div>
+          {estPremium && <div className="sidebar-premium-badge">★ Compte Premium</div>}
         </div>
       </div>
       <Horloge />

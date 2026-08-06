@@ -76,6 +76,23 @@ export default function AdminCentresPage() {
     }
   }
 
+  async function basculerPremium(id, estPremiumActuel) {
+    setStatut(id, { enCours: true, message: null });
+    try {
+      const res = await fetch(`/api/admin/centres/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ est_premium: !estPremiumActuel }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
+      setStatut(id, { enCours: false, message: estPremiumActuel ? 'Statut premium retiré.' : 'Centre passé en premium.', type: 'success' });
+      charger();
+    } catch {
+      setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
+    }
+  }
+
   async function renommerCentre(id, nomActuel) {
     const nouveauNom = prompt('Nouveau nom du centre :', nomActuel);
     if (nouveauNom === null || !nouveauNom.trim() || nouveauNom === nomActuel) return;
@@ -265,8 +282,14 @@ export default function AdminCentresPage() {
               return (
                 <div key={c.id} style={{ borderTop: '1px solid var(--color-border)', padding: '16px 0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <p style={{ margin: 0, fontWeight: 600 }}>{c.nom}</p>
+                    <p style={{ margin: 0, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {c.est_premium && <span className="premium-badge">★ Premium</span>}
+                      {c.nom}
+                    </p>
                     <div style={{ display: 'flex', gap: 8 }}>
+                      <button type="button" className="btn-secondary" onClick={() => basculerPremium(c.id, c.est_premium)} disabled={s.enCours}>
+                        {c.est_premium ? 'Retirer le premium' : '★ Passer en premium'}
+                      </button>
                       <button type="button" className="btn-secondary" onClick={() => renommerCentre(c.id, c.nom)} disabled={s.enCours}>
                         Renommer
                       </button>

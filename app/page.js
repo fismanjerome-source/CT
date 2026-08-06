@@ -307,8 +307,8 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
 
   return (
     <div
-      className="centre-card"
-      style={{ cursor: 'pointer', borderColor: couleur.degrade ? (couleur.bordure || couleur.texte) : couleur.fond }}
+      className={`centre-card ${centre.est_premium ? 'centre-card-premium' : ''}`}
+      style={{ cursor: 'pointer', borderColor: centre.est_premium ? 'var(--color-accent)' : (couleur.degrade ? (couleur.bordure || couleur.texte) : couleur.fond) }}
       role="link"
       tabIndex={0}
       onClick={() => router.push(hrefCentre)}
@@ -321,6 +321,11 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
       )}
       <div className="infos">
         <div className="centre-title-row">
+          {centre.est_premium ? (
+            <span className="premium-badge" title="Centre premium">
+              ★ Premium
+            </span>
+          ) : null}
           <h3 style={{ margin: 0 }}>{centre.nom}</h3>
           <span
             className="enseigne-badge"
