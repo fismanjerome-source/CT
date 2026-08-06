@@ -119,6 +119,16 @@ export function IconGraphique({ size = 16 }) {
     </svg>
   );
 }
+export function IconPersonnes({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <circle cx="8.5" cy="7.5" r="3.2" />
+      <path d="M2.5 20c0-3.5 2.7-6 6-6s6 2.5 6 6" />
+      <circle cx="17" cy="8.5" r="2.6" />
+      <path d="M15.3 14.3c2.6.4 4.2 2.4 4.2 5.7" />
+    </svg>
+  );
+}
 export function IconBalance({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base}>

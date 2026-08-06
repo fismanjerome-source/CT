@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
-import { get, run } from '@/lib/db';
+import { get, all, run } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth';
-import { jsonError } from '@/lib/utils';
+import { jsonError, todayISO } from '@/lib/utils';
+import { commissionMoisEnCours } from '@/lib/facturation';
+import { envoyerEmail } from '@/lib/email';
+import { emailPremiumActive, emailPremiumArrete } from '@/lib/emails/templates';
 
 export async function PATCH(request, { params }) {
   const session = await getAdminSession();
@@ -11,7 +14,7 @@ export async function PATCH(request, { params }) {
   const body = await request.json().catch(() => ({}));
   const { ical_url, nom, est_premium } = body;
 
-  const centre = await get('SELECT id FROM centres WHERE id = ?', [id]);
+  const centre = await get('SELECT id, nom, est_premium FROM centres WHERE id = ?', [id]);
   if (!centre) return jsonError(404, 'Centre introuvable.');
 
   if (nom !== undefined) {
@@ -21,11 +24,46 @@ export async function PATCH(request, { params }) {
   if (ical_url !== undefined) {
     await run('UPDATE centres SET ical_url = ? WHERE id = ?', [ical_url ? ical_url.trim() : null, id]);
   }
-  if (est_premium !== undefined) {
-    await run(
-      'UPDATE centres SET est_premium = ?, premium_depuis = ? WHERE id = ?',
-      [est_premium ? 1 : 0, est_premium ? new Date().toISOString() : null, id]
+
+  if (est_premium !== undefined && !!est_premium !== !!centre.est_premium) {
+    const maintenant = new Date().toISOString();
+    if (est_premium) {
+      await run(
+        'UPDATE centres SET est_premium = 1, premium_depuis = ?, premium_desactive_le = NULL WHERE id = ?',
+        [maintenant, id]
+      );
+    } else {
+      await run('UPDATE centres SET est_premium = 0, premium_desactive_le = ? WHERE id = ?', [maintenant, id]);
+    }
+
+    const controleurs = await all(
+      `SELECT ctrl.nom, ctrl.email FROM controleurs ctrl JOIN controleur_centres cc ON cc.controleur_id = ctrl.id WHERE cc.centre_id = ?`,
+      [id]
     );
+    const moisEnCours = await commissionMoisEnCours(id);
+    const moisLisible = new Date(todayISO() + 'T00:00:00').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const jourDuMois = Number(todayISO().slice(8, 10));
+    const totalJoursMois = new Date(Number(todayISO().slice(0, 4)), Number(todayISO().slice(5, 7)), 0).getDate();
+
+    for (const c of controleurs) {
+      if (est_premium) {
+        const { subject, html } = emailPremiumActive({
+          nomControleur: c.nom, nomCentre: centre.nom,
+          montantProrata: moisEnCours.montant_premium,
+          joursRestants: totalJoursMois - jourDuMois + 1,
+          moisLisible,
+        });
+        envoyerEmail({ to: c.email, subject, html }).catch(() => {});
+      } else {
+        const { subject, html } = emailPremiumArrete({
+          nomControleur: c.nom, nomCentre: centre.nom,
+          montantProrata: moisEnCours.montant_premium,
+          joursActifs: jourDuMois,
+          moisLisible,
+        });
+        envoyerEmail({ to: c.email, subject, html }).catch(() => {});
+      }
+    }
   }
 
   return NextResponse.json({ message: 'Centre mis à jour.' });

@@ -5,6 +5,7 @@ import {
   emailBienvenuePro, emailDetailsEspacePro, emailConfirmationReservation, emailRappelRendezVous,
   emailVerificationPassage, emailRdvNonHonore, emailNouvelleReservationCentre,
   emailChangementRdvCentre, emailMotDePasseModifie, emailRappelCommissionMensuelle,
+  emailPremiumActive, emailPremiumDemande, emailPremiumArrete,
 } from '@/lib/emails/templates';
 
 export async function GET() {
@@ -31,6 +32,15 @@ export async function GET() {
   const rappelCommission = emailRappelCommissionMensuelle({
     nomControleur: 'Karim Belhadj', nomCentre: 'Auto Sécurité Bastille', mois: 'juillet 2026',
     montant: 342.60, dateLimite: '10 août 2026',
+  });
+  const premiumActive = emailPremiumActive({
+    nomControleur: 'Karim Belhadj', nomCentre: 'Auto Sécurité Bastille',
+    montantProrata: 18.39, joursRestants: 19, moisLisible: 'août 2026',
+  });
+  const premiumDemande = emailPremiumDemande({ nomControleur: 'Karim Belhadj', nomCentre: 'Auto Sécurité Bastille' });
+  const premiumArrete = emailPremiumArrete({
+    nomControleur: 'Karim Belhadj', nomCentre: 'Auto Sécurité Bastille',
+    montantProrata: 11.61, joursActifs: 12, moisLisible: 'août 2026',
   });
   const confirmation = emailConfirmationReservation({
     clientNom: 'Jean Dupont',
@@ -67,6 +77,9 @@ export async function GET() {
       { cle: 'modification_centre', titre: 'Modification par le client (destiné au centre)', declencheur: "Envoyé automatiquement au centre dès qu'un client déplace son rendez-vous.", ...modificationCentre },
       { cle: 'mot_de_passe_modifie', titre: 'Mot de passe modifié', declencheur: "Envoyé automatiquement (centre ou admin) dès qu'un mot de passe est changé.", ...motDePasseModifie },
       { cle: 'rappel_commission', titre: 'Rappel de commission mensuelle', declencheur: "Envoyé automatiquement le 1er de chaque mois, uniquement si une commission est due, par la tâche planifiée « rappel-commission ».", ...rappelCommission },
+      { cle: 'premium_active', titre: 'Statut Premium activé', declencheur: "Envoyé automatiquement quand l'admin active le Premium d'un centre, avec le montant au prorata du mois en cours.", ...premiumActive },
+      { cle: 'premium_demande', titre: 'Demande de Premium (destiné à vous)', declencheur: "Envoyé à contact@creneauct.fr quand un centre demande l'activation depuis son espace.", ...premiumDemande },
+      { cle: 'premium_arrete', titre: 'Statut Premium arrêté', declencheur: "Envoyé automatiquement quand le Premium est arrêté (par le centre ou par l'admin), avec le montant au prorata.", ...premiumArrete },
     ],
     emails_clients: [
       { cle: 'confirmation_reservation', titre: 'Confirmation de réservation', declencheur: 'Envoyé automatiquement dès qu\'un client confirme un créneau, avec un fichier .ics joint.', ...confirmation },
