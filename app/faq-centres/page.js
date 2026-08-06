@@ -44,6 +44,10 @@ const questions = [
     q: "🔐 Puis-je activer une double authentification sur mon compte ?",
     r: "Oui. Depuis l'onglet « Paramètres » de votre espace, vous pouvez activer une double authentification (le même principe que sur une banque en ligne) : un code à 6 chiffres généré par une application comme Google Authenticator, en plus de votre mot de passe. Totalement facultatif, mais recommandé si le service informatique de votre réseau vous le demande par exemple.",
   },
+  {
+    q: "★ Pourquoi certains centres ont une étoile ?",
+    r: "Cette étoile signale un centre en statut « Premium » : pour 30 € TTC par mois, sans engagement, ce centre apparaît en tête des résultats de recherche, avec un icône doré visible par les clients. Vous pouvez l'activer pour votre propre centre à tout moment depuis l'onglet « Premium » de votre espace — sans surprise, le premier mois est calculé au prorata du nombre de jours restants, et vous pouvez arrêter quand vous le souhaitez, calculé de la même façon.",
+  },
 ];
 
 export default function FAQCentresPage() {

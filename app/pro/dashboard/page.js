@@ -638,7 +638,7 @@ function DashboardPageInner() {
               <strong style={{ color: 'var(--color-accent)' }}>★ {centre.nom} est en statut Premium</strong>
               <p className="help-text" style={{ margin: '4px 0 0' }}>
                 Ce centre apparaît en tête des résultats de recherche, avec un badge doré visible par les clients.
-                Forfait de 30 €/mois, facturé comme votre commission.
+                Forfait de <strong style={{ color: 'var(--color-accent)' }}>30 € TTC/mois</strong>, facturé comme votre commission.
               </p>
               <Link href={`/pro/premium?centre=${centre.id}`} style={{ display: 'inline-block', marginTop: 8 }}>
                 Voir le détail ou arrêter l'abonnement →
@@ -648,7 +648,7 @@ function DashboardPageInner() {
             <div>
               <strong>★ Passez ce centre en Premium</strong>
               <p className="help-text" style={{ margin: '4px 0 0' }}>
-                Pour 30 €/mois, {centre.nom} apparaît en tête des résultats de recherche avec un badge doré
+                Pour <strong style={{ color: 'var(--color-accent)' }}>30 € TTC/mois</strong>, {centre.nom} apparaît en tête des résultats de recherche avec un icône doré
                 visible — plus de visibilité, plus de réservations.
               </p>
               <Link href={`/pro/premium?centre=${centre.id}`} style={{ display: 'inline-block', marginTop: 8 }}>
