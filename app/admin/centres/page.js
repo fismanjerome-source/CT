@@ -18,6 +18,8 @@ export default function AdminCentresPage() {
   const [reinitResultat, setReinitResultat] = useState(null);
   const [icalInputs, setIcalInputs] = useState({});
   const [tauxInputs, setTauxInputs] = useState({});
+  const [noteInputs, setNoteInputs] = useState({});
+  const [filtreStatutParticulier, setFiltreStatutParticulier] = useState(false);
   const [statutParCentre, setStatutParCentre] = useState({}); // { [id]: { enCours, message, type } }
 
   async function charger() {
@@ -34,6 +36,7 @@ export default function AdminCentresPage() {
       setStats(statsJson);
       setIcalInputs(Object.fromEntries(centresJson.centres.map((c) => [c.id, c.ical_url || ''])));
       setTauxInputs(Object.fromEntries(centresJson.centres.map((c) => [c.id, c.commission_taux_fixe ?? ''])));
+      setNoteInputs(Object.fromEntries(centresJson.centres.map((c) => [c.id, c.note_interne || ''])));
     } catch {
       setErreur('Erreur réseau. Réessayez.');
     }
@@ -140,6 +143,23 @@ export default function AdminCentresPage() {
       const data = await res.json();
       if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
       setStatut(id, { enCours: false, message: offertActuel ? 'Premium offert retiré.' : 'Premium offert activé (gratuit pour ce centre).', type: 'success' });
+      charger();
+    } catch {
+      setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
+    }
+  }
+
+  async function enregistrerNote(id) {
+    setStatut(id, { enCours: true, message: null });
+    try {
+      const res = await fetch(`/api/admin/centres/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note_interne: noteInputs[id] || '' }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
+      setStatut(id, { enCours: false, message: 'Note enregistrée.', type: 'success' });
       charger();
     } catch {
       setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
@@ -327,10 +347,25 @@ export default function AdminCentresPage() {
             chaque centre, sauf en cas de besoin ponctuel.
           </p>
 
+          {centres && centres.length > 0 && (
+            <button
+              type="button"
+              className={filtreStatutParticulier ? '' : 'btn-secondary'}
+              style={{ marginBottom: 16 }}
+              onClick={() => setFiltreStatutParticulier(!filtreStatutParticulier)}
+            >
+              {filtreStatutParticulier
+                ? 'Voir tous les centres'
+                : 'Voir uniquement les centres avec un statut particulier'}
+            </button>
+          )}
+
           {!centres ? (
             <p className="help-text">Chargement…</p>
           ) : (
-            centres.map((c) => {
+            centres
+              .filter((c) => !filtreStatutParticulier || c.est_demo || c.est_premium || c.premium_offert || c.commission_taux_fixe != null || c.note_interne)
+              .map((c) => {
               const s = statutParCentre[c.id] || {};
               return (
                 <div key={c.id} style={{ borderTop: '1px solid var(--color-border)', padding: '16px 0' }}>
@@ -398,6 +433,19 @@ export default function AdminCentresPage() {
                     <div className="form-row" style={{ alignSelf: 'flex-end' }}>
                       <button type="button" className="btn-secondary" onClick={() => enregistrerTauxFixe(c.id)} disabled={s.enCours}>
                         Enregistrer le taux
+                      </button>
+                    </div>
+                    <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                      <label htmlFor={`note-${c.id}`}>Note interne (visible uniquement par vous)</label>
+                      <textarea
+                        id={`note-${c.id}`}
+                        rows={2}
+                        placeholder="ex : partenariat CT en Folie, connaissance personnelle, centre pilote..."
+                        value={noteInputs[c.id] || ''}
+                        onChange={(e) => setNoteInputs({ ...noteInputs, [c.id]: e.target.value })}
+                      />
+                      <button type="button" className="btn-secondary" style={{ marginTop: 8 }} onClick={() => enregistrerNote(c.id)} disabled={s.enCours}>
+                        Enregistrer la note
                       </button>
                     </div>
                   </div>

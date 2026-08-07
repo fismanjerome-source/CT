@@ -42,8 +42,22 @@ const questions = [
 ];
 
 export default function FAQClientsPage() {
+  const donneesStructurees = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: questions.map((item) => ({
+      '@type': 'Question',
+      name: item.q.replace(/^[^\p{L}\p{N}]+\s*/u, '').trim(),
+      acceptedAnswer: { '@type': 'Answer', text: item.r },
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(donneesStructurees) }}
+      />
       <Header />
 
       <section className="hero">

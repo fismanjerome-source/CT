@@ -12,7 +12,7 @@ export async function PATCH(request, { params }) {
 
   const { id } = await params;
   const body = await request.json().catch(() => ({}));
-  const { ical_url, nom, est_premium, est_demo, commission_taux_fixe, premium_offert } = body;
+  const { ical_url, nom, est_premium, est_demo, commission_taux_fixe, premium_offert, note_interne } = body;
 
   const centre = await get('SELECT id, nom, est_premium FROM centres WHERE id = ?', [id]);
   if (!centre) return jsonError(404, 'Centre introuvable.');
@@ -44,6 +44,10 @@ export async function PATCH(request, { params }) {
         [new Date().toISOString(), id]
       );
     }
+  }
+
+  if (note_interne !== undefined) {
+    await run('UPDATE centres SET note_interne = ? WHERE id = ?', [note_interne.trim() || null, id]);
   }
 
   if (est_premium !== undefined && !!est_premium !== !!centre.est_premium) {
