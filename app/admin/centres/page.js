@@ -17,6 +17,7 @@ export default function AdminCentresPage() {
   const [reinitEnCours, setReinitEnCours] = useState(null);
   const [reinitResultat, setReinitResultat] = useState(null);
   const [icalInputs, setIcalInputs] = useState({});
+  const [tauxInputs, setTauxInputs] = useState({});
   const [statutParCentre, setStatutParCentre] = useState({}); // { [id]: { enCours, message, type } }
 
   async function charger() {
@@ -32,6 +33,7 @@ export default function AdminCentresPage() {
       setCentres(centresJson.centres);
       setStats(statsJson);
       setIcalInputs(Object.fromEntries(centresJson.centres.map((c) => [c.id, c.ical_url || ''])));
+      setTauxInputs(Object.fromEntries(centresJson.centres.map((c) => [c.id, c.commission_taux_fixe ?? ''])));
     } catch {
       setErreur('Erreur réseau. Réessayez.');
     }
@@ -104,6 +106,40 @@ export default function AdminCentresPage() {
       const data = await res.json();
       if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
       setStatut(id, { enCours: false, message: estDemoActuel ? 'Repère "démo" retiré.' : 'Centre marqué comme démo.', type: 'success' });
+      charger();
+    } catch {
+      setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
+    }
+  }
+
+  async function enregistrerTauxFixe(id) {
+    setStatut(id, { enCours: true, message: null });
+    try {
+      const res = await fetch(`/api/admin/centres/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commission_taux_fixe: tauxInputs[id] }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
+      setStatut(id, { enCours: false, message: tauxInputs[id] === '' ? 'Retour aux paliers habituels.' : `Taux fixé à ${tauxInputs[id]}%.`, type: 'success' });
+      charger();
+    } catch {
+      setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
+    }
+  }
+
+  async function basculerPremiumOffert(id, offertActuel) {
+    setStatut(id, { enCours: true, message: null });
+    try {
+      const res = await fetch(`/api/admin/centres/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ premium_offert: !offertActuel }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
+      setStatut(id, { enCours: false, message: offertActuel ? 'Premium offert retiré.' : 'Premium offert activé (gratuit pour ce centre).', type: 'success' });
       charger();
     } catch {
       setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
@@ -300,13 +336,16 @@ export default function AdminCentresPage() {
                 <div key={c.id} style={{ borderTop: '1px solid var(--color-border)', padding: '16px 0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <p style={{ margin: 0, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {!!c.est_premium && <span className="premium-badge">★ Premium</span>}
+                      {!!c.est_premium && <span className="premium-badge">★ Premium{!!c.premium_offert && ' (offert)'}</span>}
                       {!!c.est_demo && <span className="demo-badge">DÉMO</span>}
                       {c.nom}
                     </p>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button type="button" className="btn-secondary" onClick={() => basculerPremium(c.id, c.est_premium)} disabled={s.enCours}>
                         {c.est_premium ? 'Retirer le premium' : '★ Passer en premium'}
+                      </button>
+                      <button type="button" className="btn-secondary" onClick={() => basculerPremiumOffert(c.id, c.premium_offert)} disabled={s.enCours}>
+                        {c.premium_offert ? 'Retirer le premium offert' : '🎁 Offrir le premium'}
                       </button>
                       <button type="button" className="btn-secondary" onClick={() => basculerDemo(c.id, c.est_demo)} disabled={s.enCours}>
                         {c.est_demo ? 'Retirer "démo"' : 'Marquer comme démo'}
@@ -337,6 +376,28 @@ export default function AdminCentresPage() {
                       </button>
                       <button type="button" onClick={() => synchroniser(c.id)} disabled={s.enCours || !c.ical_url}>
                         {s.enCours ? 'Synchronisation…' : 'Synchroniser maintenant'}
+                      </button>
+                    </div>
+                    <div className="form-row" style={{ maxWidth: 260 }}>
+                      <label htmlFor={`taux-${c.id}`}>Taux de commission fixe (%, optionnel)</label>
+                      <input
+                        id={`taux-${c.id}`}
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        placeholder="Paliers habituels (25/20/15%)"
+                        value={tauxInputs[c.id] ?? ''}
+                        onChange={(e) => setTauxInputs({ ...tauxInputs, [c.id]: e.target.value })}
+                      />
+                      <p className="help-text" style={{ marginTop: 4, marginBottom: 0 }}>
+                        Remplace les paliers habituels par un taux unique pour tous les rendez-vous de ce centre.
+                        Laissez vide pour revenir aux paliers habituels (0% possible pour un partenariat particulier).
+                      </p>
+                    </div>
+                    <div className="form-row" style={{ alignSelf: 'flex-end' }}>
+                      <button type="button" className="btn-secondary" onClick={() => enregistrerTauxFixe(c.id)} disabled={s.enCours}>
+                        Enregistrer le taux
                       </button>
                     </div>
                   </div>

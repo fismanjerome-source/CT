@@ -11,6 +11,7 @@ export async function GET() {
     SELECT
       ce.id, ce.nom, ce.adresse, ce.code_postal, ce.ville, ce.telephone AS centre_telephone,
       ce.enseigne, ce.types_vehicules_acceptes, ce.ical_url, ce.est_premium, ce.est_demo,
+      ce.commission_taux_fixe, ce.premium_offert,
       ctrl.id AS gerant_id, ctrl.nom AS gerant_nom, ctrl.email AS gerant_email, ctrl.telephone AS gerant_telephone,
       (SELECT COUNT(*) FROM creneaux c WHERE c.centre_id = ce.id AND c.statut = 'disponible') AS creneaux_disponibles,
       (SELECT COUNT(*) FROM creneaux c WHERE c.centre_id = ce.id AND c.statut = 'reserve') AS creneaux_reserves,

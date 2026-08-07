@@ -12,7 +12,7 @@ export async function PATCH(request, { params }) {
 
   const { id } = await params;
   const body = await request.json().catch(() => ({}));
-  const { ical_url, nom, est_premium, est_demo } = body;
+  const { ical_url, nom, est_premium, est_demo, commission_taux_fixe, premium_offert } = body;
 
   const centre = await get('SELECT id, nom, est_premium FROM centres WHERE id = ?', [id]);
   if (!centre) return jsonError(404, 'Centre introuvable.');
@@ -26,6 +26,24 @@ export async function PATCH(request, { params }) {
   }
   if (est_demo !== undefined) {
     await run('UPDATE centres SET est_demo = ? WHERE id = ?', [est_demo ? 1 : 0, id]);
+  }
+  if (commission_taux_fixe !== undefined) {
+    const valeur = commission_taux_fixe === '' || commission_taux_fixe === null ? null : Number(commission_taux_fixe);
+    if (valeur !== null && (Number.isNaN(valeur) || valeur < 0 || valeur > 100)) {
+      return jsonError(400, 'Le taux fixe doit être compris entre 0 et 100, ou vide pour revenir aux paliers habituels.');
+    }
+    await run('UPDATE centres SET commission_taux_fixe = ? WHERE id = ?', [valeur, id]);
+  }
+  if (premium_offert !== undefined) {
+    await run('UPDATE centres SET premium_offert = ? WHERE id = ?', [premium_offert ? 1 : 0, id]);
+    // Le Premium offert active aussi le statut lui-même, sans quoi le
+    // centre ne bénéficierait d'aucun des avantages malgré la gratuité.
+    if (premium_offert && !centre.est_premium) {
+      await run(
+        'UPDATE centres SET est_premium = 1, premium_depuis = ?, premium_desactive_le = NULL WHERE id = ?',
+        [new Date().toISOString(), id]
+      );
+    }
   }
 
   if (est_premium !== undefined && !!est_premium !== !!centre.est_premium) {
