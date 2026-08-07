@@ -326,6 +326,11 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
               ★ Premium
             </span>
           ) : null}
+          {centre.est_demo ? (
+            <span className="demo-badge" title="Centre de démonstration, à titre d'exemple">
+              DÉMO
+            </span>
+          ) : null}
           <h3 style={{ margin: 0 }}>{centre.nom}</h3>
           <span
             className="enseigne-badge"

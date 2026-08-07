@@ -11,7 +11,7 @@ export async function GET(request) {
   const vehiculeSouhaite = (searchParams.get('vehicule') || '').trim();
   const typeVisite = searchParams.get('type_visite') === 'contre_visite' ? 'contre_visite' : 'normale';
 
-  let sql = 'SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes, image_data, image_mime, est_premium FROM centres WHERE 1=1';
+  let sql = 'SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes, image_data, image_mime, est_premium, est_demo FROM centres WHERE 1=1';
   const args = [];
   if (ville) { sql += ' AND ville LIKE ?'; args.push(`%${ville}%`); }
   if (cp) { sql += ' AND code_postal LIKE ?'; args.push(`${cp}%`); }

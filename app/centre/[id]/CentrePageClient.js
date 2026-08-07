@@ -116,6 +116,8 @@ export default function CentrePageClient({ params }) {
               )}
               <div className="centre-title-row">
                 <h1 style={{ margin: 0 }}>{centre.nom}</h1>
+                {centre.est_premium ? <span className="premium-badge" title="Centre premium">★ Premium</span> : null}
+                {centre.est_demo ? <span className="demo-badge" title="Centre de démonstration, à titre d'exemple">DÉMO</span> : null}
                 <span
                   className="enseigne-badge"
                   style={

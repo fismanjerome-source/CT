@@ -128,9 +128,16 @@ function DashboardPageInner() {
   }, [centre, chargerPlanning, chargerRdvs]);
 
   function toggleTypeVehiculeCentre(value) {
-    setTypesVehiculesCentre((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    setTypesVehiculesCentre((prev) => {
+      // "Voiture sans permis" appartient à la même catégorie réglementaire (L)
+      // que la moto — un centre qui ne fait pas de moto ne peut pas non plus
+      // faire de voiture sans permis.
+      if (value === 'sans_permis' && !prev.includes('moto')) return prev;
+      if (value === 'moto' && prev.includes('moto')) {
+        return prev.filter((v) => v !== 'moto' && v !== 'sans_permis');
+      }
+      return prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value];
+    });
   }
 
   function redimensionnerImage(fichier, dimensionMax = 1200, qualite = 0.82) {
@@ -750,22 +757,27 @@ function DashboardPageInner() {
           <div className="type-vehicule-picker">
             {TYPES_VEHICULES.map((t) => {
               const coche = typesVehiculesCentre.includes(t.value);
+              const desactive = t.value === 'sans_permis' && !typesVehiculesCentre.includes('moto');
               return (
                 <button
                   key={t.value}
                   type="button"
                   className="type-vehicule-chip"
-                  style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
+                  disabled={desactive}
+                  title={desactive ? "Nécessite d'abord d'accepter les motos/scooters (même catégorie réglementaire)" : undefined}
+                  style={desactive
+                    ? { borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', opacity: 0.5, cursor: 'not-allowed' }
+                    : coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
                   onClick={() => toggleTypeVehiculeCentre(t.value)}
                 >
-                  <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : t.couleur}`, background: coche ? '#fff' : 'transparent' }}>
+                  <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : (desactive ? 'var(--color-text-muted)' : t.couleur)}`, background: coche ? '#fff' : 'transparent' }}>
                     {coche && (
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 12l6 6L20 6" />
                       </svg>
                     )}
                   </span>
-                  <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
+                  <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : (desactive ? 'var(--color-text-muted)' : t.couleur)} />
                   {t.label}
                 </button>
               );

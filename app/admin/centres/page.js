@@ -93,6 +93,23 @@ export default function AdminCentresPage() {
     }
   }
 
+  async function basculerDemo(id, estDemoActuel) {
+    setStatut(id, { enCours: true, message: null });
+    try {
+      const res = await fetch(`/api/admin/centres/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ est_demo: !estDemoActuel }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatut(id, { enCours: false, message: data.erreur, type: 'error' }); return; }
+      setStatut(id, { enCours: false, message: estDemoActuel ? 'Repère "démo" retiré.' : 'Centre marqué comme démo.', type: 'success' });
+      charger();
+    } catch {
+      setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
+    }
+  }
+
   async function renommerCentre(id, nomActuel) {
     const nouveauNom = prompt('Nouveau nom du centre :', nomActuel);
     if (nouveauNom === null || !nouveauNom.trim() || nouveauNom === nomActuel) return;
@@ -284,11 +301,15 @@ export default function AdminCentresPage() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <p style={{ margin: 0, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                       {!!c.est_premium && <span className="premium-badge">★ Premium</span>}
+                      {!!c.est_demo && <span className="demo-badge">DÉMO</span>}
                       {c.nom}
                     </p>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button type="button" className="btn-secondary" onClick={() => basculerPremium(c.id, c.est_premium)} disabled={s.enCours}>
                         {c.est_premium ? 'Retirer le premium' : '★ Passer en premium'}
+                      </button>
+                      <button type="button" className="btn-secondary" onClick={() => basculerDemo(c.id, c.est_demo)} disabled={s.enCours}>
+                        {c.est_demo ? 'Retirer "démo"' : 'Marquer comme démo'}
                       </button>
                       <button type="button" className="btn-secondary" onClick={() => renommerCentre(c.id, c.nom)} disabled={s.enCours}>
                         Renommer
