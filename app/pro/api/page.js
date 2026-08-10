@@ -134,6 +134,31 @@ function ApiPageInner() {
         </section>
 
         <section className="card" style={{ marginTop: 20, maxWidth: 560 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Export iCal — abonnement d'agenda</h2></div>
+          <p className="help-text">
+            Une alternative plus simple à l'API technique ci-dessus : si votre logiciel de planning propose une
+            fonction « S'abonner à un agenda externe » (très courant, y compris sur Google Calendar ou Outlook),
+            collez-y ce lien — vos rendez-vous à venir apparaîtront automatiquement, mis à jour tout seul, sans
+            aucun développement de votre côté.
+          </p>
+          {!cles ? (
+            <p className="help-text">Chargement…</p>
+          ) : cles.some((c) => c.actif) ? (
+            <>
+              <p className="mono" style={{ background: 'var(--color-bg)', padding: '10px 14px', borderRadius: 6, wordBreak: 'break-all', fontSize: '0.85rem' }}>
+                https://creneauct.fr/ics/rdv?cle=VOTRE_CLÉ
+              </p>
+              <p className="help-text" style={{ marginTop: 8 }}>
+                Remplacez <span className="mono">VOTRE_CLÉ</span> par l'une de vos clés actives ci-dessus (copiez-la
+                lors de sa création, ou générez-en une nouvelle si vous ne l'avez plus).
+              </p>
+            </>
+          ) : (
+            <p className="help-text">Générez d'abord une clé ci-dessus pour obtenir votre lien d'abonnement.</p>
+          )}
+        </section>
+
+        <section className="card" style={{ marginTop: 20, maxWidth: 560 }}>
           <div className="card-header"><h2 style={{ margin: 0 }}>Documentation rapide</h2></div>
           <p className="help-text">Deux points de lecture disponibles, en incluant votre clé dans l'en-tête de chaque requête :</p>
           <p className="mono" style={{ fontSize: '0.85rem' }}>Authorization: Bearer {'<votre_clé>'}</p>
