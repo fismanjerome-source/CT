@@ -210,6 +210,10 @@ export default function HomePage() {
             </div>
           </form>
 
+          <p className="help-text" style={{ marginTop: 10 }}>
+            ✓ Gratuit, sans engagement · ✓ Aucune carte bancaire requise · ✓ Vous réglez le centre directement, sur place · ✓ Annulation libre à tout moment
+          </p>
+
           {totalRdv > 0 && (
             <p className="help-text" style={{ marginTop: 14 }}>
               <span className="mono" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>

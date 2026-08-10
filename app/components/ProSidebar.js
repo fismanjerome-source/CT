@@ -39,6 +39,7 @@ export default function ProSidebar({ centreId, className = '' }) {
         <Link href="/pro/juridique" className={pathname.startsWith('/pro/juridique') ? 'active' : ''}><IconBalance /> Juridique</Link>
         <Link href={centreId ? `/pro/premium?centre=${centreId}` : '/pro/premium'} className={pathname.startsWith('/pro/premium') ? 'active' : ''}>★ Premium</Link>
         <Link href={centreId ? `/pro/recrutement?centre=${centreId}` : '/pro/recrutement'} className={pathname.startsWith('/pro/recrutement') ? 'active' : ''}><IconPersonnes /> Recrutement</Link>
+        <Link href={centreId ? `/pro/api?centre=${centreId}` : '/pro/api'} className={pathname.startsWith('/pro/api') ? 'active' : ''}><IconEngrenage /> Clés API</Link>
         <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}><IconMessage /> Contact Créneau CT</Link>
       </nav>
       <div className="sidebar-reseaux">

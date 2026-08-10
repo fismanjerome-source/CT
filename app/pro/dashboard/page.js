@@ -509,6 +509,7 @@ function DashboardPageInner() {
           <Link href="/pro/juridique"><IconBalance /> Juridique</Link>
           <Link href={`/pro/premium?centre=${centre.id}`}>★ Premium</Link>
           <Link href={`/pro/recrutement?centre=${centre.id}`}><IconPersonnes /> Recrutement</Link>
+          <Link href={`/pro/api?centre=${centre.id}`}><IconEngrenage /> Clés API</Link>
           <Link href="/pro/contact"><IconMessage /> Contact Créneau CT</Link>
         </nav>
         <div className="sidebar-reseaux">
