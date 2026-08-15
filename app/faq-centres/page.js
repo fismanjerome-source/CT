@@ -48,6 +48,10 @@ const questions = [
     q: "★ Pourquoi certains centres ont une étoile ?",
     r: "Cette étoile signale un centre en statut « Premium » : pour 30 € TTC par mois, sans engagement, ce centre apparaît en tête des résultats de recherche, avec un icône doré visible par les clients. Vous pouvez l'activer pour votre propre centre à tout moment depuis l'onglet « Premium » de votre espace — sans surprise, le premier mois est calculé au prorata du nombre de jours restants, et vous pouvez arrêter quand vous le souhaitez, calculé de la même façon.",
   },
+  {
+    q: "🎁 Comment fonctionne le parrainage ?",
+    r: "Chaque centre dispose d'un code de parrainage unique, visible dans l'onglet « Premium » de son espace. Un autre centre s'inscrit en renseignant ce code, puis honore son tout premier rendez-vous ? Vous recevez automatiquement 2 mois de statut Premium offerts, sans rien avoir à demander — la récompense est créditée dès que la condition est remplie.",
+  },
 ];
 
 export default function FAQCentresPage() {

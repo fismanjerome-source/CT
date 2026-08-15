@@ -13,6 +13,17 @@ function PremiumPageInner() {
   const [erreur, setErreur] = useState(null);
   const [message, setMessage] = useState(null);
   const [envoi, setEnvoi] = useState(false);
+  const [parrainage, setParrainage] = useState(null);
+
+  async function chargerParrainage() {
+    try {
+      const res = await fetch(`/api/pro/parrainage${centreParam ? `?centre=${centreParam}` : ''}`);
+      const data = await res.json();
+      if (res.ok) setParrainage(data);
+    } catch {
+      // Discret : cette section n'est pas critique, on ne bloque pas la page pour autant.
+    }
+  }
 
   async function charger() {
     try {
@@ -26,7 +37,7 @@ function PremiumPageInner() {
     }
   }
 
-  useEffect(() => { charger(); }, [centreParam]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { charger(); chargerParrainage(); }, [centreParam]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function demanderActivation() {
     setEnvoi(true);
@@ -157,6 +168,53 @@ function PremiumPageInner() {
             </p>
           </section>
         )}
+
+        <section className="card" style={{ marginTop: 20, maxWidth: 560, borderColor: 'var(--color-accent)' }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>🎁 Parrainez un autre centre</h2></div>
+          <p>
+            Un autre centre s'inscrit avec votre code, et honore son premier rendez-vous ? Vous recevez
+            automatiquement <strong>2 mois de statut Premium offerts</strong>, sans rien avoir à demander.
+          </p>
+          {!parrainage ? (
+            <p className="help-text">Chargement…</p>
+          ) : (
+            <>
+              <p style={{ marginBottom: 6 }}><strong>Votre code de parrainage</strong></p>
+              <p className="mono" style={{ background: 'var(--color-bg)', padding: '10px 14px', borderRadius: 6, fontSize: '1.1rem', fontWeight: 700, display: 'inline-block' }}>
+                {parrainage.code_parrainage}
+              </p>
+              <p className="help-text" style={{ marginTop: 10 }}>
+                Communiquez-le simplement à un autre centre — il le renseigne dans le champ « Code de parrainage »
+                lors de son inscription sur creneauct.fr/pro/register.
+              </p>
+
+              {parrainage.filleuls && parrainage.filleuls.length > 0 && (
+                <>
+                  <p style={{ marginTop: 18, marginBottom: 8 }}><strong>Centres parrainés</strong></p>
+                  <div className="table-scroll">
+                    <table>
+                      <thead><tr><th>Centre</th><th>Ville</th><th>Inscrit le</th><th>Récompense</th></tr></thead>
+                      <tbody>
+                        {parrainage.filleuls.map((f, i) => (
+                          <tr key={i}>
+                            <td>{f.nom}</td>
+                            <td className="help-text">{f.ville}</td>
+                            <td className="help-text">{new Date(f.created_at).toLocaleDateString('fr-FR')}</td>
+                            <td>
+                              {f.parrainage_recompense_le
+                                ? <span className="badge disponible">Accordée</span>
+                                : <span className="badge" style={{ background: 'var(--color-border)', color: 'var(--color-text-muted)' }}>En attente du 1er RDV honoré</span>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </section>
       </main>
     </div>
   );

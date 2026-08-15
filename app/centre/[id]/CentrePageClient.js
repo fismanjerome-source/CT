@@ -20,6 +20,7 @@ export default function CentrePageClient({ params }) {
   const router = useRouter();
 
   const [centre, setCentre] = useState(null);
+  const [avis, setAvis] = useState(null);
   const [dispoParJour, setDispoParJour] = useState({});
   const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
   const [typeVehicule, setTypeVehicule] = useState(null);
@@ -36,16 +37,19 @@ export default function CentrePageClient({ params }) {
     let annule = false;
     async function charger() {
       try {
-        const [centreRes, dispoRes] = await Promise.all([
+        const [centreRes, dispoRes, avisRes] = await Promise.all([
           fetch(`/api/centres/${id}`),
           fetch(`/api/centres/${id}/disponibilites?debut=${todayISO()}&jours=13`),
+          fetch(`/api/centres/${id}/avis`),
         ]);
         if (!centreRes.ok) throw new Error('Centre introuvable');
         const centreData = await centreRes.json();
         const dispoData = await dispoRes.json();
+        const avisData = avisRes.ok ? await avisRes.json() : null;
         if (annule) return;
 
         setCentre(centreData.centre);
+        if (avisData) setAvis(avisData);
 
         const map = Object.fromEntries(dispoData.disponibilites.map((d) => [d.date, d.n]));
         setDispoParJour(map);
@@ -256,6 +260,27 @@ export default function CentrePageClient({ params }) {
           )}
         </div>
       </section>
+
+      {avis && avis.total > 0 && (
+        <section className="container" style={{ padding: '0 24px 40px' }}>
+          <h2 style={{ marginBottom: 10 }}>
+            Avis clients <span style={{ color: 'var(--color-accent)' }}>★ {avis.moyenne}</span>{' '}
+            <span className="help-text">({avis.total} avis)</span>
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {avis.avis.slice(0, 10).map((a, i) => (
+              <div key={i} className="card" style={{ margin: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ color: 'var(--color-accent)' }}>{'★'.repeat(a.note)}{'☆'.repeat(5 - a.note)}</span>
+                  <span className="help-text">{new Date(a.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
+                </div>
+                {a.commentaire && <p style={{ margin: 0 }}>{a.commentaire}</p>}
+                {a.client_prenom && <p className="help-text" style={{ marginTop: 6, marginBottom: 0 }}>— {a.client_prenom}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Footer />
 

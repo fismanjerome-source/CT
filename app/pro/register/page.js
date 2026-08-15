@@ -9,7 +9,7 @@ export default function ProRegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({
     email: '', password: '', confirmation: '', nom: '',
-    nom_centre: '', adresse: '', code_postal: '', ville: '', telephone: '',
+    nom_centre: '', adresse: '', code_postal: '', ville: '', telephone: '', code_parrainage: '',
   });
   const [erreur, setErreur] = useState(null);
   const [envoi, setEnvoi] = useState(false);
@@ -111,6 +111,15 @@ export default function ProRegisterPage() {
               <label htmlFor="ville">Ville</label>
               <input type="text" required {...champ('ville')} />
             </div>
+          </div>
+
+          <div className="form-row">
+            <label htmlFor="code_parrainage">Code de parrainage (optionnel)</label>
+            <input
+              id="code_parrainage" type="text" placeholder="ex : BASTIL4"
+              value={form.code_parrainage}
+              onChange={(e) => setForm({ ...form, code_parrainage: e.target.value.toUpperCase() })}
+            />
           </div>
 
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 16, fontSize: '0.88rem' }}>

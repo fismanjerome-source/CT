@@ -347,6 +347,11 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
             {centre.enseigne || 'Centre indépendant'}
           </span>
         </div>
+        {centre.note_moyenne != null && (
+          <div className="note-moyenne" style={{ marginBottom: 6 }}>
+            <span style={{ color: 'var(--color-accent)' }}>★</span> {centre.note_moyenne} <span className="help-text">({centre.nombre_avis} avis)</span>
+          </div>
+        )}
         <div className="adresse">
           {centre.adresse}, {centre.code_postal} {centre.ville}
           {' · '}

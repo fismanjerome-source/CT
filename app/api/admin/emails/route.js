@@ -60,6 +60,7 @@ export async function GET() {
     clientNom: 'Jean Dupont',
     centreNom: 'Auto Sécurité Bastille',
     dateLisible: 'lundi 3 août 2026',
+    reference: 'CT-A1B2C3',
   });
   const nonHonore = emailRdvNonHonore({
     clientNom: 'Jean Dupont',

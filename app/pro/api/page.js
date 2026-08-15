@@ -170,6 +170,10 @@ function ApiPageInner() {
             Paramètres optionnels : <span className="mono">date_debut</span>, <span className="mono">date_fin</span> (YYYY-MM-DD),
             {' '}<span className="mono">statut</span>, <span className="mono">limite</span> (max 500).
           </p>
+          <p className="help-text" style={{ marginTop: 10 }}>
+            Une spécification OpenAPI complète, importable directement dans Postman ou Insomnia, est disponible ici :{' '}
+            <a href="/openapi.json" target="_blank" rel="noopener noreferrer">creneauct.fr/openapi.json</a>
+          </p>
         </section>
       </main>
     </div>
