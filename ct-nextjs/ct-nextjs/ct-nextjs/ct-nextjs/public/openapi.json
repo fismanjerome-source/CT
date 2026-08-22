@@ -1,0 +1,125 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Créneau CT — API v1",
+    "version": "1.0.0",
+    "description": "API en lecture seule permettant à un centre partenaire de récupérer, par programmation, ses créneaux et ses rendez-vous. Une clé API propre à chaque centre est nécessaire — générée depuis l'espace professionnel, onglet « Clés API ».",
+    "contact": { "name": "Support Créneau CT", "email": "contact@creneauct.fr", "url": "https://creneauct.fr" }
+  },
+  "servers": [
+    { "url": "https://creneauct.fr", "description": "Production" }
+  ],
+  "security": [{ "cleApi": [] }],
+  "tags": [
+    { "name": "Créneaux", "description": "Consultation des créneaux du centre" },
+    { "name": "Rendez-vous", "description": "Consultation des rendez-vous du centre" }
+  ],
+  "paths": {
+    "/api/v1/creneaux": {
+      "get": {
+        "tags": ["Créneaux"],
+        "summary": "Lister les créneaux du centre authentifié",
+        "parameters": [
+          { "name": "date_debut", "in": "query", "schema": { "type": "string", "format": "date" }, "description": "Date minimale (YYYY-MM-DD)" },
+          { "name": "date_fin", "in": "query", "schema": { "type": "string", "format": "date" }, "description": "Date maximale (YYYY-MM-DD)" },
+          { "name": "statut", "in": "query", "schema": { "type": "string", "enum": ["disponible", "reserve", "bloque"] } },
+          { "name": "limite", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 500, "default": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des créneaux",
+            "content": { "application/json": { "schema": {
+              "type": "object",
+              "properties": {
+                "creneaux": { "type": "array", "items": { "$ref": "#/components/schemas/Creneau" } },
+                "total": { "type": "integer" }
+              }
+            } } }
+          },
+          "401": { "$ref": "#/components/responses/NonAutorise" },
+          "429": { "$ref": "#/components/responses/TropDeRequetes" }
+        }
+      }
+    },
+    "/api/v1/rdv": {
+      "get": {
+        "tags": ["Rendez-vous"],
+        "summary": "Lister les rendez-vous du centre authentifié",
+        "description": "L'adresse email du client n'est jamais renvoyée, par souci de confidentialité.",
+        "parameters": [
+          { "name": "date_debut", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "date_fin", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "statut", "in": "query", "schema": { "type": "string", "enum": ["confirme", "annule", "absent"] } },
+          { "name": "limite", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 500, "default": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des rendez-vous",
+            "content": { "application/json": { "schema": {
+              "type": "object",
+              "properties": {
+                "rdv": { "type": "array", "items": { "$ref": "#/components/schemas/Rdv" } },
+                "total": { "type": "integer" }
+              }
+            } } }
+          },
+          "401": { "$ref": "#/components/responses/NonAutorise" },
+          "429": { "$ref": "#/components/responses/TropDeRequetes" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cleApi": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Clé API du centre, générée depuis l'espace professionnel (onglet « Clés API »)."
+      }
+    },
+    "schemas": {
+      "Creneau": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 4821 },
+          "date": { "type": "string", "format": "date", "example": "2026-08-15" },
+          "heure": { "type": "string", "example": "14:30" },
+          "duree_minutes": { "type": "integer", "example": 30 },
+          "type_visite": { "type": "string", "enum": ["normale", "contre_visite"] },
+          "statut": { "type": "string", "enum": ["disponible", "reserve", "bloque"] },
+          "prix": { "type": "number", "example": 78 },
+          "types_vehicules": { "type": "string", "example": "essence,diesel,hybride" }
+        }
+      },
+      "Rdv": {
+        "type": "object",
+        "properties": {
+          "reference": { "type": "string", "example": "CT-A1B2C3" },
+          "date": { "type": "string", "format": "date" },
+          "heure": { "type": "string", "example": "14:30" },
+          "client_prenom": { "type": "string" },
+          "client_nom": { "type": "string" },
+          "client_telephone": { "type": "string" },
+          "immatriculation": { "type": "string", "example": "AB-123-CD" },
+          "type_vehicule": { "type": "string" },
+          "statut": { "type": "string", "enum": ["confirme", "annule", "absent"] },
+          "prix": { "type": "number" }
+        }
+      },
+      "Erreur": {
+        "type": "object",
+        "properties": { "erreur": { "type": "string", "example": "Clé API manquante ou invalide." } }
+      }
+    },
+    "responses": {
+      "NonAutorise": {
+        "description": "Clé API manquante, invalide ou révoquée",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Erreur" } } }
+      },
+      "TropDeRequetes": {
+        "description": "Trop de requêtes — réessayer plus tard",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Erreur" } } }
+      }
+    }
+  }
+}
