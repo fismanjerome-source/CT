@@ -27,6 +27,21 @@ export default function HomePage() {
   const [date, setDate] = useState('');
   const [vehicule, setVehicule] = useState('');
   const [typeVisite, setTypeVisite] = useState('normale');
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestionVisible, setSuggestionVisible] = useState(false);
+  const dateMin = new Date().toISOString().slice(0, 10);
+
+  const chercherCommunes = useCallback(async (texte) => {
+    if (texte.length < 2) { setSuggestions([]); return; }
+    try {
+      const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(texte)}&fields=nom,codesPostaux&limit=6&boost=population`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const liste = data.flatMap((c) => c.codesPostaux.slice(0, 1).map((code) => ({ nom: c.nom, cp: code })));
+      setSuggestions(liste.slice(0, 6));
+      setSuggestionVisible(true);
+    } catch { /* silencieux */ }
+  }, []);
   const [centres, setCentres] = useState(null); // null = chargement initial
   const [totalRdv, setTotalRdv] = useState(null);
 
@@ -106,7 +121,11 @@ export default function HomePage() {
           <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
           <p className="lead">
             Créneau CT vous permet de réserver facilement votre contrôle technique, où et quand
-            ça vous arrange — y compris les disponibilités de dernière minute près de chez vous.
+            ça vous arrange{' '}
+            <span className="lead-aside">
+              (y compris les disponibilités de{' '}
+              <strong>dernière minute</strong> près de chez vous)
+            </span>.
           </p>
 
           <div className="contact-humain">
@@ -167,36 +186,78 @@ export default function HomePage() {
           )}
 
           <form className="search-box" onSubmit={handleSubmit} style={{ marginTop: 20 }}>
-            <div className="field">
-              <label htmlFor="ville">Ville</label>
-              <input id="ville" type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="Lille, Paris, Lyon..." />
+            <div className="search-grid">
+
+              {/* Ligne 1 : Ville + Date */}
+              <div className="field search-ville-wrap">
+                <label htmlFor="ville">Ville</label>
+                <input
+                  id="ville"
+                  type="text"
+                  value={ville}
+                  autoComplete="off"
+                  placeholder="Ex : Lille, Paris, Lyon…"
+                  onChange={(e) => { setVille(e.target.value); chercherCommunes(e.target.value); }}
+                  onBlur={() => setTimeout(() => setSuggestionVisible(false), 150)}
+                  onFocus={() => suggestions.length > 0 && setSuggestionVisible(true)}
+                />
+                {suggestionVisible && suggestions.length > 0 && (
+                  <ul className="search-suggestions">
+                    {suggestions.map((s, i) => (
+                      <li key={i} onMouseDown={() => { setVille(s.nom); setCp(s.cp); setSuggestionVisible(false); }}>
+                        <span className="sug-nom">{s.nom}</span>
+                        <span className="sug-cp">{s.cp}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="field">
+                <label htmlFor="date">Date souhaitée <span className="label-opt">(optionnel)</span></label>
+                <input
+                  id="date"
+                  type="date"
+                  value={date}
+                  min={dateMin}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
+
+              {/* Ligne 2 : Code postal + Véhicule */}
+              <div className="field">
+                <label htmlFor="cp">Code postal <span className="label-opt">(optionnel)</span></label>
+                <input
+                  id="cp"
+                  type="text"
+                  value={cp}
+                  onChange={(e) => setCp(e.target.value)}
+                  placeholder="59000"
+                  maxLength={5}
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="vehicule">Mon véhicule <span className="label-opt">(optionnel)</span></label>
+                <select id="vehicule" value={vehicule} onChange={(e) => setVehicule(e.target.value)}>
+                  <option value="">Tous véhicules</option>
+                  <optgroup label="Voiture">
+                    {TYPES_VEHICULES.filter((t) => t.categorie === 'voiture').map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Moto / sans permis">
+                    {TYPES_VEHICULES.filter((t) => t.categorie === 'moto').map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
             </div>
-            <div className="field">
-              <label htmlFor="cp">Code postal</label>
-              <input id="cp" type="text" value={cp} onChange={(e) => setCp(e.target.value)} placeholder="59000" maxLength={5} />
-            </div>
-            <div className="field">
-              <label htmlFor="date">Date souhaitée (optionnel)</label>
-              <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-            </div>
-            <div className="field">
-              <label htmlFor="vehicule">Mon véhicule (optionnel)</label>
-              <select id="vehicule" value={vehicule} onChange={(e) => setVehicule(e.target.value)}>
-                <option value="">Tous véhicules</option>
-                <optgroup label="Voiture">
-                  {TYPES_VEHICULES.filter((t) => t.categorie === 'voiture').map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </optgroup>
-                <optgroup label="Moto/scooter">
-                  {TYPES_VEHICULES.filter((t) => t.categorie === 'moto').map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-            <div className="field" style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 400, fontSize: '0.88rem', whiteSpace: 'nowrap' }}>
+
+            {/* Ligne 3 : contre-visite + bouton */}
+            <div className="search-footer">
+              <label className="search-checkbox">
                 <input
                   type="checkbox"
                   checked={typeVisite === 'contre_visite'}
@@ -204,8 +265,6 @@ export default function HomePage() {
                 />
                 Je cherche une contre-visite
               </label>
-            </div>
-            <div className="field" style={{ flex: 0, alignSelf: 'flex-end' }}>
               <button type="submit">Rechercher</button>
             </div>
           </form>

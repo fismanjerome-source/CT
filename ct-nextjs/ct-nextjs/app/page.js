@@ -215,12 +215,10 @@ export default function HomePage() {
           </p>
 
           {totalRdv > 0 && (
-            <p className="help-text" style={{ marginTop: 14 }}>
-              <span className="mono" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
-                {totalRdv.toLocaleString('fr-FR')}
-              </span>{' '}
-              contrôle{totalRdv > 1 ? 's' : ''} technique{totalRdv > 1 ? 's' : ''} déjà réservé{totalRdv > 1 ? 's' : ''} via Créneau CT
-            </p>
+            <div className="rdv-counter">
+              <span className="rdv-counter-nb">{totalRdv.toLocaleString('fr-FR')}</span>
+              <span className="rdv-counter-label">contrôle{totalRdv > 1 ? 's' : ''} technique{totalRdv > 1 ? 's' : ''} réservé{totalRdv > 1 ? 's' : ''} via Créneau CT</span>
+            </div>
           )}
         </div>
       </section>
@@ -270,29 +268,26 @@ export default function HomePage() {
 
       <section className="stats-public">
         <div className="container">
-          <div className="eyebrow">📊 Le contrôle technique en France</div>
-          <h2>Une obligation prise au sérieux, partout en France</h2>
-          <div className="stats-public-grid">
-            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-primary)' }}>
-              <span className="stat-public-value" style={{ color: 'var(--color-primary)' }}>27,6 M</span>
-              <span className="stat-public-label">🚗 contrôles techniques réalisés en 2025</span>
+          <p className="stats-public-accroche">
+            En France, <strong>27,6 millions de contrôles techniques</strong> sont réalisés chaque année — et trouver
+            un créneau disponible reste souvent plus compliqué que prévu. Créneau CT est là pour ça.
+          </p>
+          <div className="stats-public-chiffres">
+            <div className="stat-ligne">
+              <span className="stat-val">6 700</span>
+              <span className="stat-sep">centres agréés en France</span>
             </div>
-            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-highlight)' }}>
-              <span className="stat-public-value" style={{ color: 'var(--color-highlight)' }}>18,58 %</span>
-              <span className="stat-public-label">⚠️ de véhicules recalés pour défaillance majeure — près d'1 sur 5</span>
+            <div className="stat-sep-vert" />
+            <div className="stat-ligne">
+              <span className="stat-val">0 €</span>
+              <span className="stat-sep">de frais pour le client</span>
             </div>
-            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-success)' }}>
-              <span className="stat-public-value" style={{ color: 'var(--color-success)' }}>6 700</span>
-              <span className="stat-public-label">📍 centres de contrôle technique agréés en France</span>
-            </div>
-            <div className="stat-public-card" style={{ borderTop: '3px solid var(--color-accent)' }}>
-              <span className="stat-public-value" style={{ color: 'var(--color-accent)' }}>13 329</span>
-              <span className="stat-public-label">🔧 contrôleurs agréés sur tout le territoire</span>
+            <div className="stat-sep-vert" />
+            <div className="stat-ligne">
+              <span className="stat-val">2 min</span>
+              <span className="stat-sep">pour réserver en ligne</span>
             </div>
           </div>
-          <p className="help-text" style={{ marginTop: 16 }}>
-            Sources : bilans annuels de l'UTAC-OTC (Organisme Technique Central), 2022-2025.
-          </p>
         </div>
       </section>
 
