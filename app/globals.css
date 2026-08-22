@@ -1102,6 +1102,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   color: #fff;
   padding: 24px 18px;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 .pro-sidebar .brand {
   display: flex;
@@ -1223,7 +1227,7 @@ td.mono, .mono { font-family: var(--font-mono); }
 
 @media (max-width: 720px) {
   .pro-shell { flex-direction: column; }
-  .pro-sidebar { width: 100%; }
+  .pro-sidebar { width: 100%; position: static; height: auto; overflow-y: visible; }
   .pro-main { padding: 16px; }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }
