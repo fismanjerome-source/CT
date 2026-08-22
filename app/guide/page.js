@@ -30,7 +30,7 @@ export default function GuidePage() {
             <h2 style={{ margin: 0 }}>🚗 Contrôle technique automobile</h2>
           </div>
           <p>
-            Périodicité, 133 points de contrôle, contre-visite, sanctions : le guide complet pour les voitures
+            Périodicité, 136 points de contrôle, contre-visite, sanctions : le guide complet pour les voitures
             et camping-cars jusqu'à 3,5 tonnes.
           </p>
           <Link href="/guide/auto" className="btn">Lire le guide auto</Link>

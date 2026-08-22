@@ -4,7 +4,7 @@ import Footer from '../../components/Footer';
 
 export const metadata = {
   title: 'Contrôle technique automobile : le guide complet | Créneau CT',
-  description: '133 points de contrôle, périodicité tous les 2 ans, contre-visite : tout savoir sur le contrôle technique voiture en France.',
+  description: '136 points de contrôle, périodicité tous les 2 ans, contre-visite : tout savoir sur le contrôle technique voiture en France.',
 };
 
 export default function GuideAutoPage() {
@@ -55,9 +55,9 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>🔍 Les 133 points de contrôle</h2>
+          <h2>🔍 Les 136 points de contrôle</h2>
           <p>
-            Le contrôleur examine <strong>133 points répartis en 9 grandes familles</strong>, définies par
+            Le contrôleur examine <strong>136 points répartis en 9 grandes familles</strong>, définies par
             arrêté ministériel :
           </p>
           <ul>
