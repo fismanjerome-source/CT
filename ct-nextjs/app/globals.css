@@ -91,15 +91,16 @@ html, body {
 
 h1, h2, h3 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
   margin: 0 0 0.4em 0;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
-h1 { font-size: 2.3rem; margin: 0 0 var(--space-4) 0; }
+h1 { font-size: 2.3rem; margin: 0 0 var(--space-4) 0; font-weight: 800; }
 h2 { font-size: 1.5rem; margin: 0 0 var(--space-3) 0; }
-h3 { font-size: 1.1rem; margin: 0 0 var(--space-2) 0; }
+h3 { font-size: 1.1rem; margin: 0 0 var(--space-2) 0; font-weight: 600; }
 
 p { margin: 0 0 1em 0; }
 
@@ -381,9 +382,10 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
 }
 .hero h1 {
   color: #fff;
-  font-size: 2.6rem;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
   max-width: 680px;
 }
 .hero .eyebrow {
@@ -1093,15 +1095,18 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .card {
   background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 22px 24px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(27, 58, 92, 0.05);
 }
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }

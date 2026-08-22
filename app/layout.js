@@ -1,4 +1,4 @@
-import { Outfit, DM_Sans, Space_Mono } from 'next/font/google';
+import { Outfit, DM_Sans, Fira_Code } from 'next/font/google';
 import './globals.css';
 
 const outfit = Outfit({
@@ -15,9 +15,9 @@ const dmSans = DM_Sans({
   display: 'swap',
 });
 
-const spaceMono = Space_Mono({
+const firaCode = Fira_Code({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '500', '700'],
   variable: '--font-mono',
   display: 'swap',
 });
@@ -59,7 +59,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" className={`${outfit.variable} ${dmSans.variable} ${spaceMono.variable}`}>
+    <html lang="fr" className={`${outfit.variable} ${dmSans.variable} ${firaCode.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
