@@ -47,6 +47,25 @@ export default function GuidePage() {
           <Link href="/guide/moto" className="btn">Lire le guide moto</Link>
         </div>
 
+        <div className="card">
+          <div className="card-header">
+            <h2 style={{ margin: 0 }}>✅ Checklist avant d'y aller</h2>
+          </div>
+          <p>
+            Vérifiez chez vous, en 10 minutes, les points responsables de la
+            majorité des échecs — plus des rappels constructeur et un
+            annuaire des centres agréés. Gratuit, sans compte à créer.
+          </p>
+          <a
+            href="https://avant.creneauct.fr/checklist"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn"
+          >
+            Faire la checklist gratuite
+          </a>
+        </div>
+
         <div className="empty-state" style={{ marginTop: 20 }}>
           Prêt à réserver ? <Link href="/">Trouvez un créneau disponible près de chez vous</Link>
         </div>

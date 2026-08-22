@@ -21,6 +21,9 @@ export default function Footer() {
         </div>
         <nav className="footer-links">
           <Link href="/guide">Contrôle technique : le guide</Link>
+          <a href="https://avant.creneauct.fr" target="_blank" rel="noopener noreferrer">
+            Checklist gratuite avant votre CT
+          </a>
           <Link href="/contact">Contact</Link>
           <Link href="/faq-clients">FAQ Clients</Link>
           <Link href="/faq-centres">FAQ Centres</Link>
