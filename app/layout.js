@@ -1,4 +1,5 @@
 import { Outfit, DM_Sans, Fira_Code } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 
 const outfit = Outfit({
@@ -83,7 +84,16 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {process.env.NEXT_PUBLIC_CF_BEACON_TOKEN && (
+          <Script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: process.env.NEXT_PUBLIC_CF_BEACON_TOKEN })}
+          />
+        )}
+        {children}
+      </body>
     </html>
   );
 }
