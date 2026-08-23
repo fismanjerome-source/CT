@@ -7,8 +7,17 @@ import { emailConfirmationReservation, emailNouvelleReservationCentre } from '@/
 import { genererICSRendezVous } from '@/lib/ics';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
 import { libelleType } from '@/lib/vehicules';
+import { verifierLimite, enregistrerEchec, obtenirIp } from '@/lib/rateLimit';
 
 export async function POST(request) {
+  const ip = obtenirIp(request);
+  const cle = `rdv:${ip}`;
+  const limite = verifierLimite(cle);
+  if (!limite.autorise) {
+    return jsonError(429, `Trop de réservations depuis cette adresse. Réessayez dans ${limite.minutesRestantes} minute(s).`);
+  }
+  enregistrerEchec(cle);
+
   const body = await request.json().catch(() => ({}));
   const { creneau_id, client_prenom, client_nom, client_email, client_telephone, immatriculation, type_vehicule, cgu_acceptees } = body;
 

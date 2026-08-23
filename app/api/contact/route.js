@@ -2,8 +2,17 @@ import { NextResponse } from 'next/server';
 import { run } from '@/lib/db';
 import { jsonError } from '@/lib/utils';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
+import { verifierLimite, enregistrerEchec, obtenirIp } from '@/lib/rateLimit';
 
 export async function POST(request) {
+  const ip = obtenirIp(request);
+  const cle = `contact:${ip}`;
+  const limite = verifierLimite(cle);
+  if (!limite.autorise) {
+    return jsonError(429, `Trop de messages envoyés depuis cette adresse. Réessayez dans ${limite.minutesRestantes} minute(s).`);
+  }
+  enregistrerEchec(cle);
+
   const body = await request.json().catch(() => ({}));
   const { nom, email, telephone, nom_centre, message, type } = body;
 
