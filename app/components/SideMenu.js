@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
 function HamburgerIcon() {
@@ -24,6 +24,17 @@ function CloseIcon() {
 
 export default function SideMenu() {
   const [ouvert, setOuvert] = useState(false);
+  const fermerBtnRef = useRef(null);
+
+  useEffect(() => {
+    if (!ouvert) return;
+    fermerBtnRef.current?.focus();
+    function onKeyDown(e) {
+      if (e.key === 'Escape') setOuvert(false);
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [ouvert]);
 
   return (
     <>
@@ -41,7 +52,7 @@ export default function SideMenu() {
           <div className="side-menu-panel" role="navigation" aria-label="Menu principal">
             <div className="side-menu-header">
               <span className="side-menu-titre">Menu</span>
-              <button type="button" onClick={() => setOuvert(false)} aria-label="Fermer le menu" className="side-menu-close">
+              <button ref={fermerBtnRef} type="button" onClick={() => setOuvert(false)} aria-label="Fermer le menu" className="side-menu-close">
                 <CloseIcon />
               </button>
             </div>
