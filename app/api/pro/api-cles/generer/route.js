@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { resoudreCentreActif } from '@/lib/pro';
-import { genererCleApi } from '@/lib/apiAuth';
+import { genererCleApi, hashCleApi, apercuCleApi } from '@/lib/apiAuth';
 import { jsonError } from '@/lib/utils';
 
 export async function POST(request) {
@@ -18,8 +18,8 @@ export async function POST(request) {
 
   const cle = genererCleApi();
   await run(
-    'INSERT INTO api_cles (centre_id, cle, nom, created_at, actif) VALUES (?, ?, ?, ?, 1)',
-    [centreId, cle, nom, new Date().toISOString()]
+    'INSERT INTO api_cles (centre_id, cle_hash, cle_apercu, nom, created_at, actif) VALUES (?, ?, ?, ?, ?, 1)',
+    [centreId, hashCleApi(cle), apercuCleApi(cle), nom, new Date().toISOString()]
   );
 
   // La clé en clair n'est renvoyée qu'une seule fois, à la création — elle

@@ -14,7 +14,7 @@ export async function GET(request) {
 
   const cles = await all(
     `SELECT id, nom, created_at, derniere_utilisation, actif,
-            substr(cle, 1, 12) || '…' || substr(cle, -4) AS cle_masquee
+            cle_apercu AS cle_masquee
      FROM api_cles WHERE centre_id = ? ORDER BY created_at DESC`,
     [centreId]
   );
