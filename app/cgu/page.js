@@ -3,7 +3,12 @@ import Header from '../components/Header';
 import { get } from '@/lib/db';
 
 export const metadata = {
-  title: 'Conditions Générales d\'Utilisation (CGU) — Créneau CT',
+  title: 'Conditions Générales d\'Utilisation (CGU)',
+  description: "Conditions générales d'utilisation du site Créneau CT, pour les clients comme pour les centres partenaires.",
+  openGraph: {
+    title: 'Conditions Générales d\'Utilisation (CGU) — Créneau CT',
+    description: "Conditions générales d'utilisation du site Créneau CT, pour les clients comme pour les centres partenaires.",
+  },
 };
 
 function formaterContenu(contenu) {

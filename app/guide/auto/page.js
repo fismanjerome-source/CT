@@ -3,8 +3,12 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export const metadata = {
-  title: 'Contrôle technique automobile : le guide complet | Créneau CT',
+  title: 'Contrôle technique automobile : le guide complet',
   description: '136 points de contrôle, périodicité tous les 2 ans, contre-visite : tout savoir sur le contrôle technique voiture en France.',
+  openGraph: {
+    title: 'Contrôle technique automobile : le guide complet — Créneau CT',
+    description: '136 points de contrôle, périodicité tous les 2 ans, contre-visite : tout savoir sur le contrôle technique voiture en France.',
+  },
 };
 
 export default function GuideAutoPage() {

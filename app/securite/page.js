@@ -2,8 +2,12 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 
 export const metadata = {
-  title: 'Sécurité et confidentialité — Créneau CT',
+  title: 'Sécurité et confidentialité',
   description: "Comment Créneau CT protège vos données : mots de passe chiffrés, agenda en lecture seule et révocable, double authentification, transparence sur nos limites.",
+  openGraph: {
+    title: 'Sécurité et confidentialité — Créneau CT',
+    description: "Comment Créneau CT protège vos données : mots de passe chiffrés, agenda en lecture seule et révocable, double authentification, transparence sur nos limites.",
+  },
 };
 
 export default function SecuritePage() {

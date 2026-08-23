@@ -2,8 +2,12 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 
 export const metadata = {
-  title: 'FAQ Clients — Créneau CT',
+  title: 'FAQ Clients',
   description: "Toutes les réponses à vos questions sur la réservation de contrôle technique en ligne : prix, annulation, modification, remises, types de véhicules acceptés.",
+  openGraph: {
+    title: 'FAQ Clients — Créneau CT',
+    description: "Toutes les réponses à vos questions sur la réservation de contrôle technique en ligne : prix, annulation, modification, remises, types de véhicules acceptés.",
+  },
 };
 
 const questions = [

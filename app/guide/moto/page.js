@@ -3,8 +3,12 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export const metadata = {
-  title: 'Contrôle technique moto : le guide complet | Créneau CT',
+  title: 'Contrôle technique moto : le guide complet',
   description: '80 points de contrôle, validité 3 ans, contre-visite : tout savoir sur le contrôle technique moto, scooter et quad en France.',
+  openGraph: {
+    title: 'Contrôle technique moto : le guide complet — Créneau CT',
+    description: '80 points de contrôle, validité 3 ans, contre-visite : tout savoir sur le contrôle technique moto, scooter et quad en France.',
+  },
 };
 
 export default function GuideMotoPage() {

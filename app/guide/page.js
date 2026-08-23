@@ -3,8 +3,12 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  title: 'Le contrôle technique, c\'est quoi ? — Guide complet | Créneau CT',
+  title: 'Le contrôle technique, c\'est quoi ? — Guide complet',
   description: 'Obligations, périodicité, points de contrôle, contre-visite : tout comprendre sur le contrôle technique automobile et moto en France.',
+  openGraph: {
+    title: 'Le contrôle technique, c\'est quoi ? — Guide complet — Créneau CT',
+    description: 'Obligations, périodicité, points de contrôle, contre-visite : tout comprendre sur le contrôle technique automobile et moto en France.',
+  },
 };
 
 export default function GuidePage() {

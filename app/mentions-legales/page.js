@@ -3,7 +3,12 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 
 export const metadata = {
-  title: 'Mentions légales — Créneau CT',
+  title: 'Mentions légales',
+  description: "Mentions légales du site Créneau CT : éditeur, hébergeur, propriété intellectuelle.",
+  openGraph: {
+    title: 'Mentions légales — Créneau CT',
+    description: "Mentions légales du site Créneau CT : éditeur, hébergeur, propriété intellectuelle.",
+  },
 };
 
 export default function MentionsLegalesPage() {
