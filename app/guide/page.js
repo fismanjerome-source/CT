@@ -57,7 +57,7 @@ export default function GuidePage() {
             annuaire des centres agréés. Gratuit, sans compte à créer.
           </p>
           <a
-            href="https://avant.creneauct.fr/checklist"
+            href="https://avant.creneauct.fr/checklist?utm_source=creneau-ct&utm_medium=website&utm_campaign=guide"
             target="_blank"
             rel="noopener noreferrer"
             className="btn"
