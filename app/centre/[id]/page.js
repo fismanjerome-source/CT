@@ -60,7 +60,7 @@ export default async function CentrePage({ params, searchParams }) {
         />
       )}
       <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
-        <CentrePageClient params={params} initialTypeVisite={sp?.visite} />
+        <CentrePageClient id={id} initialTypeVisite={sp?.visite} />
       </Suspense>
     </>
   );

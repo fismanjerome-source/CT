@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Footer from '../../components/Footer';
@@ -15,8 +15,7 @@ function todayISO(offset = 0) {
   return d.toISOString().slice(0, 10);
 }
 
-export default function CentrePageClient({ params, initialTypeVisite }) {
-  const { id } = use(params);
+export default function CentrePageClient({ id, initialTypeVisite }) {
   const router = useRouter();
 
   const [centre, setCentre] = useState(null);
