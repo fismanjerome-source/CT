@@ -53,7 +53,7 @@ export default function GuidePage() {
           </div>
           <p>
             Vérifiez chez vous, en 10 minutes, les points responsables de la
-            majorité des échecs — plus des rappels constructeur et un
+            majorité des échecs, plus des rappels constructeur et un
             annuaire des centres agréés. Gratuit, sans compte à créer.
           </p>
           <a

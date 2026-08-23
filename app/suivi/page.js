@@ -148,7 +148,7 @@ export default function SuiviPage() {
           <h1>Retrouvez votre rendez-vous</h1>
           <p className="lead">
             Renseignez votre référence de réservation (format CT-XXXXXX) et l'email utilisé lors de la prise de
-            rendez-vous — vous pourrez consulter, modifier ou annuler votre créneau en quelques secondes.
+            rendez-vous : vous pourrez consulter, modifier ou annuler votre créneau en quelques secondes.
           </p>
 
           <form className="search-box" onSubmit={handleSubmit}>
@@ -200,7 +200,7 @@ export default function SuiviPage() {
 
             {rdv.statut !== 'annule' && (
               <div className="guide-card accent-danger" style={{ marginTop: 16 }}>
-                ⚠️ Arrivez <strong>10 minutes avant l'heure</strong> — tout retard peut entraîner un refus de
+                ⚠️ Arrivez <strong>10 minutes avant l'heure</strong> : tout retard peut entraîner un refus de
                 prise en charge par le centre.<br />
                 📄 N'oubliez pas votre <strong>carte grise</strong> (certificat d'immatriculation) : le contrôle
                 ne peut pas être réalisé sans ce document.
@@ -251,7 +251,7 @@ export default function SuiviPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           {centresTrouves.map((c) => (
                             <button key={c.id} type="button" className="btn-secondary" style={{ textAlign: 'left' }} onClick={() => choisirCentre(c)}>
-                              <strong>{c.nom}</strong> — {c.ville}
+                              <strong>{c.nom}</strong> · {c.ville}
                             </button>
                           ))}
                         </div>
@@ -264,7 +264,7 @@ export default function SuiviPage() {
                   <>
                     {autreCentre && centreChoisi && (
                       <p className="help-text" style={{ marginBottom: 10 }}>
-                        Nouveau centre : <strong>{centreChoisi.nom}</strong> ({centreChoisi.ville}) —{' '}
+                        Nouveau centre : <strong>{centreChoisi.nom}</strong> ({centreChoisi.ville}) ·{' '}
                         <button type="button" onClick={() => { setCentreChoisi(null); setCreneauxModif(null); }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>
                           changer
                         </button>

@@ -217,7 +217,7 @@ export default function CentrePageClient({ params }) {
           })}
         </div>
         <p className="help-text" style={{ marginTop: -4, marginBottom: 10 }}>
-          Le nombre de créneaux par jour ci-dessus inclut tous types de véhicules confondus — le détail ci-dessous est filtré selon votre sélection.
+          Le nombre de créneaux par jour ci-dessus inclut tous types de véhicules confondus. Le détail ci-dessous est filtré selon votre sélection.
         </p>
 
         <h2 style={{ marginTop: 20 }}>
@@ -420,7 +420,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
                 </span>
               </p>
               <p className="help-text" style={{ marginTop: 8, marginBottom: 0 }}>
-                Certains centres ne contrôlent pas toutes les catégories de véhicules — vérifiez bien avant de
+                Certains centres ne contrôlent pas toutes les catégories de véhicules. Vérifiez bien avant de
                 valider pour éviter un déplacement inutile.
               </p>
             </div>

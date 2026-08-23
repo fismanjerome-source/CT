@@ -14,10 +14,10 @@ export default function GuideMotoPage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">Guide pratique — Moto & 2-3 roues</div>
+          <div className="eyebrow">Guide pratique moto & 2-3 roues</div>
           <h1>Le contrôle technique moto : le guide complet</h1>
           <p className="lead">
-            Une obligation encore récente pour les motos, scooters, quads et tricycles à moteur — voici les
+            Une obligation encore récente pour les motos, scooters, quads et tricycles à moteur. Voici les
             règles précises à connaître avant de prendre rendez-vous.
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function GuideMotoPage() {
             </li>
             <li>
               <strong>Véhicules immatriculés en 2022 et après</strong> : premier contrôle dans les 6 mois
-              précédant le 5ᵉ anniversaire de la première mise en circulation — un an de plus que pour les
+              précédant le 5ᵉ anniversaire de la première mise en circulation, soit un an de plus que pour les
               voitures.
             </li>
           </ul>
@@ -87,9 +87,9 @@ export default function GuideMotoPage() {
           <h2>✅ Le résultat du contrôle</h2>
           <p>Comme pour une voiture, trois résultats sont possibles :</p>
           <ul>
-            <li><strong>Favorable</strong> — aucune défaillance majeure ni critique. Rendez-vous dans 3 ans.</li>
-            <li><strong>Défavorable pour défaillance majeure</strong> — contrôle valable seulement 2 mois.</li>
-            <li><strong>Défavorable pour défaillance critique</strong> — validité limitée au jour du contrôle.</li>
+            <li><strong>Favorable</strong> : aucune défaillance majeure ni critique. Rendez-vous dans 3 ans.</li>
+            <li><strong>Défavorable pour défaillance majeure</strong> : contrôle valable seulement 2 mois.</li>
+            <li><strong>Défavorable pour défaillance critique</strong> : validité limitée au jour du contrôle.</li>
           </ul>
         </div>
 
@@ -98,7 +98,7 @@ export default function GuideMotoPage() {
           <p>
             Exactement comme pour une voiture, une défaillance majeure ou critique impose une contre-visite dans
             un <strong>délai de 2 mois</strong>, dans n'importe quel centre agréé. Si elle est favorable, elle
-            prolonge la validité <strong>jusqu'à 3 ans après la date du contrôle initial défavorable</strong> —
+            prolonge la validité <strong>jusqu'à 3 ans après la date du contrôle initial défavorable</strong>,
             pas 3 ans après la contre-visite. Là encore, tarder à faire réparer réduit d'autant la durée de
             validité obtenue au final.
           </p>
@@ -130,7 +130,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="message-banner success" style={{ marginTop: 20 }}>
-          <Link href="/">Trouvez dès maintenant un créneau moto disponible près de chez vous</Link> — y compris
+          <Link href="/">Trouvez dès maintenant un créneau moto disponible près de chez vous</Link>, y compris
           de dernière minute.
         </div>
 

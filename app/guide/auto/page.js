@@ -14,7 +14,7 @@ export default function GuideAutoPage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">Guide pratique — Automobile</div>
+          <div className="eyebrow">Guide pratique automobile</div>
           <h1>Le contrôle technique automobile : le guide complet</h1>
           <p className="lead">
             Ce qu'il faut savoir avant de prendre rendez-vous : qui est concerné, à quelle fréquence, ce qui est
@@ -30,7 +30,7 @@ export default function GuideAutoPage() {
           <p>
             Toute voiture particulière ou camping-car dont le poids total autorisé en charge ne dépasse pas 3,5
             tonnes (catégorie M1 sur la carte grise) doit passer un contrôle technique, quelle que soit son
-            énergie — essence, diesel, hybride ou électrique. Quelques véhicules spécifiques en sont dispensés,
+            énergie (essence, diesel, hybride ou électrique). Quelques véhicules spécifiques en sont dispensés,
             mais la grande majorité des voitures particulières sont concernées.
           </p>
         </div>
@@ -83,9 +83,9 @@ export default function GuideAutoPage() {
           <h2>✅ Le résultat du contrôle</h2>
           <p>Trois issues sont possibles, selon la gravité des défaillances relevées :</p>
           <ul>
-            <li><strong>Favorable</strong> — aucune défaillance majeure ni critique. Rien à faire avant le prochain contrôle dans 2 ans.</li>
-            <li><strong>Défavorable pour défaillance majeure</strong> — au moins un point pouvant compromettre la sécurité ou l'environnement. Contrôle valable seulement 2 mois.</li>
-            <li><strong>Défavorable pour défaillance critique</strong> — un danger direct et immédiat. Le contrôle n'est valable que le jour même.</li>
+            <li><strong>Favorable</strong> : aucune défaillance majeure ni critique. Rien à faire avant le prochain contrôle dans 2 ans.</li>
+            <li><strong>Défavorable pour défaillance majeure</strong> : au moins un point pouvant compromettre la sécurité ou l'environnement. Contrôle valable seulement 2 mois.</li>
+            <li><strong>Défavorable pour défaillance critique</strong> : un danger direct et immédiat. Le contrôle n'est valable que le jour même.</li>
           </ul>
         </div>
 
@@ -94,12 +94,12 @@ export default function GuideAutoPage() {
           <p>
             C'est le point à ne surtout pas négliger. Dès qu'une défaillance majeure ou critique est constatée,
             vous devez faire réparer le véhicule <strong>et repasser une contre-visite dans un délai de 2
-            mois</strong> après le contrôle initial — dans n'importe quel centre agréé, pas nécessairement
+            mois</strong> après le contrôle initial, dans n'importe quel centre agréé, pas nécessairement
             celui d'origine.
           </p>
           <p style={{ marginTop: 10 }}>
             Si la contre-visite est favorable, elle prolonge la validité <strong>jusqu'à 2 ans après la date du
-            contrôle initial défavorable</strong> — pas 2 ans après la contre-visite elle-même. Autrement dit,
+            contrôle initial défavorable</strong>, pas 2 ans après la contre-visite elle-même. Autrement dit,
             plus vous tardez à faire réparer et contre-visiter votre véhicule, plus vous rognez sur la durée de
             validité obtenue. À l'inverse, si vous ne présentez pas le procès-verbal de contre-visite ou que le
             délai de 2 mois est dépassé, le véhicule est soumis à un tout nouveau contrôle technique complet.
@@ -124,7 +124,7 @@ export default function GuideAutoPage() {
         <div className="guide-card accent-promo">
           <h2>💶 Combien ça coûte, et que risque-t-on sans contrôle valide ?</h2>
           <p>
-            Le prix est <strong>libre</strong> et fixé par chaque centre — c'est justement tout l'intérêt de
+            Le prix est <strong>libre</strong> et fixé par chaque centre. C'est justement tout l'intérêt de
             comparer les centres disponibles près de chez vous. Rouler avec un contrôle technique expiré expose
             à une amende pouvant aller jusqu'à 750 €, généralement une amende forfaitaire de 135 €. Les forces
             de l'ordre peuvent aussi immobiliser le véhicule, voire le mettre en fourrière en cas de défaillance
@@ -133,7 +133,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="message-banner success" style={{ marginTop: 20 }}>
-          <Link href="/">Trouvez dès maintenant un créneau disponible près de chez vous</Link> — y compris de
+          <Link href="/">Trouvez dès maintenant un créneau disponible près de chez vous</Link>, y compris de
           dernière minute.
         </div>
 

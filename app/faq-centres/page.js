@@ -10,11 +10,11 @@ export const metadata = {
 const questions = [
   {
     q: "💸 Y a-t-il un abonnement ou des frais fixes pour rejoindre Créneau CT ?",
-    r: "Aucun. Pas d'abonnement mensuel, pas de frais d'inscription, pas de frais de résiliation. Vous ne payez une commission que sur les rendez-vous réellement pris via la plateforme — rien du tout si aucun client ne réserve.",
+    r: "Aucun. Pas d'abonnement mensuel, pas de frais d'inscription, pas de frais de résiliation. Vous ne payez une commission que sur les rendez-vous réellement pris via la plateforme, rien du tout si aucun client ne réserve.",
   },
   {
     q: "🧮 Comment est calculée la commission ?",
-    r: "Elle est calculée automatiquement à chaque réservation, sur le prix effectivement payé par le client (donc après une éventuelle remise que vous avez vous-même choisie) : 25% si le rendez-vous est pris dans les 7 jours, 20% entre 7 et 14 jours, 15% au-delà. Le taux dépend uniquement du délai entre la réservation et la date du contrôle — jamais d'autre critère caché.",
+    r: "Elle est calculée automatiquement à chaque réservation, sur le prix effectivement payé par le client (donc après une éventuelle remise que vous avez vous-même choisie) : 25% si le rendez-vous est pris dans les 7 jours, 20% entre 7 et 14 jours, 15% au-delà. Le taux dépend uniquement du délai entre la réservation et la date du contrôle, jamais d'autre critère caché.",
   },
   {
     q: "🏷️ Suis-je obligé d'offrir une remise à mes clients ?",
@@ -38,7 +38,7 @@ const questions = [
   },
   {
     q: "📱 Puis-je gérer mon planning depuis mon téléphone ou ma tablette ?",
-    r: "Oui, entièrement. Votre espace professionnel fonctionne aussi bien sur ordinateur que sur smartphone ou tablette, sans rien à installer — juste à vous connecter depuis un navigateur. Pratique pour ouvrir un créneau de dernière minute ou vérifier vos rendez-vous du jour, même loin du bureau.",
+    r: "Oui, entièrement. Votre espace professionnel fonctionne aussi bien sur ordinateur que sur smartphone ou tablette, sans rien à installer : juste vous connecter depuis un navigateur. Pratique pour ouvrir un créneau de dernière minute ou vérifier vos rendez-vous du jour, même loin du bureau.",
   },
   {
     q: "🔐 Puis-je activer une double authentification sur mon compte ?",
@@ -46,11 +46,11 @@ const questions = [
   },
   {
     q: "★ Pourquoi certains centres ont une étoile ?",
-    r: "Cette étoile signale un centre en statut « Premium » : pour 30 € TTC par mois, sans engagement, ce centre apparaît en tête des résultats de recherche, avec un icône doré visible par les clients. Vous pouvez l'activer pour votre propre centre à tout moment depuis l'onglet « Premium » de votre espace — sans surprise, le premier mois est calculé au prorata du nombre de jours restants, et vous pouvez arrêter quand vous le souhaitez, calculé de la même façon.",
+    r: "Cette étoile signale un centre en statut « Premium » : pour 30 € TTC par mois, sans engagement, ce centre apparaît en tête des résultats de recherche, avec un icône doré visible par les clients. Vous pouvez l'activer pour votre propre centre à tout moment depuis l'onglet « Premium » de votre espace. Le premier mois est calculé au prorata du nombre de jours restants, tout comme le dernier si vous arrêtez.",
   },
   {
     q: "🎁 Comment fonctionne le parrainage ?",
-    r: "Chaque centre dispose d'un code de parrainage unique, visible dans l'onglet « Premium » de son espace. Un autre centre s'inscrit en renseignant ce code, puis honore son tout premier rendez-vous ? Vous recevez automatiquement 2 mois de statut Premium offerts, sans rien avoir à demander — la récompense est créditée dès que la condition est remplie.",
+    r: "Chaque centre dispose d'un code de parrainage unique, visible dans l'onglet « Premium » de son espace. Un autre centre s'inscrit en renseignant ce code, puis honore son tout premier rendez-vous ? Vous recevez automatiquement 2 mois de statut Premium offerts, sans rien avoir à demander : la récompense est créditée dès que la condition est remplie.",
   },
 ];
 
@@ -76,7 +76,7 @@ export default function FAQCentresPage() {
       <section className="hero">
         <div className="container">
           <div className="eyebrow">❓ Questions fréquentes</div>
-          <h1>FAQ — Centres de contrôle technique</h1>
+          <h1>FAQ Centres de contrôle technique</h1>
           <p className="lead">
             Notre engagement : la transparence totale, sans abonnement. Voici comment ça fonctionne concrètement.
           </p>

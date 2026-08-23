@@ -25,7 +25,7 @@ export default function MentionsLegalesPage() {
         <p>
           Le site Créneau CT est édité par :<br />
           [NOM ET PRÉNOM OU DÉNOMINATION SOCIALE À COMPLÉTER]<br />
-          Statut : [Entrepreneur individuel / Auto-entrepreneur / Société — À COMPLÉTER]<br />
+          Statut : [Entrepreneur individuel / Auto-entrepreneur / Société, à compléter]<br />
           SIRET : [À COMPLÉTER après immatriculation]<br />
           Adresse : [ADRESSE À COMPLÉTER]<br />
           Email de contact : contact@creneauct.fr<br />

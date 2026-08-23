@@ -9,7 +9,7 @@ export const metadata = {
 const questions = [
   {
     q: "💶 Est-ce que je paie plus cher en passant par Créneau CT ?",
-    r: "Non. Le prix affiché est celui fixé par le centre — c'est exactement ce que vous payez sur place, ni plus ni moins. Créneau CT ne facture rien au client : notre rémunération vient d'une commission que le centre nous verse, jamais répercutée sur votre facture.",
+    r: "Non. Le prix affiché est celui fixé par le centre, c'est exactement ce que vous payez sur place, ni plus ni moins. Créneau CT ne facture rien au client : notre rémunération vient d'une commission que le centre nous verse, jamais répercutée sur votre facture.",
   },
   {
     q: "💳 Dois-je payer en ligne au moment de la réservation ?",
@@ -25,7 +25,7 @@ const questions = [
   },
   {
     q: "🏷️ Que se passe-t-il si le prix affiché comporte une remise ?",
-    r: "Certains centres choisissent librement d'appliquer une remise sur certains créneaux. Si c'est le cas, le prix initial barré et le prix final s'affichent clairement avant la confirmation — vous savez toujours exactement combien vous paierez.",
+    r: "Certains centres choisissent librement d'appliquer une remise sur certains créneaux. Si c'est le cas, le prix initial barré et le prix final s'affichent clairement avant la confirmation, vous savez toujours exactement combien vous paierez.",
   },
   {
     q: "🔍 Créneau CT réalise-t-il lui-même le contrôle technique ?",
@@ -37,7 +37,7 @@ const questions = [
   },
   {
     q: "🚓 Que faire si je me fais arrêter par la police avec un contrôle technique expiré ?",
-    r: "Réservez un créneau au plus vite : la loi n'accorde aucune tolérance une fois la date dépassée, et l'amende (135 € forfaitaire, jusqu'à 375 € en cas de retard de paiement) tombe immédiatement. Les forces de l'ordre peuvent retenir votre carte grise sur place et immobiliser le véhicule — un délai de régularisation (généralement 7 jours) vous est alors accordé pour passer le contrôle. Présentez-vous au centre avec votre carte grise et, si vous l'avez, le procès-verbal remis par les forces de l'ordre. Une fois le contrôle technique favorable obtenu, il faudra ensuite vous rendre au commissariat ou à la gendarmerie qui a retenu votre carte grise pour la récupérer, justificatif du nouveau contrôle à l'appui.",
+    r: "Réservez un créneau au plus vite : la loi n'accorde aucune tolérance une fois la date dépassée, et l'amende (135 € forfaitaire, jusqu'à 375 € en cas de retard de paiement) tombe immédiatement. Les forces de l'ordre peuvent retenir votre carte grise sur place et immobiliser le véhicule. Un délai de régularisation (généralement 7 jours) vous est alors accordé pour passer le contrôle. Présentez-vous au centre avec votre carte grise et, si vous l'avez, le procès-verbal remis par les forces de l'ordre. Une fois le contrôle technique favorable obtenu, il faudra ensuite vous rendre au commissariat ou à la gendarmerie qui a retenu votre carte grise pour la récupérer, justificatif du nouveau contrôle à l'appui.",
   },
 ];
 
@@ -63,7 +63,7 @@ export default function FAQClientsPage() {
       <section className="hero">
         <div className="container">
           <div className="eyebrow">❓ Questions fréquentes</div>
-          <h1>FAQ — Particuliers</h1>
+          <h1>FAQ Particuliers</h1>
           <p className="lead">Tout ce qu'il faut savoir avant de réserver votre contrôle technique.</p>
         </div>
       </section>

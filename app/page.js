@@ -105,7 +105,7 @@ export default function HomePage() {
         }
       },
       () => {
-        setErreurProche("Impossible d'accéder à votre position — vérifiez que la géolocalisation est autorisée pour ce site.");
+        setErreurProche("Impossible d'accéder à votre position. Vérifiez que la géolocalisation est autorisée pour ce site.");
         setRechercheProche(false);
       }
     );
@@ -311,7 +311,7 @@ export default function HomePage() {
             <h2 style={{ color: '#fff', margin: '6px 0 8px 0' }}>Comblez vos créneaux vides, sans effort et sans abonnement</h2>
             <p style={{ color: '#cfe0d2', margin: 0, maxWidth: 520 }}>
               Créneau CT connecte votre planning à des automobilistes prêts à réserver dès aujourd'hui. Vous gardez
-              la main sur vos prix, vos disponibilités et vos remises — aucun engagement, aucun abonnement.
+              la main sur vos prix, vos disponibilités et vos remises, sans engagement ni abonnement.
             </p>
           </div>
           <div className="pro-cta-boutons">
@@ -328,7 +328,7 @@ export default function HomePage() {
       <section className="stats-public">
         <div className="container">
           <p className="stats-public-accroche">
-            En France, <strong>27,6 millions de contrôles techniques</strong> sont réalisés chaque année — et trouver
+            En France, <strong>27,6 millions de contrôles techniques</strong> sont réalisés chaque année, et trouver
             un créneau disponible reste souvent plus compliqué que prévu. Créneau CT est là pour ça.
           </p>
           <div className="stats-public-chiffres">
@@ -425,7 +425,7 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
           <p className="help-text" style={{ marginTop: 8 }}>
             {centre.creneau_date_souhaitee
               ? <>✅ Créneau disponible le {formatDateCourte(dateRecherchee)} à <strong>{centre.creneau_date_souhaitee.heure}</strong></>
-              : <>Pas de créneau ce jour-là — prochain disponible : {centre.prochain_creneau ? `${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}` : 'aucun sous 7 jours'}</>}
+              : <>Pas de créneau ce jour-là, prochain disponible : {centre.prochain_creneau ? `${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}` : 'aucun sous 7 jours'}</>}
           </p>
         ) : (
           <p className="help-text" style={{ marginTop: 8 }}>

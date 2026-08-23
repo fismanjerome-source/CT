@@ -38,7 +38,7 @@ export default function ContactPage() {
           <div className="eyebrow">🤝 Devenir centre partenaire</div>
           <h1>Parlons de votre centre</h1>
           <p className="lead">
-            Que vous gériez un ou plusieurs centres, décrivez-nous votre situation — nous revenons vers vous
+            Que vous gériez un ou plusieurs centres, décrivez-nous votre situation. Nous revenons vers vous
             rapidement pour vous présenter comment Créneau CT peut vous aider à remplir votre planning.
           </p>
         </div>
