@@ -23,6 +23,9 @@ const cspHeader = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Retire l'en-tête "X-Powered-By: Next.js" — ne change rien au
+  // fonctionnement, évite juste d'annoncer gratuitement la stack technique.
+  poweredByHeader: false,
   async headers() {
     return [
       {

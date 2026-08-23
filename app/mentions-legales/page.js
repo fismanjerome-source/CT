@@ -19,26 +19,17 @@ export default function MentionsLegalesPage() {
       <section className="container legal-content" style={{ padding: '40px 24px 64px' }}>
         <h1>Mentions légales</h1>
 
-        <div className="message-banner error" style={{ marginTop: 20 }}>
-          Cette page doit impérativement être complétée avant toute mise en ligne publique définitive : l'affichage
-          de mentions légales incomplètes ou inexactes est une infraction en droit français (loi n°2004-575 du 21
-          juin 2004 pour la confiance dans l'économie numérique). Les champs entre crochets sont à renseigner dès
-          l'immatriculation de votre activité (auto-entrepreneur ou autre statut).
-        </div>
-
         <h2>Éditeur du site</h2>
         <p>
-          Le site Créneau CT est édité par :<br />
-          [NOM ET PRÉNOM OU DÉNOMINATION SOCIALE À COMPLÉTER]<br />
-          Statut : [Entrepreneur individuel / Auto-entrepreneur / Société, à compléter]<br />
-          SIRET : [À COMPLÉTER après immatriculation]<br />
-          Adresse : [ADRESSE À COMPLÉTER]<br />
-          Email de contact : contact@creneauct.fr<br />
+          Le site Créneau CT est édité à titre individuel. Son activité est en cours d'immatriculation ; la
+          dénomination, le statut juridique, le SIRET et l'adresse de l'éditeur seront publiés sur cette page dès
+          leur attribution. Pour toute demande d'identification complète, contactez :<br />
+          Email : contact@creneauct.fr<br />
           Téléphone : 06 08 12 91 45
         </p>
 
         <h2>Directeur de la publication</h2>
-        <p>[NOM DU RESPONSABLE DE PUBLICATION À COMPLÉTER]</p>
+        <p>La personne éditant le site Créneau CT (voir coordonnées ci-dessus).</p>
 
         <h2>Hébergement</h2>
         <p>
@@ -88,8 +79,8 @@ export default function MentionsLegalesPage() {
         <h2>Médiation de la consommation</h2>
         <p>
           Conformément à l'article L.616-1 du Code de la consommation, en cas de litige non résolu directement avec
-          nous, le Client peut recourir gratuitement à un médiateur de la consommation. [COORDONNÉES DU MÉDIATEUR
-          À COMPLÉTER après immatriculation de l'activité].
+          nous, le Client peut recourir gratuitement à un médiateur de la consommation. Les coordonnées du médiateur
+          compétent seront publiées sur cette page dès l'immatriculation de l'activité.
         </p>
       </section>
 
