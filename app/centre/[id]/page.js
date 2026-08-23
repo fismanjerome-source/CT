@@ -22,8 +22,9 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function CentrePage({ params }) {
+export default async function CentrePage({ params, searchParams }) {
   const { id } = await params;
+  const sp = await searchParams;
   let donneesStructurees = null;
 
   try {
@@ -59,7 +60,7 @@ export default async function CentrePage({ params }) {
         />
       )}
       <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
-        <CentrePageClient params={params} />
+        <CentrePageClient params={params} initialTypeVisite={sp?.visite} />
       </Suspense>
     </>
   );

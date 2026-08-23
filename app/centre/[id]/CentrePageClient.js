@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
 import { IconeVehicule } from '../../components/VehiculeIcons';
@@ -15,7 +15,7 @@ function todayISO(offset = 0) {
   return d.toISOString().slice(0, 10);
 }
 
-export default function CentrePageClient({ params }) {
+export default function CentrePageClient({ params, initialTypeVisite }) {
   const { id } = use(params);
   const router = useRouter();
 
@@ -24,8 +24,7 @@ export default function CentrePageClient({ params }) {
   const [dispoParJour, setDispoParJour] = useState({});
   const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
   const [typeVehicule, setTypeVehicule] = useState(null);
-  const searchParams = useSearchParams();
-  const [typeVisite, setTypeVisite] = useState(() => (searchParams.get('visite') === 'contre_visite' ? 'contre_visite' : 'normale'));
+  const [typeVisite, setTypeVisite] = useState(initialTypeVisite === 'contre_visite' ? 'contre_visite' : 'normale');
   const [creneaux, setCreneaux] = useState(null);
   const [chargementCreneaux, setChargementCreneaux] = useState(true);
   const [modalCreneau, setModalCreneau] = useState(null); // { heure } | null
