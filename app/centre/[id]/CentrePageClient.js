@@ -49,6 +49,13 @@ export default function CentrePageClient({ id, initialTypeVisite }) {
         setCentre(centreData.centre);
         if (avisData) setAvis(avisData);
 
+        // Présélectionne le premier type de véhicule accepté par ce centre :
+        // sans ça, la grille de créneaux restait vide tant que le visiteur
+        // n'avait pas cliqué manuellement sur un type, ce qui donnait
+        // l'impression trompeuse qu'aucun créneau n'était disponible.
+        const typesAcceptes = parseTypes(centreData.centre?.types_vehicules_acceptes);
+        if (typesAcceptes.length > 0) setTypeVehicule(typesAcceptes[0]);
+
         const map = Object.fromEntries(dispoData.disponibilites.map((d) => [d.date, d.n]));
         setDispoParJour(map);
 
@@ -224,7 +231,16 @@ export default function CentrePageClient({ id, initialTypeVisite }) {
 
         <div className="slots-grid">
           {typeVehicule === null ? (
-            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
+            <div
+              className="empty-state"
+              style={{
+                gridColumn: '1 / -1',
+                borderColor: 'var(--color-accent)',
+                background: 'rgba(217, 166, 46, 0.1)',
+                color: 'var(--color-accent)',
+                fontWeight: 600,
+              }}
+            >
               👆 Choisissez d'abord votre type de véhicule ci-dessus pour voir les créneaux disponibles.
             </div>
           ) : chargementCreneaux ? (
