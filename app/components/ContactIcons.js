@@ -34,9 +34,10 @@ export function SmsIcon({ size = 16, color = 'currentColor' }) {
 
 export function InstagramIcon({ size = 16, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="4.2" />
-      <circle cx="17" cy="7" r="1.1" fill={color} stroke="none" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17" cy="7" r="0.9" fill={color} stroke="none" />
     </svg>
   );
 }
@@ -44,7 +45,7 @@ export function InstagramIcon({ size = 16, color = 'currentColor' }) {
 export function FacebookIcon({ size = 16, color = 'currentColor' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
-      <path d="M14.5 8.75H16V5.9c-.9-.1-1.83-.15-2.75-.15C11 5.75 9.5 7.4 9.5 10v2.25H7v3.25h2.5V21h3.25v-5.5h2.6l.4-3.25h-3V10c0-.8.25-1.25 1.25-1.25Z" />
+      <path d="M14.75 8.5H16.6V5.32c-.94-.1-1.9-.15-2.86-.15-2.83 0-4.76 1.78-4.76 5.04v2.6H6V16.3h2.98V21h3.4v-4.7h2.94l.47-3.49h-3.41v-2.28c0-1.01.27-1.03 1.37-1.03Z" />
     </svg>
   );
 }
@@ -52,9 +53,9 @@ export function FacebookIcon({ size = 16, color = 'currentColor' }) {
 export function LinkedInIcon({ size = 16, color = 'currentColor' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
-      <circle cx="6.5" cy="7" r="1.6" />
-      <rect x="5.1" y="10.2" width="2.8" height="9.3" rx="0.4" />
-      <path d="M10.6 10.2h2.7v1.4c.5-.9 1.5-1.6 3-1.6 2.5 0 3.7 1.6 3.7 4.4v5.1h-2.8v-4.6c0-1.4-.5-2.3-1.75-2.3-1 0-1.6.7-1.85 1.35-.1.24-.12.55-.12.87v4.68h-2.8c0-.1.04-8.5.04-9.3Z" />
+      <rect x="5" y="9.2" width="2.9" height="9.6" rx="0.3" />
+      <circle cx="6.45" cy="5.7" r="1.75" />
+      <path d="M10.5 9.2h2.78v1.31h.04c.39-.72 1.34-1.48 2.76-1.48 2.95 0 3.5 1.87 3.5 4.31v5.46h-2.9v-4.84c0-1.16-.02-2.64-1.65-2.64-1.66 0-1.91 1.24-1.91 2.56v4.92h-2.9V9.2Z" />
     </svg>
   );
 }
