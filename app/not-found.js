@@ -13,7 +13,7 @@ export default function NotFound() {
         </div>
         <h1 style={{ marginBottom: 12 }}>Page introuvable</h1>
         <p className="lead" style={{ maxWidth: 480, margin: '0 auto 32px' }}>
-          Ce créneau n'existe pas — la page que vous cherchez a peut-être été déplacée ou n'existe plus.
+          Cette page n'existe pas, ou a peut-être été déplacée.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/" className="btn">← Retour à l'accueil</Link>

@@ -78,7 +78,7 @@ export default function MentionsLegalesPage() {
 
         <h2>Médiation de la consommation</h2>
         <p>
-          Conformément à l'article L.616-1 du Code de la consommation, en cas de litige non résolu directement avec
+          Conformément à l'article L. 616-1 du code de la consommation, en cas de litige non résolu directement avec
           nous, le Client peut recourir gratuitement à un médiateur de la consommation. Les coordonnées du médiateur
           compétent seront publiées sur cette page dès l'immatriculation de l'activité.
         </p>

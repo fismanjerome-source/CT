@@ -50,7 +50,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={`Actuellement en ${LABELS[theme]} — passer en ${LABELS[prochain]}`}
+      aria-label={`Actuellement en ${LABELS[theme]}, passer en ${LABELS[prochain]}`}
       title={`Passer en ${LABELS[prochain]}`}
       className="theme-toggle"
     >
