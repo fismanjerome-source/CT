@@ -61,7 +61,7 @@ export default function SideMenu() {
               <span className="side-menu-section-titre">Vous êtes client</span>
               <Link href="/" onClick={() => setOuvert(false)}>📅 Réserver un RDV</Link>
               <Link href="/suivi" onClick={() => setOuvert(false)}>🔎 Suivre mon RDV</Link>
-              <Link href="/guide" onClick={() => setOuvert(false)}>🚗 Le contrôle technique, c'est quoi ?</Link>
+              <Link href="/guide" onClick={() => setOuvert(false)}>🚗 Guide du contrôle technique</Link>
               <Link href="/faq-clients" onClick={() => setOuvert(false)}>❓ FAQ Clients</Link>
               <a
                 href="https://avant.creneauct.fr/checklist?utm_source=creneau-ct&utm_medium=website&utm_campaign=side-menu"

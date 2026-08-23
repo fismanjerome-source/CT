@@ -19,7 +19,7 @@ export default function Header() {
 
           {/* Navigation bureau : une seule ligne, inchangée */}
           <nav className="nav-desktop">
-            <Link href="/guide">Le contrôle technique, c'est quoi ?</Link>
+            <Link href="/guide">Guide</Link>
             <Link href="/suivi">Suivre un RDV</Link>
             <Link href="/faq-clients">FAQ</Link>
             <Link href="/pro/login">Espace professionnel</Link>
@@ -30,7 +30,7 @@ export default function Header() {
 
       {/* Encadré clair mobile, distinct du bandeau bleu, avec les liens essentiels */}
       <nav className="mobile-subnav">
-        <Link href="/guide" className="mobile-subnav-centre">Le contrôle technique, c'est quoi ?</Link>
+        <Link href="/guide" className="mobile-subnav-centre">Guide</Link>
         <div className="mobile-subnav-colonnes">
           <Link href="/suivi">Suivre un RDV</Link>
           <span className="mobile-subnav-separateur" />
