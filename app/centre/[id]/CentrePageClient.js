@@ -33,19 +33,17 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
   const [confirmation, setConfirmation] = useState(null);
   const [erreurChargement, setErreurChargement] = useState(false);
 
-  // Chargement initial : centre + disponibilités des 14 prochains jours
+  // Chargement initial : centre + avis
   useEffect(() => {
     let annule = false;
     async function charger() {
       try {
-        const [centreRes, dispoRes, avisRes] = await Promise.all([
+        const [centreRes, avisRes] = await Promise.all([
           fetch(`/api/centres/${id}`),
-          fetch(`/api/centres/${id}/disponibilites?debut=${todayISO()}&jours=13`),
           fetch(`/api/centres/${id}/avis`),
         ]);
         if (!centreRes.ok) throw new Error('Centre introuvable');
         const centreData = await centreRes.json();
-        const dispoData = await dispoRes.json();
         const avisData = avisRes.ok ? await avisRes.json() : null;
         if (annule) return;
 
@@ -58,12 +56,6 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
         // l'impression trompeuse qu'aucun créneau n'était disponible.
         const typesAcceptes = parseTypes(centreData.centre?.types_vehicules_acceptes);
         if (typesAcceptes.length > 0) setTypeVehicule(typesAcceptes[0]);
-
-        const map = Object.fromEntries(dispoData.disponibilites.map((d) => [d.date, d.n]));
-        setDispoParJour(map);
-
-        const premierJourDispo = Array.from({ length: 14 }, (_, i) => todayISO(i)).find((d) => map[d] > 0);
-        setDateSelectionnee(premierJourDispo || todayISO());
       } catch {
         if (!annule) setErreurChargement(true);
       }
@@ -71,6 +63,37 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
     charger();
     return () => { annule = true; };
   }, [id]);
+
+  // Nombre de créneaux disponibles par jour, filtré par type de véhicule et
+  // de visite : sans ce filtre, un jour pouvait afficher un nombre de
+  // créneaux (ex: 14) qui retombait à zéro une fois le type sélectionné,
+  // car le chiffre affiché ne tenait alors compte d'aucune restriction.
+  useEffect(() => {
+    let annule = false;
+    async function chargerDispo() {
+      try {
+        const params = new URLSearchParams({ debut: todayISO(), jours: '13', type_visite: typeVisite });
+        if (typeVehicule) params.set('type_vehicule', typeVehicule);
+        const res = await fetch(`/api/centres/${id}/disponibilites?${params.toString()}`);
+        if (!res.ok) return;
+        const dispoData = await res.json();
+        if (annule) return;
+
+        const map = Object.fromEntries(dispoData.disponibilites.map((d) => [d.date, d.n]));
+        setDispoParJour(map);
+
+        setDateSelectionnee((dateActuelle) => {
+          if (map[dateActuelle] > 0) return dateActuelle;
+          const premierJourDispo = Array.from({ length: 14 }, (_, i) => todayISO(i)).find((d) => map[d] > 0);
+          return premierJourDispo || dateActuelle;
+        });
+      } catch {
+        // Le calendrier reste tel quel si le rechargement échoue.
+      }
+    }
+    if (typeVehicule !== null) chargerDispo();
+    return () => { annule = true; };
+  }, [id, typeVehicule, typeVisite]);
 
   // Chargement des créneaux à chaque changement de date ou de type de véhicule
   useEffect(() => {
