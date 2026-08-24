@@ -378,20 +378,26 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   color: var(--color-primary);
   text-align: center;
 }
-.bandeau-pro-texte strong { font-weight: 800; }
+.bandeau-pro-texte strong { font-weight: 700; }
 .bandeau-pro-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 14px;
+  gap: 8px 12px;
 }
-.bandeau-pro-sep { opacity: 0.5; }
 .bandeau-pro-lien {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-primary);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-decoration: none;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 20px;
+  padding: 4px 12px;
 }
+.bandeau-pro-lien:hover { background: var(--color-primary); color: #fff; }
 .bandeau-pro-close {
   position: absolute;
   right: 8px;

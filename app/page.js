@@ -121,8 +121,7 @@ export default function HomePage() {
               🔧 Vous êtes un centre de contrôle technique ? <strong>Inscription gratuite, sans abonnement.</strong>
             </span>
             <div className="bandeau-pro-actions">
-              <Link href="/pro/register" className="bandeau-pro-lien">Créer mon compte →</Link>
-              <span className="bandeau-pro-sep">·</span>
+              <Link href="/pro/register" className="bandeau-pro-lien">Créer mon compte</Link>
               <span>Une question ?</span>
               <a href="tel:+33608129145" className="bandeau-pro-lien">📞 06 08 12 91 45</a>
               <a href="mailto:contact@creneauct.fr" className="bandeau-pro-lien">✉️ contact@creneauct.fr</a>
