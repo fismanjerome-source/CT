@@ -103,6 +103,9 @@ function DashboardPageInner() {
   const [promoPeriodeForm, setPromoPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), promo_pourcentage: '' });
   const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
   const [promoPeriodeResultat, setPromoPeriodeResultat] = useState(null);
+  const [prixPeriodeForm, setPrixPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), prix: '', type_visite: '' });
+  const [prixPeriodeEnvoi, setPrixPeriodeEnvoi] = useState(false);
+  const [prixPeriodeResultat, setPrixPeriodeResultat] = useState(null);
   const [supprimerPeriodeForm, setSupprimerPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), type_visite: '' });
   const [supprimerPeriodeEnvoi, setSupprimerPeriodeEnvoi] = useState(false);
   const [supprimerPeriodeResultat, setSupprimerPeriodeResultat] = useState(null);
@@ -481,6 +484,32 @@ function DashboardPageInner() {
       setPromoPeriodeResultat({ type: 'error', text: e.message });
     } finally {
       setPromoPeriodeEnvoi(false);
+    }
+  }
+
+  async function handlePrixPeriodeSubmit(e) {
+    e.preventDefault();
+    setPrixPeriodeEnvoi(true);
+    setPrixPeriodeResultat(null);
+    try {
+      const data = await api('/api/pro/creneaux/appliquer-prix', {
+        method: 'POST',
+        body: JSON.stringify({
+          centre_id: centre.id,
+          date_debut: prixPeriodeForm.date_debut,
+          date_fin: prixPeriodeForm.date_fin,
+          prix: prixPeriodeForm.prix,
+          type_visite: prixPeriodeForm.type_visite || null,
+        }),
+      });
+      setMessage({ type: 'success', text: data.message });
+      setPrixPeriodeResultat({ type: 'success', text: `✅ ${data.message}` });
+      chargerPlanning();
+    } catch (e) {
+      setMessage({ type: 'error', text: e.message });
+      setPrixPeriodeResultat({ type: 'error', text: e.message });
+    } finally {
+      setPrixPeriodeEnvoi(false);
     }
   }
 
@@ -1180,6 +1209,56 @@ function DashboardPageInner() {
               {!promoPeriodeEnvoi && promoPeriodeResultat && (
                 <span className="help-text" style={{ color: promoPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
                   {promoPeriodeResultat.text}
+                </span>
+              )}
+            </div>
+          </form>
+        </section>
+
+        <section className="card">
+          <div className="card-header"><h2 style={{ margin: 0 }}>Modifier le prix sur une période</h2></div>
+          <p className="help-text">
+            Change le prix des créneaux <strong>encore disponibles</strong> d'une période déjà ouverte (jamais un
+            créneau déjà réservé, qui garde son prix). C'est l'outil à utiliser pour corriger un prix — rouvrir la
+            même période avec « Combler des horaires vides » ne change rien au prix déjà en place, puisque cet
+            outil ne touche jamais un créneau existant (pour ne jamais créer de doublon).
+          </p>
+          <form onSubmit={handlePrixPeriodeSubmit}>
+            <div className="grid-2">
+              <div className="form-row">
+                <label htmlFor="prix_date_debut">Du</label>
+                <input id="prix_date_debut" type="date" required value={prixPeriodeForm.date_debut}
+                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, date_debut: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="prix_date_fin">Au</label>
+                <input id="prix_date_fin" type="date" required value={prixPeriodeForm.date_fin}
+                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, date_fin: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="prix_periode_montant">Nouveau prix (€ TTC)</label>
+                <input id="prix_periode_montant" type="number" min="0" step="0.01" required placeholder="ex: 80"
+                  value={prixPeriodeForm.prix}
+                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, prix: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="prix_periode_type">Type de visite</label>
+                <select id="prix_periode_type" value={prixPeriodeForm.type_visite}
+                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, type_visite: e.target.value })}>
+                  <option value="">Tous types confondus</option>
+                  <option value="normale">Visite normale uniquement</option>
+                  <option value="contre_visite">Contre-visite uniquement</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button type="submit" disabled={prixPeriodeEnvoi}>
+                {prixPeriodeEnvoi ? 'Modification en cours…' : 'Modifier le prix de cette période'}
+              </button>
+              {prixPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+              {!prixPeriodeEnvoi && prixPeriodeResultat && (
+                <span className="help-text" style={{ color: prixPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                  {prixPeriodeResultat.text}
                 </span>
               )}
             </div>

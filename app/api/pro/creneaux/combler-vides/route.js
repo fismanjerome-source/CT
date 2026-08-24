@@ -122,7 +122,7 @@ export async function POST(request) {
       const libelleDemande = typeVisiteFinal === 'contre_visite' ? 'contre-visite' : 'visite normale';
       message = `Aucun créneau ouvert : ${occupesParAutreType} de ces horaires sont déjà pris par des créneaux "${libelleAutre}" existants (un centre ne peut avoir qu'un seul créneau par horaire, tous types confondus). Choisissez d'autres horaires pour la ${libelleDemande}, ou libérez d'abord ces créneaux "${libelleAutre}".`;
     } else {
-      message = `Aucun nouveau créneau : les ${statements.length} créneau(x) de cette période étaient déjà ouverts (aucun doublon créé).`;
+      message = `Aucun nouveau créneau : les ${statements.length} créneau(x) de cette période étaient déjà ouverts (aucun doublon créé). Pour changer leur prix ou leur remise, utilisez « Modifier le prix sur une période » ou « Appliquer une promotion sur une période » — rouvrir la même période ici ne les modifie jamais.`;
     }
   }
 
