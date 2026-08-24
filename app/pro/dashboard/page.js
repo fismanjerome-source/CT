@@ -52,7 +52,10 @@ function DashboardPageInner() {
     heure_debut_matin: '09:00', heure_fin_matin: '12:00',
     heure_debut_apresmidi: '14:00', heure_fin_apresmidi: '18:00',
     heure_debut_continue: '09:00', heure_fin_continue: '18:00',
-    intervalle_minutes: 30, duree_minutes: 30, type_visite: 'normale', prix: '', promo_pourcentage: '', types_vehicules: [],
+    intervalle_minutes: 30, duree_minutes: 30, type_visite: 'normale',
+    prix_normale: '', prix_contre_visite: '',
+    promo_pourcentage_normale: '', promo_pourcentage_contre_visite: '',
+    types_vehicules: [],
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
   const [comblerResultat, setComblerResultat] = useState(null);
@@ -60,7 +63,12 @@ function DashboardPageInner() {
   const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
   const [promoPeriodeResultat, setPromoPeriodeResultat] = useState(null);
 
-  const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', duree_minutes: 30, type_visite: 'normale', prix: '', promo_pourcentage: '', types_vehicules: [] });
+  const [singleForm, setSingleForm] = useState({
+    date: todayISO(), heure: '09:00', duree_minutes: 30, type_visite: 'normale',
+    prix_normale: '', prix_contre_visite: '',
+    promo_pourcentage_normale: '', promo_pourcentage_contre_visite: '',
+    types_vehicules: [],
+  });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
 
   const [typesVehiculesCentre, setTypesVehiculesCentre] = useState([]);
@@ -355,6 +363,9 @@ function DashboardPageInner() {
             { heure_debut: comblerForm.heure_debut_matin, heure_fin: comblerForm.heure_fin_matin },
             { heure_debut: comblerForm.heure_debut_apresmidi, heure_fin: comblerForm.heure_fin_apresmidi },
           ];
+      const estContreVisite = comblerForm.type_visite === 'contre_visite';
+      const prix = estContreVisite ? comblerForm.prix_contre_visite : comblerForm.prix_normale;
+      const promo = estContreVisite ? comblerForm.promo_pourcentage_contre_visite : comblerForm.promo_pourcentage_normale;
       const data = await api('/api/pro/creneaux/combler-vides', {
         method: 'POST',
         body: JSON.stringify({
@@ -364,8 +375,8 @@ function DashboardPageInner() {
           intervalle_minutes: Number(comblerForm.intervalle_minutes),
           duree_minutes: Number(comblerForm.duree_minutes),
           type_visite: comblerForm.type_visite,
-          prix: Number(comblerForm.prix),
-          promo_pourcentage: comblerForm.promo_pourcentage ? Number(comblerForm.promo_pourcentage) : null,
+          prix: Number(prix),
+          promo_pourcentage: promo ? Number(promo) : null,
           types_vehicules: comblerForm.types_vehicules,
           centre_id: centre.id,
         }),
@@ -410,12 +421,19 @@ function DashboardPageInner() {
     e.preventDefault();
     setSingleEnvoi(true);
     try {
+      const estContreVisite = singleForm.type_visite === 'contre_visite';
+      const prix = estContreVisite ? singleForm.prix_contre_visite : singleForm.prix_normale;
+      const promo = estContreVisite ? singleForm.promo_pourcentage_contre_visite : singleForm.promo_pourcentage_normale;
       await api('/api/pro/creneaux', {
         method: 'POST',
         body: JSON.stringify({
-          ...singleForm,
-          prix: Number(singleForm.prix),
-          promo_pourcentage: singleForm.promo_pourcentage ? Number(singleForm.promo_pourcentage) : null,
+          date: singleForm.date,
+          heure: singleForm.heure,
+          duree_minutes: singleForm.duree_minutes,
+          type_visite: singleForm.type_visite,
+          types_vehicules: singleForm.types_vehicules,
+          prix: Number(prix),
+          promo_pourcentage: promo ? Number(promo) : null,
           centre_id: centre.id,
         }),
       });
@@ -936,13 +954,28 @@ function DashboardPageInner() {
                 <label htmlFor="combler_prix">
                   {comblerForm.type_visite === 'contre_visite' ? 'Prix de la contre-visite (€ TTC, 0 si gratuite)' : 'Prix du contrôle technique (€ TTC)'}
                 </label>
-                <input id="combler_prix" type="number" min="0" step="0.01" required placeholder="ex: 78" value={comblerForm.prix}
-                  onChange={(e) => setComblerForm({ ...comblerForm, prix: e.target.value })} />
+                <input
+                  id="combler_prix" type="number" min="0" step="0.01" required placeholder="ex: 78"
+                  value={comblerForm.type_visite === 'contre_visite' ? comblerForm.prix_contre_visite : comblerForm.prix_normale}
+                  onChange={(e) => setComblerForm({
+                    ...comblerForm,
+                    [comblerForm.type_visite === 'contre_visite' ? 'prix_contre_visite' : 'prix_normale']: e.target.value,
+                  })}
+                />
+                <p className="help-text" style={{ margin: '4px 0 0' }}>
+                  Prix propre à ce type de visite — changer de type ci-dessus ne modifie pas l'autre prix.
+                </p>
               </div>
               <div className="form-row">
                 <label htmlFor="combler_promo">Remise client (optionnel, en %)</label>
-                <input id="combler_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide" value={comblerForm.promo_pourcentage}
-                  onChange={(e) => setComblerForm({ ...comblerForm, promo_pourcentage: e.target.value })} />
+                <input
+                  id="combler_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide"
+                  value={comblerForm.type_visite === 'contre_visite' ? comblerForm.promo_pourcentage_contre_visite : comblerForm.promo_pourcentage_normale}
+                  onChange={(e) => setComblerForm({
+                    ...comblerForm,
+                    [comblerForm.type_visite === 'contre_visite' ? 'promo_pourcentage_contre_visite' : 'promo_pourcentage_normale']: e.target.value,
+                  })}
+                />
               </div>
               <div className="form-row" style={{ gridColumn: '1 / -1' }}>
                 <label>Réserver ce lot à certains véhicules (optionnel)</label>
@@ -1092,13 +1125,28 @@ function DashboardPageInner() {
               <label htmlFor="s_prix">
                 {singleForm.type_visite === 'contre_visite' ? 'Prix de la contre-visite (€ TTC, 0 si gratuite)' : 'Prix du contrôle technique (€ TTC)'}
               </label>
-              <input id="s_prix" type="number" min="0" step="0.01" required placeholder="ex: 78" value={singleForm.prix}
-                onChange={(e) => setSingleForm({ ...singleForm, prix: e.target.value })} />
+              <input
+                id="s_prix" type="number" min="0" step="0.01" required placeholder="ex: 78"
+                value={singleForm.type_visite === 'contre_visite' ? singleForm.prix_contre_visite : singleForm.prix_normale}
+                onChange={(e) => setSingleForm({
+                  ...singleForm,
+                  [singleForm.type_visite === 'contre_visite' ? 'prix_contre_visite' : 'prix_normale']: e.target.value,
+                })}
+              />
+              <p className="help-text" style={{ margin: '4px 0 0' }}>
+                Prix propre à ce type de visite — changer de type ci-dessus ne modifie pas l'autre prix.
+              </p>
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
               <label htmlFor="s_promo">Remise client (optionnel, en %)</label>
-              <input id="s_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide" value={singleForm.promo_pourcentage}
-                onChange={(e) => setSingleForm({ ...singleForm, promo_pourcentage: e.target.value })} />
+              <input
+                id="s_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide"
+                value={singleForm.type_visite === 'contre_visite' ? singleForm.promo_pourcentage_contre_visite : singleForm.promo_pourcentage_normale}
+                onChange={(e) => setSingleForm({
+                  ...singleForm,
+                  [singleForm.type_visite === 'contre_visite' ? 'promo_pourcentage_contre_visite' : 'promo_pourcentage_normale']: e.target.value,
+                })}
+              />
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
               <label>Réserver ce créneau à certains véhicules (optionnel)</label>
