@@ -970,6 +970,18 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .day-chip.selected { border-color: var(--color-primary); background: var(--color-primary); color: #fff; }
 .day-chip.selected .dow, .day-chip.selected .count { color: #E8ECE6; }
 
+.slots-periode { margin-top: 20px; }
+.slots-periode-titre {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin: 0 0 10px;
+}
+.slots-periode .slots-grid { padding: 0 0 8px; }
+.slots-periode:last-child .slots-grid { padding-bottom: 48px; }
+
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));

@@ -255,50 +255,57 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
           Créneaux du {new Date(dateSelectionnee + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </h2>
 
-        <div className="slots-grid">
-          {typeVehicule === null ? (
-            <div
-              className="empty-state"
-              style={{
-                gridColumn: '1 / -1',
-                borderColor: 'var(--color-accent)',
-                background: 'rgba(217, 166, 46, 0.1)',
-                color: 'var(--color-accent)',
-                fontWeight: 600,
-              }}
-            >
-              👆 Choisissez d'abord votre type de véhicule ci-dessus pour voir les créneaux disponibles.
-            </div>
-          ) : chargementCreneaux ? (
-            <p className="help-text">Chargement des créneaux…</p>
-          ) : !creneaux || creneaux.length === 0 ? (
-            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
-              Aucun créneau disponible ce jour-là pour ce type de véhicule. Essayez une autre date ou un autre véhicule.
-            </div>
-          ) : (
-            creneaux.map((c) => {
-              const aPromo = c.promo_pourcentage && c.prix != null;
-              return (
-                <button key={c.id} className={`slot-btn ${aPromo ? 'promo' : ''}`} onClick={() => setModalCreneau(c)}>
-                  {aPromo ? <span className="promo-flag">-{c.promo_pourcentage}%</span> : null}
-                  <span className="slot-heure">{c.heure}</span>
-                  {c.prix != null && (
-                    <span className="slot-prix">
-                      {aPromo ? (
-                        <>
-                          <s className="prix-barre">{c.prix.toFixed(2)}€</s>{' '}
-                          <span className="prix-final">{c.prix_final.toFixed(2)}€ TTC</span>
-                        </>
-                      ) : (
-                        <span>{c.prix.toFixed(2)}€ TTC</span>
+        {typeVehicule === null ? (
+          <div
+            className="empty-state"
+            style={{
+              borderColor: 'var(--color-accent)',
+              background: 'rgba(217, 166, 46, 0.1)',
+              color: 'var(--color-accent)',
+              fontWeight: 600,
+            }}
+          >
+            👆 Choisissez d'abord votre type de véhicule ci-dessus pour voir les créneaux disponibles.
+          </div>
+        ) : chargementCreneaux ? (
+          <p className="help-text">Chargement des créneaux…</p>
+        ) : !creneaux || creneaux.length === 0 ? (
+          <div className="empty-state">
+            Aucun créneau disponible ce jour-là pour ce type de véhicule. Essayez une autre date ou un autre véhicule.
+          </div>
+        ) : (
+          [
+            { titre: 'Matin', liste: creneaux.filter((c) => c.heure < '12:00') },
+            { titre: 'Après-midi', liste: creneaux.filter((c) => c.heure >= '12:00') },
+          ].map(({ titre, liste }) => liste.length > 0 && (
+            <div key={titre} className="slots-periode">
+              <h3 className="slots-periode-titre">{titre}</h3>
+              <div className="slots-grid">
+                {liste.map((c) => {
+                  const aPromo = c.promo_pourcentage && c.prix != null;
+                  return (
+                    <button key={c.id} className={`slot-btn ${aPromo ? 'promo' : ''}`} onClick={() => setModalCreneau(c)}>
+                      {aPromo ? <span className="promo-flag">-{c.promo_pourcentage}%</span> : null}
+                      <span className="slot-heure">{c.heure}</span>
+                      {c.prix != null && (
+                        <span className="slot-prix">
+                          {aPromo ? (
+                            <>
+                              <s className="prix-barre">{c.prix.toFixed(2)}€</s>{' '}
+                              <span className="prix-final">{c.prix_final.toFixed(2)}€ TTC</span>
+                            </>
+                          ) : (
+                            <span>{c.prix.toFixed(2)}€ TTC</span>
+                          )}
+                        </span>
                       )}
-                    </span>
-                  )}
-                </button>
-              );
-            })
-          )}
-        </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))
+        )}
       </section>
 
       {avis && avis.total > 0 && (
