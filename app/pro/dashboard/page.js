@@ -23,6 +23,48 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+function minutesVersHeure(minutes) {
+  const h = String(Math.floor(minutes / 60)).padStart(2, '0');
+  const m = String(minutes % 60).padStart(2, '0');
+  return `${h}h${m}`;
+}
+
+// Regroupe une liste de créneaux (même jour, même type de visite) en plages
+// horaires continues, pour afficher "8h-11h, 14h-17h" plutôt qu'une liste de
+// 30 minutes en 30 minutes — deux créneaux sont dans la même plage si le
+// second commence avant ou au moment où le premier se termine.
+function calculerPlages(creneaux) {
+  const tries = [...creneaux].sort((a, b) => a.heure.localeCompare(b.heure));
+  const plages = [];
+  for (const c of tries) {
+    const [h, m] = c.heure.split(':').map(Number);
+    const debut = h * 60 + m;
+    const fin = debut + (c.duree_minutes || 30);
+    const derniere = plages[plages.length - 1];
+    if (derniere && debut <= derniere.finMinutes) {
+      derniere.finMinutes = Math.max(derniere.finMinutes, fin);
+    } else {
+      plages.push({ debutMinutes: debut, finMinutes: fin });
+    }
+  }
+  return plages.map((p) => `${minutesVersHeure(p.debutMinutes)}-${minutesVersHeure(p.finMinutes)}`);
+}
+
+// Regroupe par jour puis par type de visite, pour le résumé "Horaires déjà
+// ouverts" au-dessus de "Combler des horaires vides".
+function regrouperHorairesOuverts(creneaux) {
+  const parJour = {};
+  for (const c of creneaux) {
+    if (!parJour[c.date]) parJour[c.date] = { normale: [], contre_visite: [] };
+    parJour[c.date][c.type_visite === 'contre_visite' ? 'contre_visite' : 'normale'].push(c);
+  }
+  return Object.keys(parJour).sort().map((date) => ({
+    date,
+    normale: calculerPlages(parJour[date].normale),
+    contre_visite: calculerPlages(parJour[date].contre_visite),
+  }));
+}
+
 async function api(path, options = {}) {
   const res = await fetch(path, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
   const data = await res.json().catch(() => ({}));
@@ -59,6 +101,7 @@ function DashboardPageInner() {
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
   const [comblerResultat, setComblerResultat] = useState(null);
+  const [horairesOuverts, setHorairesOuverts] = useState(null);
   const [promoPeriodeForm, setPromoPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), promo_pourcentage: '' });
   const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
   const [promoPeriodeResultat, setPromoPeriodeResultat] = useState(null);
@@ -73,6 +116,7 @@ function DashboardPageInner() {
     types_vehicules: [],
   });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
+  const [singleResultat, setSingleResultat] = useState(null);
 
   const [typesVehiculesCentre, setTypesVehiculesCentre] = useState([]);
   const [statutPaiement, setStatutPaiement] = useState(null);
@@ -113,6 +157,28 @@ function DashboardPageInner() {
       if (e.status === 401) router.push('/pro/login');
     }
   }, [router, centre]);
+
+  // Horaires déjà ouverts sur la période choisie dans "Combler des horaires
+  // vides" — se recharge à chaque changement de dates, pour qu'on voie tout
+  // de suite ce qui existe déjà (et notamment si un type de visite est
+  // resté vide) avant d'en ouvrir de nouveaux.
+  useEffect(() => {
+    let annule = false;
+    async function charger() {
+      if (!centre || !comblerForm.date_debut || !comblerForm.date_fin) return;
+      const jours = Math.max(0, Math.round(
+        (new Date(comblerForm.date_fin + 'T00:00:00') - new Date(comblerForm.date_debut + 'T00:00:00')) / 86400000
+      ));
+      try {
+        const { creneaux } = await api(`/api/pro/creneaux?debut=${comblerForm.date_debut}&jours=${jours}&centre=${centre.id}`);
+        if (!annule) setHorairesOuverts(regrouperHorairesOuverts(creneaux));
+      } catch {
+        if (!annule) setHorairesOuverts(null);
+      }
+    }
+    charger();
+    return () => { annule = true; };
+  }, [centre, comblerForm.date_debut, comblerForm.date_fin, comblerResultat, supprimerPeriodeResultat]);
 
   useEffect(() => {
     async function init() {
@@ -456,6 +522,7 @@ function DashboardPageInner() {
   async function handleSingleSubmit(e) {
     e.preventDefault();
     setSingleEnvoi(true);
+    setSingleResultat(null);
     try {
       const estContreVisite = singleForm.type_visite === 'contre_visite';
       const prix = estContreVisite ? singleForm.prix_contre_visite : singleForm.prix_normale;
@@ -474,9 +541,11 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: 'Créneau ajouté.' });
+      setSingleResultat({ type: 'success', text: `✅ Créneau du ${singleForm.date} à ${singleForm.heure} ajouté (${estContreVisite ? 'contre-visite' : 'visite normale'}).` });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
+      setSingleResultat({ type: 'error', text: e.message });
     } finally {
       setSingleEnvoi(false);
     }
@@ -858,6 +927,37 @@ function DashboardPageInner() {
             Ouvrez d'un coup tous les créneaux libres sur une plage horaire, pour plusieurs jours —
             idéal pour publier rapidement les trous de votre planning.
           </p>
+
+          <div className="horaires-ouverts">
+            <p className="horaires-ouverts-titre">
+              Horaires déjà ouverts du {formatDate(comblerForm.date_debut)} au {formatDate(comblerForm.date_fin)}
+            </p>
+            {horairesOuverts === null ? (
+              <p className="help-text">Chargement…</p>
+            ) : horairesOuverts.length === 0 ? (
+              <p className="help-text">Rien d'ouvert sur cette période pour l'instant.</p>
+            ) : (
+              <>
+                <div className="horaires-ouverts-liste">
+                  {horairesOuverts.slice(0, 14).map((j) => (
+                    <div key={j.date} className="horaires-ouverts-jour">
+                      <span className="horaires-ouverts-date">{formatDate(j.date)}</span>
+                      <span className="horaires-ouverts-type">
+                        Visite normale : {j.normale.length > 0 ? j.normale.join(', ') : '—'}
+                      </span>
+                      <span className="horaires-ouverts-type">
+                        Contre-visite : {j.contre_visite.length > 0 ? j.contre_visite.join(', ') : '—'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {horairesOuverts.length > 14 && (
+                  <p className="help-text">+ {horairesOuverts.length - 14} autre(s) jour(s) sur cette période.</p>
+                )}
+              </>
+            )}
+          </div>
+
           <form onSubmit={handleComblerSubmit}>
             <div className="grid-2">
               <div className="form-row">
@@ -1255,8 +1355,14 @@ function DashboardPageInner() {
               </div>
               <p className="help-text">Rien de coché = ouvert à tous les véhicules acceptés par votre centre.</p>
             </div>
-            <div className="form-row" style={{ gridColumn: '1 / -1' }}>
-              <button type="submit" disabled={singleEnvoi}>{singleEnvoi ? 'Ajout…' : 'Ajouter ce créneau'}</button>
+            <div className="form-row" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button type="submit" disabled={singleEnvoi}>{singleEnvoi ? 'Ajout en cours…' : 'Ajouter ce créneau'}</button>
+              {singleEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+              {!singleEnvoi && singleResultat && (
+                <span className="help-text" style={{ color: singleResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                  {singleResultat.text}
+                </span>
+              )}
             </div>
           </form>
         </section>
