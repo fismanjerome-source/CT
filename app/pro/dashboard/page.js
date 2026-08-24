@@ -62,6 +62,9 @@ function DashboardPageInner() {
   const [promoPeriodeForm, setPromoPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), promo_pourcentage: '' });
   const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
   const [promoPeriodeResultat, setPromoPeriodeResultat] = useState(null);
+  const [supprimerPeriodeForm, setSupprimerPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), type_visite: '' });
+  const [supprimerPeriodeEnvoi, setSupprimerPeriodeEnvoi] = useState(false);
+  const [supprimerPeriodeResultat, setSupprimerPeriodeResultat] = useState(null);
 
   const [singleForm, setSingleForm] = useState({
     date: todayISO(), heure: '09:00', duree_minutes: 30, type_visite: 'normale',
@@ -417,6 +420,39 @@ function DashboardPageInner() {
     }
   }
 
+  async function handleSupprimerPeriodeSubmit(e) {
+    e.preventDefault();
+    const libelleType = supprimerPeriodeForm.type_visite === 'contre_visite'
+      ? 'contre-visite'
+      : supprimerPeriodeForm.type_visite === 'normale'
+        ? 'visite normale'
+        : 'tous types confondus';
+    if (!confirm(`Supprimer tous les créneaux ENCORE DISPONIBLES (${libelleType}) du ${supprimerPeriodeForm.date_debut} au ${supprimerPeriodeForm.date_fin} ? Les créneaux déjà réservés ne seront jamais touchés. Cette action est irréversible.`)) {
+      return;
+    }
+    setSupprimerPeriodeEnvoi(true);
+    setSupprimerPeriodeResultat(null);
+    try {
+      const data = await api('/api/pro/creneaux/supprimer-periode', {
+        method: 'POST',
+        body: JSON.stringify({
+          centre_id: centre.id,
+          date_debut: supprimerPeriodeForm.date_debut,
+          date_fin: supprimerPeriodeForm.date_fin,
+          type_visite: supprimerPeriodeForm.type_visite || null,
+        }),
+      });
+      setMessage({ type: 'success', text: data.message });
+      setSupprimerPeriodeResultat({ type: 'success', text: `✅ ${data.message}` });
+      chargerPlanning();
+    } catch (e) {
+      setMessage({ type: 'error', text: e.message });
+      setSupprimerPeriodeResultat({ type: 'error', text: e.message });
+    } finally {
+      setSupprimerPeriodeEnvoi(false);
+    }
+  }
+
   async function handleSingleSubmit(e) {
     e.preventDefault();
     setSingleEnvoi(true);
@@ -525,6 +561,7 @@ function DashboardPageInner() {
           <a href="#agenda"><IconCalendrier /> Mon agenda externe</a>
           <a href="#vehicules"><IconVoiture /> Véhicules acceptés</a>
           <a href="#combler"><IconCalendrierPlus /> Combler des horaires vides</a>
+          <a href="#supprimer"><IconInterdit /> Supprimer des créneaux</a>
           <a href="#planning"><IconTableauBord /> Mon planning</a>
           <a href="#rdv"><IconCoche /> Mes rendez-vous</a>
           <Link href="/pro/clients"><IconVoiture /> Mes RDV clients</Link>
@@ -1074,6 +1111,50 @@ function DashboardPageInner() {
               {!promoPeriodeEnvoi && promoPeriodeResultat && (
                 <span className="help-text" style={{ color: promoPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
                   {promoPeriodeResultat.text}
+                </span>
+              )}
+            </div>
+          </form>
+        </section>
+
+        <section id="supprimer" className="card">
+          <div className="card-header"><h2 style={{ margin: 0 }}>Supprimer des créneaux sur une période</h2></div>
+          <p className="help-text">
+            Supprime en une fois tous les créneaux <strong>encore disponibles</strong> (jamais un créneau déjà
+            réservé) sur la période choisie — utile par exemple si un lot a été ouvert avec le mauvais type de
+            visite ou le mauvais prix via « Combler des horaires vides », pour repartir de zéro sans tout supprimer
+            un par un.
+          </p>
+          <form onSubmit={handleSupprimerPeriodeSubmit}>
+            <div className="grid-2">
+              <div className="form-row">
+                <label htmlFor="suppr_date_debut">Du</label>
+                <input id="suppr_date_debut" type="date" required value={supprimerPeriodeForm.date_debut}
+                  onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, date_debut: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="suppr_date_fin">Au</label>
+                <input id="suppr_date_fin" type="date" required value={supprimerPeriodeForm.date_fin}
+                  onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, date_fin: e.target.value })} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="suppr_type_visite">Type de visite à supprimer</label>
+                <select id="suppr_type_visite" value={supprimerPeriodeForm.type_visite}
+                  onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, type_visite: e.target.value })}>
+                  <option value="">Tous types confondus</option>
+                  <option value="normale">Visite normale uniquement</option>
+                  <option value="contre_visite">Contre-visite uniquement</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button type="submit" className="btn-secondary" disabled={supprimerPeriodeEnvoi} style={{ borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
+                {supprimerPeriodeEnvoi ? 'Suppression en cours…' : 'Supprimer les créneaux disponibles de cette période'}
+              </button>
+              {supprimerPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+              {!supprimerPeriodeEnvoi && supprimerPeriodeResultat && (
+                <span className="help-text" style={{ color: supprimerPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                  {supprimerPeriodeResultat.text}
                 </span>
               )}
             </div>
