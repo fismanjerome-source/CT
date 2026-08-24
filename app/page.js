@@ -22,6 +22,7 @@ function formatDateLongue(dateStr) {
 
 export default function HomePage() {
   const router = useRouter();
+  const [bandeauProVisible, setBandeauProVisible] = useState(true);
   const [ville, setVille] = useState('');
   const [cp, setCp] = useState('');
   const [date, setDate] = useState('');
@@ -113,6 +114,30 @@ export default function HomePage() {
 
   return (
     <>
+      {bandeauProVisible && (
+        <div className="bandeau-pro">
+          <div className="container bandeau-pro-inner">
+            <span className="bandeau-pro-texte">
+              🔧 Vous êtes un centre de contrôle technique ? <strong>Inscription gratuite, sans abonnement.</strong>
+            </span>
+            <div className="bandeau-pro-actions">
+              <Link href="/pro/register" className="bandeau-pro-lien">Créer mon compte →</Link>
+              <span className="bandeau-pro-sep">·</span>
+              <span>Une question ?</span>
+              <a href="tel:+33608129145" className="bandeau-pro-lien">📞 06 08 12 91 45</a>
+              <a href="mailto:contact@creneauct.fr" className="bandeau-pro-lien">✉️ contact@creneauct.fr</a>
+            </div>
+            <button
+              type="button"
+              className="bandeau-pro-close"
+              onClick={() => setBandeauProVisible(false)}
+              aria-label="Fermer ce message"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       <Header />
 
       <section className="hero">
