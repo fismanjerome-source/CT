@@ -55,8 +55,10 @@ function DashboardPageInner() {
     intervalle_minutes: 30, duree_minutes: 30, type_visite: 'normale', prix: '', promo_pourcentage: '', types_vehicules: [],
   });
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
+  const [comblerResultat, setComblerResultat] = useState(null);
   const [promoPeriodeForm, setPromoPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), promo_pourcentage: '' });
   const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
+  const [promoPeriodeResultat, setPromoPeriodeResultat] = useState(null);
 
   const [singleForm, setSingleForm] = useState({ date: todayISO(), heure: '09:00', duree_minutes: 30, type_visite: 'normale', prix: '', promo_pourcentage: '', types_vehicules: [] });
   const [singleEnvoi, setSingleEnvoi] = useState(false);
@@ -345,6 +347,7 @@ function DashboardPageInner() {
   async function handleComblerSubmit(e) {
     e.preventDefault();
     setComblerEnvoi(true);
+    setComblerResultat(null);
     try {
       const plages = comblerForm.journeeContinue
         ? [{ heure_debut: comblerForm.heure_debut_continue, heure_fin: comblerForm.heure_fin_continue }]
@@ -368,9 +371,11 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: data.message });
+      setComblerResultat({ type: 'success', text: `✅ ${data.message}` });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
+      setComblerResultat({ type: 'error', text: e.message });
     } finally {
       setComblerEnvoi(false);
     }
@@ -379,6 +384,7 @@ function DashboardPageInner() {
   async function handleAppliquerPromoSubmit(e) {
     e.preventDefault();
     setPromoPeriodeEnvoi(true);
+    setPromoPeriodeResultat(null);
     try {
       const data = await api('/api/pro/creneaux/appliquer-promo', {
         method: 'POST',
@@ -390,9 +396,11 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: data.message });
+      setPromoPeriodeResultat({ type: 'success', text: `✅ ${data.message}` });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
+      setPromoPeriodeResultat({ type: 'error', text: e.message });
     } finally {
       setPromoPeriodeEnvoi(false);
     }
@@ -986,7 +994,15 @@ function DashboardPageInner() {
               automatiquement sur le prix payé par le client, selon le délai de réservation (25% sous 7 jours, 20%
               entre 7 et 14 jours, 15% au-delà) — vous la retrouverez dans le tableau ci-dessous.
             </p>
-            <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture…' : 'Ouvrir les créneaux'}</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture en cours…' : 'Ouvrir les créneaux'}</button>
+              {comblerEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+              {!comblerEnvoi && comblerResultat && (
+                <span className={comblerResultat.type === 'error' ? 'help-text' : 'help-text'} style={{ color: comblerResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                  {comblerResultat.text}
+                </span>
+              )}
+            </div>
           </form>
         </section>
 
@@ -1017,9 +1033,17 @@ function DashboardPageInner() {
                   onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, promo_pourcentage: e.target.value })} />
               </div>
             </div>
-            <button type="submit" disabled={promoPeriodeEnvoi}>
-              {promoPeriodeEnvoi ? 'Application…' : 'Appliquer à cette période'}
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button type="submit" disabled={promoPeriodeEnvoi}>
+                {promoPeriodeEnvoi ? 'Application en cours…' : 'Appliquer à cette période'}
+              </button>
+              {promoPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+              {!promoPeriodeEnvoi && promoPeriodeResultat && (
+                <span className="help-text" style={{ color: promoPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                  {promoPeriodeResultat.text}
+                </span>
+              )}
+            </div>
           </form>
         </section>
 
