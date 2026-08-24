@@ -841,6 +841,18 @@ function DashboardPageInner() {
           </div>
         </section>
 
+        <section className="card" style={{ marginTop: 24 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Connecter vos outils existants</h2></div>
+          <p className="help-text">
+            Deux solutions, à choisir selon votre installation. D'abord, une{' '}
+            <Link href={`/pro/api?centre=${centre.id}`}>clé API</Link> : si votre logiciel de planning peut s'y
+            connecter, elle donne un accès en lecture à vos créneaux et vos rendez-vous, ou un simple lien
+            d'abonnement d'agenda à coller dans Google Calendar, Outlook, etc. Sinon, la solution ci-dessous
+            ("Mon agenda externe") : collez le lien de votre agenda déjà en place, sans aucune configuration
+            technique de votre côté.
+          </p>
+        </section>
+
         <section id="agenda" className="card" style={{ marginTop: 24 }}>
           <div className="card-header"><h2 style={{ margin: 0 }}>Mon agenda externe</h2></div>
           <p className="help-text">
@@ -1072,9 +1084,10 @@ function DashboardPageInner() {
                   </button>
                 </div>
                 <p className="help-text" style={{ margin: '6px 0 0' }}>
-                  Un seul créneau par horaire, quel que soit le type : si des horaires sont déjà pris en visite
-                  normale, ils ne peuvent pas aussi être ouverts en contre-visite (et inversement). Utilisez des
-                  horaires différents pour les deux — voir le résumé ci-dessus.
+                  Impossible d'ouvrir une visite normale et une contre-visite au même horaire : un centre n'a qu'un
+                  seul créneau par horaire, tous types confondus. Les deux types peuvent être ouverts en parallèle,
+                  mais sur des horaires différents (ex : contre-visite à la pause déjeuner ou en fin de journée) —
+                  voir le résumé ci-dessus pour ce qui est déjà pris.
                 </p>
               </div>
               <div className="form-row">
