@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ProSidebar from '../../components/ProSidebar';
 
-export default function JuridiquePage() {
+function JuridiquePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const centreId = searchParams.get('centre');
   const [fiches, setFiches] = useState(null);
   const [erreur, setErreur] = useState(null);
 
@@ -26,7 +28,7 @@ export default function JuridiquePage() {
 
   return (
     <div className="pro-shell">
-      <ProSidebar />
+      <ProSidebar centreId={centreId} />
 
       <main className="pro-main">
         <h1>Juridique</h1>
@@ -56,5 +58,13 @@ export default function JuridiquePage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function JuridiquePage() {
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+      <JuridiquePageInner />
+    </Suspense>
   );
 }

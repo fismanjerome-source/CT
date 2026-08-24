@@ -2,9 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -18,7 +16,6 @@ function formatDate(dateStr) {
 
 function AbsencesPageInner() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const centreIdParam = searchParams.get('centre');
 

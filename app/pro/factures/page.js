@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
 
 function formatMois(mois) {
   const [annee, m] = mois.split('-');
@@ -38,7 +37,7 @@ function ProFacturesPageInner() {
 
   return (
     <div className="pro-shell">
-      <ProSidebar />
+      <ProSidebar centreId={centreId} />
 
       <main className="pro-main">
         <h1>Mes factures</h1>
@@ -46,6 +45,24 @@ function ProFacturesPageInner() {
           La commission Créneau CT due chaque mois, calculée automatiquement sur les RDV confirmés.
           Aucune facture n'est générée pour un mois sans réservation.
         </p>
+
+        <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>💶 Taux de commission</h2></div>
+          <p className="help-text">
+            Calculée automatiquement sur le prix effectivement payé par le client, uniquement sur les rendez-vous
+            honorés — jamais sur une absence signalée.
+          </p>
+          <table style={{ width: '100%' }}>
+            <thead>
+              <tr><th>Délai entre réservation et rendez-vous</th><th>Taux</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Moins de 7 jours</td><td className="mono">25 %</td></tr>
+              <tr><td>Entre 7 et 14 jours</td><td className="mono">20 %</td></tr>
+              <tr><td>Plus de 14 jours</td><td className="mono">15 %</td></tr>
+            </tbody>
+          </table>
+        </section>
 
         {erreur && <div className="message-banner error" style={{ marginTop: 16 }}>{erreur}</div>}
 

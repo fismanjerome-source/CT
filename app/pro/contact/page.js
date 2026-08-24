@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
-import { usePathname } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
 import { PhoneIcon, MailIcon, WhatsAppIcon } from '../../components/ContactIcons';
 
-export default function ProContactPage() {
-  const pathname = usePathname();
+function ProContactPageInner() {
+  const searchParams = useSearchParams();
+  const centreId = searchParams.get('centre');
   const [message, setMessage] = useState('');
   const [envoi, setEnvoi] = useState(false);
   const [statut, setStatut] = useState(null);
@@ -36,7 +36,7 @@ export default function ProContactPage() {
 
   return (
     <div className="pro-shell">
-      <ProSidebar />
+      <ProSidebar centreId={centreId} />
 
       <main className="pro-main">
         <h1>Contacter Créneau CT</h1>
@@ -93,5 +93,13 @@ export default function ProContactPage() {
         </p>
       </main>
     </div>
+  );
+}
+
+export default function ProContactPage() {
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+      <ProContactPageInner />
+    </Suspense>
   );
 }

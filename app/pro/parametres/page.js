@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
 
-export default function ProParametresPage() {
-  const pathname = usePathname();
+function ProParametresPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const centreId = searchParams.get('centre');
   const [motDePasseActuel, setMotDePasseActuel] = useState('');
   const [nouveauMotDePasse, setNouveauMotDePasse] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -163,29 +163,11 @@ export default function ProParametresPage() {
 
   return (
     <div className="pro-shell">
-      <ProSidebar />
+      <ProSidebar centreId={centreId} />
 
       <main className="pro-main">
         <h1>Paramètres du compte</h1>
         <p className="help-text">Modifiez votre mot de passe de connexion.</p>
-
-        <section className="card" style={{ marginTop: 24, maxWidth: 460 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>💶 Commissions Créneau CT</h2></div>
-          <p className="help-text">
-            Calculée automatiquement sur le prix effectivement payé par le client, uniquement sur les rendez-vous
-            honorés — jamais sur une absence signalée.
-          </p>
-          <table style={{ width: '100%' }}>
-            <thead>
-              <tr><th>Délai entre réservation et rendez-vous</th><th>Taux</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Moins de 7 jours</td><td className="mono">25 %</td></tr>
-              <tr><td>Entre 7 et 14 jours</td><td className="mono">20 %</td></tr>
-              <tr><td>Plus de 14 jours</td><td className="mono">15 %</td></tr>
-            </tbody>
-          </table>
-        </section>
 
         <section className="card" style={{ marginTop: 24, maxWidth: 420 }}>
           <div className="card-header">
@@ -287,7 +269,8 @@ export default function ProParametresPage() {
         </p>
 
         <p className="help-text" style={{ maxWidth: 420 }}>
-          Pour toute question, contactez Créneau CT : <Link href="/pro/contact">accédez au formulaire de contact</Link>.
+          Pour toute question, contactez Créneau CT :{' '}
+          <Link href={centreId ? `/pro/contact?centre=${centreId}` : '/pro/contact'}>accédez au formulaire de contact</Link>.
         </p>
 
         <p className="help-text" style={{ maxWidth: 420 }}>
@@ -350,5 +333,13 @@ export default function ProParametresPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ProParametresPage() {
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+      <ProParametresPageInner />
+    </Suspense>
   );
 }

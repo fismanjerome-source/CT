@@ -2,9 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES } from '@/lib/vehicules';
 
@@ -12,23 +10,8 @@ function formatDate(dateStr) {
   return new Date(dateStr + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-function SidebarNav({ pathname, centreId }) {
-  return (
-    <nav>
-      <Link href={centreId ? `/pro/dashboard?centre=${centreId}` : '/pro/dashboard'} className={pathname === '/pro/dashboard' ? 'active' : ''}>📊 Tableau de bord</Link>
-      <Link href="/pro/clients" className={pathname.startsWith('/pro/clients') ? 'active' : ''}>🚗 Mes RDV clients</Link>
-      <Link href="/pro/absences">🚫 Client absent</Link>
-      <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}>🏢 Mes centres</Link>
-      <Link href={centreId ? `/pro/factures?centre=${centreId}` : '/pro/factures'} className={pathname.startsWith('/pro/factures') ? 'active' : ''}>🧾 Mes factures</Link>
-      <Link href="/pro/parametres" className={pathname.startsWith('/pro/parametres') ? 'active' : ''}>⚙️ Paramètres</Link>
-      <Link href="/pro/contact" className={pathname.startsWith('/pro/contact') ? 'active' : ''}>💬 Contact Créneau CT</Link>
-    </nav>
-  );
-}
-
 function ClientsPageInner() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const centreIdParam = searchParams.get('centre');
 

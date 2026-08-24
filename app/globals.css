@@ -1190,12 +1190,28 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   height: 100vh;
   overflow-y: auto;
 }
+.pro-sidebar-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
 .pro-sidebar .brand {
   display: flex;
   align-items: center;
   gap: 10px;
   color: #fff;
   margin-bottom: 6px;
+}
+.pro-sidebar-toggle {
+  display: none;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  color: #fff;
+  padding: 6px 8px;
+  cursor: pointer;
+  line-height: 0;
 }
 .brand-nom { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; line-height: 1.2; }
 .brand-sous-titre { font-size: 0.76rem; color: #cfe0d2; }
@@ -1348,6 +1364,13 @@ td.mono, .mono { font-family: var(--font-mono); }
 @media (max-width: 720px) {
   .pro-shell { flex-direction: column; }
   .pro-sidebar { width: 100%; position: static; height: auto; overflow-y: visible; }
+  .pro-sidebar .brand { margin-bottom: 0; }
+  .pro-sidebar-toggle { display: flex; }
+  .pro-sidebar-corps {
+    display: none;
+    margin-top: 18px;
+  }
+  .pro-sidebar-corps.ouvert { display: block; }
   .pro-main { padding: 16px; }
   .grid-2 { grid-template-columns: 1fr; }
   .centre-card { flex-direction: column; align-items: flex-start; }

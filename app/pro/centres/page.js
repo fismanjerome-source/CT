@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
 
 async function api(path, options = {}) {
   const res = await fetch(path, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
@@ -17,8 +16,10 @@ async function api(path, options = {}) {
   return data;
 }
 
-export default function MesCentresPage() {
+function MesCentresPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const centreId = searchParams.get('centre');
   const [centres, setCentres] = useState(null);
   const [message, setMessage] = useState(null);
   const [form, setForm] = useState({ nom: '', adresse: '', code_postal: '', ville: '', telephone: '' });
@@ -55,7 +56,7 @@ export default function MesCentresPage() {
 
   return (
     <div className="pro-shell">
-      <ProSidebar />
+      <ProSidebar centreId={centreId} />
 
       <main className="pro-main">
         <h1>Mes centres</h1>
@@ -121,5 +122,13 @@ export default function MesCentresPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function MesCentresPage() {
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
+      <MesCentresPageInner />
+    </Suspense>
   );
 }

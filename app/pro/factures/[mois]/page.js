@@ -2,14 +2,11 @@
 
 import { useEffect, useState, use, Suspense } from 'react';
 import ProSidebar from '../../../components/ProSidebar';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../../components/Logo';
+import { useRouter, useSearchParams } from 'next/navigation';
 import FactureDocument from '../../../components/FactureDocument';
 
 function ProFactureDetailInner({ mois }) {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const centreId = searchParams.get('centre');
 
@@ -34,7 +31,7 @@ function ProFactureDetailInner({ mois }) {
 
   return (
     <div className="pro-shell">
-      <ProSidebar className="no-print" />
+      <ProSidebar centreId={centreId} className="no-print" />
 
       <main className="pro-main">
         {erreur && <div className="message-banner error">{erreur}</div>}
