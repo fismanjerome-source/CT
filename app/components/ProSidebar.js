@@ -18,7 +18,14 @@ function IconMenuBurger() {
   );
 }
 
-export default function ProSidebar({ centreId, className = '' }) {
+export default function ProSidebar({
+  centreId,
+  className = '',
+  premium = false,
+  centreSwitcher = null,
+  extraNavLinks = null,
+  footerNote = null,
+}) {
   const pathname = usePathname();
   const router = useRouter();
   // Replié par défaut sur mobile : la navigation complète (~1000px de haut)
@@ -41,6 +48,7 @@ export default function ProSidebar({ centreId, className = '' }) {
           <div>
             <div className="brand-nom">Créneau CT</div>
             <div className="brand-sous-titre">Espace pro</div>
+            {premium && <div className="sidebar-premium-badge">★ Compte Premium</div>}
           </div>
         </div>
         <button
@@ -56,11 +64,26 @@ export default function ProSidebar({ centreId, className = '' }) {
 
       <div className={`pro-sidebar-corps ${menuOuvert ? 'ouvert' : ''}`}>
         <Horloge />
+        {centreSwitcher && (
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: '0.72rem', color: '#cfe0d2', display: 'block', marginBottom: 4 }}>Centre géré</label>
+            <select
+              value={centreSwitcher.valeur}
+              onChange={(e) => centreSwitcher.onChange(e.target.value)}
+              style={{ width: '100%' }}
+            >
+              {centreSwitcher.centres.map((c) => (
+                <option key={c.id} value={c.id}>{c.nom}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <nav>
+          {extraNavLinks}
           <Link href={hrefDashboard} className={pathname === '/pro/dashboard' ? 'active' : ''}><IconTableauBord /> Tableau de bord</Link>
-          <Link href="/pro/clients" className={pathname.startsWith('/pro/clients') ? 'active' : ''}><IconVoiture /> Mes RDV clients</Link>
-          <Link href="/pro/absences" className={pathname.startsWith('/pro/absences') ? 'active' : ''}><IconInterdit /> Client absent</Link>
-          <Link href="/pro/centres" className={pathname.startsWith('/pro/centres') ? 'active' : ''}><IconBatiment /> Mes centres</Link>
+          <Link href={centreId ? `/pro/clients?centre=${centreId}` : '/pro/clients'} className={pathname.startsWith('/pro/clients') ? 'active' : ''}><IconVoiture /> Mes RDV clients</Link>
+          <Link href={centreId ? `/pro/absences?centre=${centreId}` : '/pro/absences'} className={pathname.startsWith('/pro/absences') ? 'active' : ''}><IconInterdit /> Client absent</Link>
+          <Link href={centreId ? `/pro/centres?centre=${centreId}` : '/pro/centres'} className={pathname.startsWith('/pro/centres') ? 'active' : ''}><IconBatiment /> Mes centres</Link>
           <Link href={hrefFactures} className={pathname.startsWith('/pro/factures') ? 'active' : ''}><IconRecu /> Mes factures</Link>
           <Link href={centreId ? `/pro/parametres?centre=${centreId}` : '/pro/parametres'} className={pathname.startsWith('/pro/parametres') ? 'active' : ''}><IconEngrenage /> Paramètres</Link>
           <Link href={centreId ? `/pro/juridique?centre=${centreId}` : '/pro/juridique'} className={pathname.startsWith('/pro/juridique') ? 'active' : ''}><IconBalance /> Juridique</Link>
@@ -81,6 +104,7 @@ export default function ProSidebar({ centreId, className = '' }) {
           </a>
         </div>
         <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+          {footerNote && <p style={{ fontSize: '0.85rem', color: '#cfe0d2', marginBottom: 10 }}>{footerNote}</p>}
           <button className="btn-secondary" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }} onClick={logout}>
             Se déconnecter
           </button>

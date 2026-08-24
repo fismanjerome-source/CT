@@ -3,21 +3,9 @@
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
-import Horloge from '../../components/Horloge';
+import ProSidebar from '../../components/ProSidebar';
 import { IconeVehicule } from '../../components/VehiculeIcons';
-import { InstagramIcon, FacebookIcon, LinkedInIcon } from '../../components/ContactIcons';
-import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit, IconRecu, IconBatiment, IconEngrenage, IconCadenas, IconMessage, IconBalance, IconPersonnes } from '../../components/UISvgIcons';
-
-function IconMenuBurger() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="3" y1="6" x2="21" y2="6" />
-      <line x1="3" y1="12" x2="21" y2="12" />
-      <line x1="3" y1="18" x2="21" y2="18" />
-    </svg>
-  );
-}
+import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit } from '../../components/UISvgIcons';
 import { SquelletteLigne, SquelletteCarte, SquelletteTableau } from '../../components/Squelette';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
@@ -92,7 +80,6 @@ function DashboardPageInner() {
   const centreActifId = searchParams.get('centre');
 
   const [controleur, setControleur] = useState(null);
-  const [menuMobileOuvert, setMenuMobileOuvert] = useState(false);
   const [centre, setCentre] = useState(null);
   const [mesCentres, setMesCentres] = useState([]);
   const [message, setMessage] = useState(null);
@@ -591,11 +578,6 @@ function DashboardPageInner() {
     }
   }
 
-  async function logout() {
-    await api('/api/pro/logout', { method: 'POST' });
-    router.push('/pro/login');
-  }
-
   if (!controleur || !centre) {
     return (
       <div className="pro-shell">
@@ -610,46 +592,17 @@ function DashboardPageInner() {
 
   return (
     <div className="pro-shell">
-      <aside className="pro-sidebar">
-        <div className="pro-sidebar-entete">
-          <div className="brand">
-            <Logo />
-            <div>
-              <div className="brand-nom">Créneau CT</div>
-              <div className="brand-sous-titre">Espace pro</div>
-              {!!centre.est_premium && <div className="sidebar-premium-badge">★ Compte Premium</div>}
-            </div>
-          </div>
-          <button
-            type="button"
-            className="pro-sidebar-toggle"
-            onClick={() => setMenuMobileOuvert((v) => !v)}
-            aria-expanded={menuMobileOuvert}
-            aria-label={menuMobileOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
-          >
-            <IconMenuBurger />
-          </button>
-        </div>
-
-        <div className={`pro-sidebar-corps ${menuMobileOuvert ? 'ouvert' : ''}`}>
-          <Horloge />
-
-          {mesCentres.length > 1 && (
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: '0.72rem', color: '#cfe0d2', display: 'block', marginBottom: 4 }}>Centre géré</label>
-              <select
-                value={centre.id}
-                onChange={(e) => router.push(`/pro/dashboard?centre=${e.target.value}`)}
-                style={{ width: '100%' }}
-              >
-                {mesCentres.map((c) => (
-                  <option key={c.id} value={c.id}>{c.nom}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <nav>
+      <ProSidebar
+        centreId={centre.id}
+        premium={!!centre.est_premium}
+        footerNote={controleur.nom}
+        centreSwitcher={mesCentres.length > 1 ? {
+          centres: mesCentres,
+          valeur: centre.id,
+          onChange: (id) => router.push(`/pro/dashboard?centre=${id}`),
+        } : null}
+        extraNavLinks={
+          <>
             <a href="#image" className="active"><IconImage /> Image du centre</a>
             <a href="#agenda"><IconCalendrier /> Mon agenda externe</a>
             <a href="#vehicules"><IconVoiture /> Véhicules acceptés</a>
@@ -657,36 +610,9 @@ function DashboardPageInner() {
             <a href="#supprimer"><IconInterdit /> Supprimer des créneaux</a>
             <a href="#planning"><IconTableauBord /> Mon planning</a>
             <a href="#rdv"><IconCoche /> Mes rendez-vous</a>
-            <Link href="/pro/clients"><IconVoiture /> Mes RDV clients</Link>
-            <Link href="/pro/absences"><IconInterdit /> Client absent</Link>
-            <Link href={`/pro/factures?centre=${centre.id}`}><IconRecu /> Mes factures</Link>
-            <Link href="/pro/centres"><IconBatiment /> Mes centres</Link>
-            <Link href={`/pro/parametres?centre=${centre.id}`}><IconEngrenage /> Paramètres</Link>
-            <Link href={`/pro/juridique?centre=${centre.id}`}><IconBalance /> Juridique</Link>
-            <Link href={`/pro/premium?centre=${centre.id}`}>★ Premium</Link>
-            <Link href={`/pro/recrutement?centre=${centre.id}`}><IconPersonnes /> Recrutement</Link>
-            <Link href={`/pro/api?centre=${centre.id}`}><IconCadenas /> Clés API</Link>
-            <Link href={`/pro/contact?centre=${centre.id}`}><IconMessage /> Contact Créneau CT</Link>
-          </nav>
-          <div className="sidebar-reseaux">
-            <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn footer-reseau-instagram">
-              <InstagramIcon size={15} />
-            </a>
-            <a href="https://facebook.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="footer-reseau-btn footer-reseau-facebook">
-              <FacebookIcon size={15} />
-            </a>
-            <a href="https://linkedin.com/company/creneauct" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="footer-reseau-btn footer-reseau-linkedin">
-              <LinkedInIcon size={15} />
-            </a>
-          </div>
-          <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
-            <p style={{ fontSize: '0.85rem', color: '#cfe0d2', marginBottom: 10 }}>{controleur.nom}</p>
-            <button className="btn-secondary" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }} onClick={logout}>
-              Se déconnecter
-            </button>
-          </div>
-        </div>
-      </aside>
+          </>
+        }
+      />
 
       <main className="pro-main">
         {(() => {
