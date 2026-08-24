@@ -41,8 +41,8 @@ export async function POST(request) {
   const typeVisiteFinal = type_visite === 'contre_visite' ? 'contre_visite' : 'normale';
   const joursAutorises = Array.isArray(jours_semaine) && jours_semaine.length ? jours_semaine : [1, 2, 3, 4, 5, 6];
 
-  const cursor = new Date(date_debut + 'T00:00:00');
-  const finDate = new Date(date_fin + 'T00:00:00');
+  const cursor = new Date(date_debut + 'T00:00:00Z');
+  const finDate = new Date(date_fin + 'T00:00:00Z');
 
   // On construit toutes les requêtes d'abord, puis on les envoie en un seul
   // aller-retour réseau via db.batch() : la version précédente faisait un
@@ -52,7 +52,7 @@ export async function POST(request) {
   // écritures (ex : "Appliquer une promotion") pendant tout ce temps.
   const statements = [];
   while (cursor <= finDate) {
-    if (joursAutorises.includes(cursor.getDay())) {
+    if (joursAutorises.includes(cursor.getUTCDay())) {
       const dateStr = cursor.toISOString().slice(0, 10);
 
       for (const plage of plages) {
@@ -72,7 +72,7 @@ export async function POST(request) {
         }
       }
     }
-    cursor.setDate(cursor.getDate() + 1);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
 
   if (statements.length === 0) {

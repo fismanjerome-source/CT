@@ -13,8 +13,8 @@ export async function GET(request) {
   if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
 
   const debut = searchParams.get('debut') || todayISO();
-  const finDate = new Date(debut + 'T00:00:00');
-  finDate.setDate(finDate.getDate() + 6);
+  const finDate = new Date(debut + 'T00:00:00Z');
+  finDate.setUTCDate(finDate.getUTCDate() + 6);
   const fin = finDate.toISOString().slice(0, 10);
 
   const rdvs = await all(

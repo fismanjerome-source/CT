@@ -16,8 +16,8 @@ export async function GET(request) {
 
   const debut = searchParams.get('debut') || todayISO();
   const jours = Number(searchParams.get('jours')) || 14;
-  const finDate = new Date(debut + 'T00:00:00');
-  finDate.setDate(finDate.getDate() + jours);
+  const finDate = new Date(debut + 'T00:00:00Z');
+  finDate.setUTCDate(finDate.getUTCDate() + jours);
   const fin = finDate.toISOString().slice(0, 10);
 
   const creneaux = await all(
