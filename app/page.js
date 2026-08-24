@@ -196,7 +196,7 @@ export default function HomePage() {
                   type="text"
                   value={ville}
                   autoComplete="off"
-                  placeholder="Ex : Lille, Paris, Lyon…"
+                  placeholder="Lille, Paris, Lyon…"
                   onChange={(e) => { setVille(e.target.value); chercherCommunes(e.target.value); }}
                   onBlur={() => setTimeout(() => setSuggestionVisible(false), 150)}
                   onFocus={() => suggestions.length > 0 && setSuggestionVisible(true)}
@@ -239,7 +239,12 @@ export default function HomePage() {
 
               <div className="field">
                 <label htmlFor="vehicule">Mon véhicule <span className="label-opt">(optionnel)</span></label>
-                <select id="vehicule" value={vehicule} onChange={(e) => setVehicule(e.target.value)}>
+                <select
+                  id="vehicule"
+                  value={vehicule}
+                  onChange={(e) => setVehicule(e.target.value)}
+                  style={{ color: vehicule ? 'var(--color-text)' : 'var(--color-text-muted)' }}
+                >
                   <option value="">Tous véhicules</option>
                   <optgroup label="Voiture">
                     {TYPES_VEHICULES.filter((t) => t.categorie === 'voiture').map((t) => (
