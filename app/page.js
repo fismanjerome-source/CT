@@ -215,13 +215,16 @@ export default function HomePage() {
 
               <div className="field">
                 <label htmlFor="date">Date souhaitée <span className="label-opt">(optionnel)</span></label>
-                <input
-                  id="date"
-                  type="date"
-                  value={date}
-                  min={dateMin}
-                  onChange={(e) => setDate(e.target.value)}
-                />
+                <div className="date-input-wrap">
+                  <input
+                    id="date"
+                    type="date"
+                    value={date}
+                    min={dateMin}
+                    onChange={(e) => setDate(e.target.value)}
+                  />
+                  {!date && <span className="date-placeholder">Dès que possible</span>}
+                </div>
               </div>
 
               {/* Ligne 2 : Code postal + Véhicule */}
