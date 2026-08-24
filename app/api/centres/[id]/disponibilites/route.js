@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { all, get } from '@/lib/db';
-import { todayISO } from '@/lib/utils';
+import { todayISO, creneauSuffisammentEloigne } from '@/lib/utils';
 import { creneauCompatible } from '@/lib/vehicules';
 
-// Compte les créneaux disponibles par jour, filtré par type de véhicule et
-// de visite quand ils sont fournis — sans ce filtre, le nombre affiché sur
-// chaque jour du calendrier pouvait annoncer des créneaux (ex: 14) qui
-// disparaissaient tous une fois le type de véhicule sélectionné, car ce
-// nombre ne tenait alors compte d'aucune restriction : contradiction visible
-// pour le client ("14 créneaux" puis "aucun créneau disponible").
+// Compte les créneaux disponibles par jour, avec exactement les mêmes
+// filtres que la liste détaillée d'un jour (type de véhicule, type de
+// visite, délai minimum de 1h30) — sans ça, le nombre affiché pouvait
+// annoncer des créneaux (ex: 6 aujourd'hui) qui disparaissaient tous une
+// fois affichés en détail, simplement parce qu'ils étaient passés ou trop
+// proches dans la journée : contradiction visible pour le client ("6
+// créneaux" puis "aucun créneau disponible").
 export async function GET(request, { params }) {
   const { id } = await params;
   const { searchParams } = new URL(request.url);
@@ -23,13 +24,14 @@ export async function GET(request, { params }) {
   const centre = await get('SELECT types_vehicules_acceptes FROM centres WHERE id = ?', [id]);
 
   const rows = await all(
-    `SELECT date, types_vehicules FROM creneaux
+    `SELECT date, heure, types_vehicules FROM creneaux
      WHERE centre_id = ? AND statut = 'disponible' AND type_visite = ? AND date BETWEEN ? AND ?`,
     [id, typeVisite, debut, fin]
   );
 
   const compte = {};
   for (const row of rows) {
+    if (!creneauSuffisammentEloigne(row.date, row.heure)) continue;
     if (typeVehicule && !creneauCompatible(row.types_vehicules, centre?.types_vehicules_acceptes, typeVehicule)) continue;
     compte[row.date] = (compte[row.date] || 0) + 1;
   }
