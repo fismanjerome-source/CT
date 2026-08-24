@@ -33,11 +33,22 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
   const [confirmation, setConfirmation] = useState(null);
   const [erreurChargement, setErreurChargement] = useState(false);
 
-  // Chargement initial : centre + avis
+  // Chargement initial : avis, et le centre seulement s'il n'est pas déjà
+  // connu — le rendu serveur (initialCentre) fournit déjà exactement les
+  // mêmes données, avec la photo du centre encodée en base64 qui peut être
+  // volumineuse : la retélécharger systématiquement côté client ralentissait
+  // inutilement chaque chargement de page, sans rien apporter de nouveau.
   useEffect(() => {
     let annule = false;
     async function charger() {
       try {
+        if (initialCentre) {
+          const avisRes = await fetch(`/api/centres/${id}/avis`);
+          const avisData = avisRes.ok ? await avisRes.json() : null;
+          if (!annule && avisData) setAvis(avisData);
+          return;
+        }
+
         const [centreRes, avisRes] = await Promise.all([
           fetch(`/api/centres/${id}`),
           fetch(`/api/centres/${id}/avis`),
@@ -62,7 +73,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
     }
     charger();
     return () => { annule = true; };
-  }, [id]);
+  }, [id, initialCentre]);
 
   // Nombre de créneaux disponibles par jour, filtré par type de véhicule et
   // de visite : sans ce filtre, un jour pouvait afficher un nombre de
