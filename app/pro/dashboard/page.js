@@ -1071,6 +1071,11 @@ function DashboardPageInner() {
                     Contre-visite
                   </button>
                 </div>
+                <p className="help-text" style={{ margin: '6px 0 0' }}>
+                  Un seul créneau par horaire, quel que soit le type : si des horaires sont déjà pris en visite
+                  normale, ils ne peuvent pas aussi être ouverts en contre-visite (et inversement). Utilisez des
+                  horaires différents pour les deux — voir le résumé ci-dessus.
+                </p>
               </div>
               <div className="form-row">
                 <label htmlFor="intervalle">Intervalle entre créneaux (min)</label>

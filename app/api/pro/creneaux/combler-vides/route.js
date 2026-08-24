@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db, ensureSchema } from '@/lib/db';
+import { db, ensureSchema, all } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError } from '@/lib/utils';
@@ -51,6 +51,7 @@ export async function POST(request) {
   // pendant toute la boucle — assez longtemps pour bloquer aussi les autres
   // écritures (ex : "Appliquer une promotion") pendant tout ce temps.
   const statements = [];
+  const datesHeures = [];
   while (cursor <= finDate) {
     if (joursAutorises.includes(cursor.getUTCDay())) {
       const dateStr = cursor.toISOString().slice(0, 10);
@@ -64,10 +65,12 @@ export async function POST(request) {
         while (minutesCursor < minutesFin) {
           const h = String(Math.floor(minutesCursor / 60)).padStart(2, '0');
           const m = String(minutesCursor % 60).padStart(2, '0');
+          const heureStr = `${h}:${m}`;
           statements.push({
             sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
-            args: [centreId, session.controleurId, dateStr, `${h}:${m}`, duree, typeVisiteFinal, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
+            args: [centreId, session.controleurId, dateStr, heureStr, duree, typeVisiteFinal, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
           });
+          datesHeures.push(`${dateStr} ${heureStr}`);
           minutesCursor += intervalle;
         }
       }
@@ -90,13 +93,38 @@ export async function POST(request) {
     return jsonError(500, "Erreur lors de l'ouverture des créneaux.");
   }
 
-  // "0 créneau ouvert" peut vouloir dire deux choses très différentes : soit
-  // rien n'a été créé parce que tout existait déjà sur cette période (cas
-  // normal, l'outil ne duplique jamais — pas un échec), soit un vrai souci.
-  // On distingue les deux plutôt que d'afficher un "0" nu qui inquiète.
-  const message = created === 0
-    ? `Aucun nouveau créneau : les ${statements.length} créneau(x) de cette période étaient déjà ouverts (aucun doublon créé).`
-    : `${created} créneau(x) ouvert(s).`;
+  const nonCrees = statements.length - created;
+  let message;
+  if (created > 0) {
+    message = `${created} créneau(x) ouvert(s).`;
+  } else {
+    // Un centre ne peut avoir qu'un seul créneau par horaire (visite normale
+    // OU contre-visite, jamais les deux en même temps) — la contrainte porte
+    // sur la date+l'heure, pas sur le type de visite. "0 créneau ouvert" peut
+    // donc vouloir dire soit que ce lot existe déjà tel quel (aucun souci,
+    // l'outil ne duplique jamais), soit que ces horaires sont déjà pris par
+    // l'AUTRE type de visite — un cas confus si on ne le précise pas.
+    const autreType = typeVisiteFinal === 'contre_visite' ? 'normale' : 'contre_visite';
+    let occupesParAutreType = 0;
+    try {
+      const existants = await all(
+        `SELECT date, heure, type_visite FROM creneaux WHERE centre_id = ? AND date >= ? AND date <= ? AND type_visite = ?`,
+        [centreId, date_debut, date_fin, autreType]
+      );
+      const occupation = new Set(existants.map((c) => `${c.date} ${c.heure}`));
+      occupesParAutreType = datesHeures.filter((dh) => occupation.has(dh)).length;
+    } catch {
+      // Pas grave si ce diagnostic échoue : le message générique ci-dessous reste correct.
+    }
 
-  return NextResponse.json({ message, nombre_crees: created, nombre_deja_existants: statements.length - created }, { status: 201 });
+    if (occupesParAutreType > 0) {
+      const libelleAutre = autreType === 'contre_visite' ? 'contre-visite' : 'visite normale';
+      const libelleDemande = typeVisiteFinal === 'contre_visite' ? 'contre-visite' : 'visite normale';
+      message = `Aucun créneau ouvert : ${occupesParAutreType} de ces horaires sont déjà pris par des créneaux "${libelleAutre}" existants (un centre ne peut avoir qu'un seul créneau par horaire, tous types confondus). Choisissez d'autres horaires pour la ${libelleDemande}, ou libérez d'abord ces créneaux "${libelleAutre}".`;
+    } else {
+      message = `Aucun nouveau créneau : les ${statements.length} créneau(x) de cette période étaient déjà ouverts (aucun doublon créé).`;
+    }
+  }
+
+  return NextResponse.json({ message, nombre_crees: created, nombre_deja_existants: nonCrees }, { status: 201 });
 }
