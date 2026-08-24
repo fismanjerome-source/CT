@@ -1324,6 +1324,16 @@ td.mono, .mono { font-family: var(--font-mono); }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .help-text { font-size: 0.82rem; color: var(--color-text-muted); }
 
+.portee-ouverture {
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
 .horaires-ouverts {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);

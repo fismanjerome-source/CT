@@ -100,6 +100,7 @@ function DashboardPageInner() {
   const [comblerEnvoi, setComblerEnvoi] = useState(false);
   const [comblerResultat, setComblerResultat] = useState(null);
   const [horairesOuverts, setHorairesOuverts] = useState(null);
+  const [porteeOuverture, setPorteeOuverture] = useState(null);
   const [promoPeriodeForm, setPromoPeriodeForm] = useState({ date_debut: todayISO(), date_fin: todayISO(7), promo_pourcentage: '' });
   const [promoPeriodeEnvoi, setPromoPeriodeEnvoi] = useState(false);
   const [promoPeriodeResultat, setPromoPeriodeResultat] = useState(null);
@@ -180,6 +181,25 @@ function DashboardPageInner() {
     charger();
     return () => { annule = true; };
   }, [centre, comblerForm.date_debut, comblerForm.date_fin, comblerResultat, supprimerPeriodeResultat]);
+
+  // Jusqu'où le planning est-il déjà ouvert, indépendamment des dates
+  // actuellement saisies dans le formulaire ci-dessous (qui reviennent à une
+  // semaine par défaut à chaque chargement) — pour qu'on voie tout de suite
+  // "ouvert jusqu'au 24 novembre" même sans avoir touché aux champs Du/Au.
+  useEffect(() => {
+    let annule = false;
+    async function charger() {
+      if (!centre) return;
+      try {
+        const { portee } = await api(`/api/pro/creneaux/portee?centre=${centre.id}`);
+        if (!annule) setPorteeOuverture(portee);
+      } catch {
+        if (!annule) setPorteeOuverture(null);
+      }
+    }
+    charger();
+    return () => { annule = true; };
+  }, [centre, comblerResultat, supprimerPeriodeResultat]);
 
   useEffect(() => {
     async function init() {
@@ -919,6 +939,27 @@ function DashboardPageInner() {
             Ouvrez d'un coup tous les créneaux libres sur une plage horaire, pour plusieurs jours —
             idéal pour publier rapidement les trous de votre planning.
           </p>
+
+          <div className="portee-ouverture">
+            {porteeOuverture === null ? (
+              <p className="help-text" style={{ margin: 0 }}>Vérification de ce qui est déjà ouvert…</p>
+            ) : (
+              <>
+                <p style={{ margin: 0 }}>
+                  Visite normale :{' '}
+                  {porteeOuverture.normale
+                    ? <>ouverte jusqu'au <strong>{formatDate(porteeOuverture.normale.derniere_date)}</strong> ({porteeOuverture.normale.nombre} créneau(x) à venir)</>
+                    : <span className="help-text">aucun créneau ouvert pour l'instant</span>}
+                </p>
+                <p style={{ margin: '4px 0 0' }}>
+                  Contre-visite :{' '}
+                  {porteeOuverture.contre_visite
+                    ? <>ouverte jusqu'au <strong>{formatDate(porteeOuverture.contre_visite.derniere_date)}</strong> ({porteeOuverture.contre_visite.nombre} créneau(x) à venir)</>
+                    : <span className="help-text">aucun créneau ouvert pour l'instant</span>}
+                </p>
+              </>
+            )}
+          </div>
 
           <div className="horaires-ouverts">
             <p className="horaires-ouverts-titre">
