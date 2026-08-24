@@ -44,36 +44,49 @@ export async function POST(request) {
   const cursor = new Date(date_debut + 'T00:00:00');
   const finDate = new Date(date_fin + 'T00:00:00');
 
-  const tx = await db.transaction('write');
-  let created = 0;
-  try {
-    while (cursor <= finDate) {
-      if (joursAutorises.includes(cursor.getDay())) {
-        const dateStr = cursor.toISOString().slice(0, 10);
+  // On construit toutes les requêtes d'abord, puis on les envoie en un seul
+  // aller-retour réseau via db.batch() : la version précédente faisait un
+  // db.transaction('write') + un await tx.execute() par créneau (un aller-
+  // retour réseau chacun), ce qui gardait le verrou d'écriture SQLite ouvert
+  // pendant toute la boucle — assez longtemps pour bloquer aussi les autres
+  // écritures (ex : "Appliquer une promotion") pendant tout ce temps.
+  const statements = [];
+  while (cursor <= finDate) {
+    if (joursAutorises.includes(cursor.getDay())) {
+      const dateStr = cursor.toISOString().slice(0, 10);
 
-        for (const plage of plages) {
-          const [hDebutH, hDebutM] = plage.heure_debut.split(':').map(Number);
-          const [hFinH, hFinM] = plage.heure_fin.split(':').map(Number);
-          let minutesCursor = hDebutH * 60 + hDebutM;
-          const minutesFin = hFinH * 60 + hFinM;
+      for (const plage of plages) {
+        const [hDebutH, hDebutM] = plage.heure_debut.split(':').map(Number);
+        const [hFinH, hFinM] = plage.heure_fin.split(':').map(Number);
+        let minutesCursor = hDebutH * 60 + hDebutM;
+        const minutesFin = hFinH * 60 + hFinM;
 
-          while (minutesCursor < minutesFin) {
-            const h = String(Math.floor(minutesCursor / 60)).padStart(2, '0');
-            const m = String(minutesCursor % 60).padStart(2, '0');
-            const result = await tx.execute({
-              sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
-              args: [centreId, session.controleurId, dateStr, `${h}:${m}`, duree, typeVisiteFinal, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
-            });
-            if (result.rowsAffected > 0) created += 1;
-            minutesCursor += intervalle;
-          }
+        while (minutesCursor < minutesFin) {
+          const h = String(Math.floor(minutesCursor / 60)).padStart(2, '0');
+          const m = String(minutesCursor % 60).padStart(2, '0');
+          statements.push({
+            sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
+            args: [centreId, session.controleurId, dateStr, `${h}:${m}`, duree, typeVisiteFinal, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
+          });
+          minutesCursor += intervalle;
         }
       }
-      cursor.setDate(cursor.getDate() + 1);
     }
-    await tx.commit();
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  if (statements.length === 0) {
+    return NextResponse.json({ message: '0 créneau ouvert (aucune date ne correspond aux jours choisis sur cette période).', nombre_crees: 0 }, { status: 201 });
+  }
+  if (statements.length > 3000) {
+    return jsonError(400, `Cette période représenterait ${statements.length} créneaux en une seule fois, c'est trop pour un seul envoi. Réduisez la période ou la plage horaire, puis relancez plusieurs fois si besoin.`);
+  }
+
+  let created = 0;
+  try {
+    const resultats = await db.batch(statements, 'write');
+    created = resultats.filter((r) => r.rowsAffected > 0).length;
   } catch (e) {
-    await tx.rollback();
     return jsonError(500, "Erreur lors de l'ouverture des créneaux.");
   }
 
