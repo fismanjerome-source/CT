@@ -26,9 +26,15 @@ export default async function CentrePage({ params, searchParams }) {
   const { id } = await params;
   const sp = await searchParams;
   let donneesStructurees = null;
+  let initialCentre = null;
 
   try {
-    const centre = await get('SELECT nom, ville, code_postal, adresse, telephone, latitude, longitude FROM centres WHERE id = ?', [id]);
+    // Une seule requête, réutilisée à la fois pour les données structurées
+    // (SEO) et pour le rendu initial côté serveur : sans elle, le nom et
+    // l'adresse du centre n'apparaissaient que côté client, invisibles à
+    // Google et à tout aperçu de partage sur les réseaux.
+    const centre = await get('SELECT * FROM centres WHERE id = ?', [id]);
+    initialCentre = centre || null;
     if (centre) {
       donneesStructurees = {
         '@context': 'https://schema.org',
@@ -60,7 +66,7 @@ export default async function CentrePage({ params, searchParams }) {
         />
       )}
       <Suspense fallback={<div className="container" style={{ padding: 40 }}><p className="help-text">Chargement…</p></div>}>
-        <CentrePageClient id={id} initialTypeVisite={sp?.visite} />
+        <CentrePageClient id={id} initialTypeVisite={sp?.visite} initialCentre={initialCentre} />
       </Suspense>
     </>
   );

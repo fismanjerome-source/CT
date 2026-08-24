@@ -15,14 +15,17 @@ function todayISO(offset = 0) {
   return d.toISOString().slice(0, 10);
 }
 
-export default function CentrePageClient({ id, initialTypeVisite }) {
+export default function CentrePageClient({ id, initialTypeVisite, initialCentre }) {
   const router = useRouter();
 
-  const [centre, setCentre] = useState(null);
+  const [centre, setCentre] = useState(initialCentre || null);
   const [avis, setAvis] = useState(null);
   const [dispoParJour, setDispoParJour] = useState({});
   const [dateSelectionnee, setDateSelectionnee] = useState(todayISO());
-  const [typeVehicule, setTypeVehicule] = useState(null);
+  const [typeVehicule, setTypeVehicule] = useState(() => {
+    const types = parseTypes(initialCentre?.types_vehicules_acceptes);
+    return types.length > 0 ? types[0] : null;
+  });
   const [typeVisite, setTypeVisite] = useState(initialTypeVisite === 'contre_visite' ? 'contre_visite' : 'normale');
   const [creneaux, setCreneaux] = useState(null);
   const [chargementCreneaux, setChargementCreneaux] = useState(true);
