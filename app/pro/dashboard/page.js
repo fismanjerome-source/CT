@@ -371,7 +371,7 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: data.message });
-      setComblerResultat({ type: 'success', text: `✅ ${data.message}` });
+      setComblerResultat({ type: 'success', text: `${data.nombre_crees > 0 ? '✅' : 'ℹ️'} ${data.message}` });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });

@@ -90,5 +90,13 @@ export async function POST(request) {
     return jsonError(500, "Erreur lors de l'ouverture des créneaux.");
   }
 
-  return NextResponse.json({ message: `${created} créneau(x) ouvert(s).`, nombre_crees: created }, { status: 201 });
+  // "0 créneau ouvert" peut vouloir dire deux choses très différentes : soit
+  // rien n'a été créé parce que tout existait déjà sur cette période (cas
+  // normal, l'outil ne duplique jamais — pas un échec), soit un vrai souci.
+  // On distingue les deux plutôt que d'afficher un "0" nu qui inquiète.
+  const message = created === 0
+    ? `Aucun nouveau créneau : les ${statements.length} créneau(x) de cette période étaient déjà ouverts (aucun doublon créé).`
+    : `${created} créneau(x) ouvert(s).`;
+
+  return NextResponse.json({ message, nombre_crees: created, nombre_deja_existants: statements.length - created }, { status: 201 });
 }
