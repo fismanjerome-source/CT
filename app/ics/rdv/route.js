@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { get, all, run } from '@/lib/db';
 import { genererFluxICS } from '@/lib/ics';
+import { hashCleApi } from '@/lib/apiAuth';
 import { jsonError, todayISO } from '@/lib/utils';
 
 // GET /ics/rdv?cle=<clé API>
@@ -13,7 +14,11 @@ export async function GET(request) {
   const cle = searchParams.get('cle');
   if (!cle) return jsonError(401, 'Paramètre "cle" manquant.');
 
-  const ligneCle = await get('SELECT id, centre_id, actif FROM api_cles WHERE cle = ?', [cle]);
+  // Recherche par hash, comme verifierCleApi() pour l'API Bearer — les clés
+  // ne sont jamais stockées en clair. Cette route cherchait encore par la
+  // colonne "cle" en clair, restée vide depuis le passage au hachage : aucun
+  // abonnement d'agenda créé après cette migration ne pouvait plus s'authentifier.
+  const ligneCle = await get('SELECT id, centre_id, actif FROM api_cles WHERE cle_hash = ?', [hashCleApi(cle)]);
   if (!ligneCle || !ligneCle.actif) return jsonError(401, 'Clé API invalide ou révoquée.');
 
   run('UPDATE api_cles SET derniere_utilisation = ? WHERE id = ?', [new Date().toISOString(), ligneCle.id]).catch(() => {});
