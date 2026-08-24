@@ -3,14 +3,11 @@
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
 import { SquelletteTableau } from '../../components/Squelette';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter } from 'next/navigation';
 import AlertePaiements from '../../components/AlertePaiements';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const pathname = usePathname();
   const [data, setData] = useState(null);
   const [centreOuvert, setCentreOuvert] = useState(null);
   const [erreur, setErreur] = useState(null);
@@ -29,11 +26,6 @@ export default function AdminDashboardPage() {
     }
     charger();
   }, [router]);
-
-  async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    router.push('/admin/login');
-  }
 
   return (
     <div className="pro-shell">

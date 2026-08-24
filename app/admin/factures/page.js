@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
 import AlertePaiements from '../../components/AlertePaiements';
 
 function formatMois(mois) {
@@ -15,7 +14,6 @@ function formatMois(mois) {
 
 export default function AdminFacturesPage() {
   const router = useRouter();
-  const pathname = usePathname();
   const [factures, setFactures] = useState(null);
   const [erreur, setErreur] = useState(null);
 
@@ -33,11 +31,6 @@ export default function AdminFacturesPage() {
     }
     charger();
   }, [router]);
-
-  async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    router.push('/admin/login');
-  }
 
   return (
     <div className="pro-shell">

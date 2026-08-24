@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter } from 'next/navigation';
 import AlertePaiements from '../../components/AlertePaiements';
 
 function todayISO(offset = 0) {
@@ -21,7 +19,6 @@ const STATUTS = {
 
 export default function AdminPromotionsPage() {
   const router = useRouter();
-  const pathname = usePathname();
   const [promotions, setPromotions] = useState(null);
   const [centres, setCentres] = useState([]);
   const [erreur, setErreur] = useState(null);

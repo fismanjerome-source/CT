@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter } from 'next/navigation';
 import AlertePaiements from '../../components/AlertePaiements';
 
 function ApercuEmail({ email }) {
@@ -34,7 +32,6 @@ function ApercuEmail({ email }) {
 
 export default function AdminEmailsPage() {
   const router = useRouter();
-  const pathname = usePathname();
   const [data, setData] = useState(null);
   const [erreur, setErreur] = useState(null);
 

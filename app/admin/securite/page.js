@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter } from 'next/navigation';
 import AlertePaiements from '../../components/AlertePaiements';
 
 export default function AdminSecuritePage() {
   const router = useRouter();
-  const pathname = usePathname();
 
   const [statut, setStatut] = useState(null);
   const [erreur, setErreur] = useState(null);

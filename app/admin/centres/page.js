@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter } from 'next/navigation';
 import AlertePaiements from '../../components/AlertePaiements';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 
 export default function AdminCentresPage() {
   const router = useRouter();
-  const pathname = usePathname();
   const [centres, setCentres] = useState(null);
   const [stats, setStats] = useState(null);
   const [erreur, setErreur] = useState(null);
@@ -209,11 +206,6 @@ export default function AdminCentresPage() {
     } catch {
       setStatut(id, { enCours: false, message: 'Erreur réseau.', type: 'error' });
     }
-  }
-
-  async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    router.push('/admin/login');
   }
 
   return (

@@ -1,16 +1,13 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../../../components/Logo';
+import { useRouter } from 'next/navigation';
 import AdminSidebar from '../../../../components/AdminSidebar';
 import FactureDocument from '../../../../components/FactureDocument';
 
 export default function AdminFactureDetailPage({ params }) {
   const { centreId, mois } = use(params);
   const router = useRouter();
-  const pathname = usePathname();
   const [data, setData] = useState(null);
   const [erreur, setErreur] = useState(null);
 
@@ -28,11 +25,6 @@ export default function AdminFactureDetailPage({ params }) {
     }
     charger();
   }, [router, centreId, mois]);
-
-  async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    router.push('/admin/login');
-  }
 
   return (
     <div className="pro-shell">

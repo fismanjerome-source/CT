@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
 import AlertePaiements from '../../components/AlertePaiements';
 
 function formatDate(dateStr) {
@@ -14,7 +13,6 @@ function formatDate(dateStr) {
 
 export default function AdminContactsPage() {
   const router = useRouter();
-  const pathname = usePathname();
   const [contacts, setContacts] = useState(null);
   const [erreur, setErreur] = useState(null);
 

@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Logo from '../../components/Logo';
+import { useRouter } from 'next/navigation';
 import AlertePaiements from '../../components/AlertePaiements';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
@@ -17,7 +15,6 @@ function todayISO(offset = 0) {
 
 export default function AdminReserverPage() {
   const router = useRouter();
-  const pathname = usePathname();
 
   const [centres, setCentres] = useState(null);
   const [rechercheCentre, setRechercheCentre] = useState('');
