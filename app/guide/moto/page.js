@@ -5,6 +5,7 @@ import Footer from '../../components/Footer';
 export const metadata = {
   title: 'Contrôle technique moto : le guide complet',
   description: '80 points de contrôle, validité 3 ans, contre-visite : tout savoir sur le contrôle technique moto, scooter et quad en France.',
+  alternates: { canonical: '/guide/moto' },
   openGraph: {
     title: 'Contrôle technique moto : le guide complet — Créneau CT',
     description: '80 points de contrôle, validité 3 ans, contre-visite : tout savoir sur le contrôle technique moto, scooter et quad en France.',

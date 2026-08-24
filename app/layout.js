@@ -42,6 +42,7 @@ export const metadata = {
     type: 'website',
   },
   robots: { index: true, follow: true },
+  alternates: { canonical: '/' },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,

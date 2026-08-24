@@ -5,6 +5,7 @@ import { get } from '@/lib/db';
 export const metadata = {
   title: 'Conditions Générales d\'Utilisation (CGU)',
   description: "Conditions générales d'utilisation du site Créneau CT, pour les clients comme pour les centres partenaires.",
+  alternates: { canonical: '/cgu' },
   openGraph: {
     title: 'Conditions Générales d\'Utilisation (CGU) — Créneau CT',
     description: "Conditions générales d'utilisation du site Créneau CT, pour les clients comme pour les centres partenaires.",

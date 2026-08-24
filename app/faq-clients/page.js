@@ -4,6 +4,7 @@ import Header from '../components/Header';
 export const metadata = {
   title: 'FAQ Clients',
   description: "Toutes les réponses à vos questions sur la réservation de contrôle technique en ligne : prix, annulation, modification, remises, types de véhicules acceptés.",
+  alternates: { canonical: '/faq-clients' },
   openGraph: {
     title: 'FAQ Clients — Créneau CT',
     description: "Toutes les réponses à vos questions sur la réservation de contrôle technique en ligne : prix, annulation, modification, remises, types de véhicules acceptés.",

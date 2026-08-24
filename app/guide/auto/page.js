@@ -5,6 +5,7 @@ import Footer from '../../components/Footer';
 export const metadata = {
   title: 'Contrôle technique automobile : le guide complet',
   description: '136 points de contrôle, périodicité tous les 2 ans, contre-visite : tout savoir sur le contrôle technique voiture en France.',
+  alternates: { canonical: '/guide/auto' },
   openGraph: {
     title: 'Contrôle technique automobile : le guide complet — Créneau CT',
     description: '136 points de contrôle, périodicité tous les 2 ans, contre-visite : tout savoir sur le contrôle technique voiture en France.',

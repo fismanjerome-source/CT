@@ -4,6 +4,7 @@ import Header from '../components/Header';
 export const metadata = {
   title: 'Partenaires',
   description: "Découvrez les centres de contrôle technique partenaires de Créneau CT partout en France.",
+  alternates: { canonical: '/partenaires' },
   openGraph: {
     title: 'Partenaires — Créneau CT',
     description: "Découvrez les centres de contrôle technique partenaires de Créneau CT partout en France.",

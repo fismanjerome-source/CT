@@ -5,6 +5,7 @@ import Header from '../components/Header';
 export const metadata = {
   title: 'Mentions légales',
   description: "Mentions légales du site Créneau CT : éditeur, hébergeur, propriété intellectuelle.",
+  alternates: { canonical: '/mentions-legales' },
   openGraph: {
     title: 'Mentions légales — Créneau CT',
     description: "Mentions légales du site Créneau CT : éditeur, hébergeur, propriété intellectuelle.",

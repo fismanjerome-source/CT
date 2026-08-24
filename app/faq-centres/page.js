@@ -5,6 +5,7 @@ import Header from '../components/Header';
 export const metadata = {
   title: 'FAQ Centres',
   description: "Toutes les réponses pour les centres de contrôle technique partenaires : commission, remises, multi-centres, facturation, gestion des créneaux.",
+  alternates: { canonical: '/faq-centres' },
   openGraph: {
     title: 'FAQ Centres — Créneau CT',
     description: "Toutes les réponses pour les centres de contrôle technique partenaires : commission, remises, multi-centres, facturation, gestion des créneaux.",

@@ -4,6 +4,7 @@ import Header from '../components/Header';
 export const metadata = {
   title: 'Sécurité et confidentialité',
   description: "Comment Créneau CT protège vos données : accès API en lecture seule, mots de passe et clés chiffrés, agenda révocable, double authentification, transparence sur nos limites.",
+  alternates: { canonical: '/securite' },
   openGraph: {
     title: 'Sécurité et confidentialité — Créneau CT',
     description: "Comment Créneau CT protège vos données : accès API en lecture seule, mots de passe et clés chiffrés, agenda révocable, double authentification, transparence sur nos limites.",

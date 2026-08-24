@@ -15,6 +15,7 @@ export async function generateMetadata({ params }) {
     return {
       title: titre,
       description,
+      alternates: { canonical: `/centre/${id}` },
       openGraph: { title: titre, description },
     };
   } catch {
