@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth';
 import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError, todayISO } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
-import { centreEstBloque, calculerTauxCommissionEffectif } from '@/lib/facturation';
+import { centreEstBloque, preparerCalculTauxLot } from '@/lib/facturation';
 
 export async function GET(request) {
   const session = await getSession();
@@ -30,17 +30,20 @@ export async function GET(request) {
 
   // Estimation de la commission à titre indicatif pour le centre, calculée
   // sur le prix APRÈS l'éventuelle promo qu'il a lui-même choisie, et en
-  // tenant compte d'une éventuelle promotion Créneau CT active.
-  const creneauxAvecEstimation = await Promise.all(
-    creneaux.map(async (c) => {
-      const tauxCommission = await calculerTauxCommissionEffectif(centreId, c.date);
-      const prixApresPromo = c.prix != null && c.promo_pourcentage
-        ? c.prix * (1 - c.promo_pourcentage / 100)
-        : c.prix;
-      const commissionEstimee = prixApresPromo != null ? Math.round(prixApresPromo * tauxCommission) / 100 : null;
-      return { ...c, commission_taux_estime: tauxCommission, commission_montant_estime: commissionEstimee };
-    })
-  );
+  // tenant compte d'une éventuelle promotion Créneau CT active. Le taux fixe
+  // et les promotions actives sont récupérés une seule fois pour tout le
+  // lot (ils ne dépendent que du centre, jamais du créneau) plutôt que
+  // refaits pour chaque créneau — sans quoi une période de plusieurs mois
+  // déclenchait des centaines de requêtes séquentielles.
+  const calculerTaux = await preparerCalculTauxLot(centreId);
+  const creneauxAvecEstimation = creneaux.map((c) => {
+    const tauxCommission = calculerTaux(c.date);
+    const prixApresPromo = c.prix != null && c.promo_pourcentage
+      ? c.prix * (1 - c.promo_pourcentage / 100)
+      : c.prix;
+    const commissionEstimee = prixApresPromo != null ? Math.round(prixApresPromo * tauxCommission) / 100 : null;
+    return { ...c, commission_taux_estime: tauxCommission, commission_montant_estime: commissionEstimee };
+  });
 
   return NextResponse.json({ creneaux: creneauxAvecEstimation });
 }
