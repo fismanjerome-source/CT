@@ -8,7 +8,7 @@ const cspHeader = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://api.qrserver.com",
+  "img-src 'self' data: blob:",
   "font-src 'self'",
   "connect-src 'self' https://*.cloudflareinsights.com",
   "worker-src 'self'",

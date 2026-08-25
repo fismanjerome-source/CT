@@ -11,10 +11,16 @@ export default function Logo({ size = 34 }) {
           const angle = (i * 30 * Math.PI) / 180;
           const rExt = 71;
           const rInt = 62;
-          const x1 = 80 + rInt * Math.sin(angle);
-          const y1 = 80 - rInt * Math.cos(angle);
-          const x2 = 80 + rExt * Math.sin(angle);
-          const y2 = 80 - rExt * Math.cos(angle);
+          // Arrondi à 2 décimales : Math.sin/cos peuvent renvoyer un résultat
+          // qui diffère de ~1e-13 entre le moteur V8 du serveur (Node) et
+          // celui du navigateur pour le même angle, ce qui suffit à casser
+          // l'hydratation React (le HTML rendu ne correspond plus au bit
+          // près). Sans incidence visuelle sur une icône de 34px.
+          const arrondi = (n) => Math.round(n * 100) / 100;
+          const x1 = arrondi(80 + rInt * Math.sin(angle));
+          const y1 = arrondi(80 - rInt * Math.cos(angle));
+          const x2 = arrondi(80 + rExt * Math.sin(angle));
+          const y2 = arrondi(80 - rExt * Math.cos(angle));
           return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />;
         })}
       </g>

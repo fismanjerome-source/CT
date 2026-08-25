@@ -10,13 +10,20 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
 
+  // Sous-requêtes plutôt qu'un LEFT JOIN direct : avec plusieurs gérants sur
+  // un même centre, un simple JOIN + LIMIT 1 renvoie un gérant arbitraire
+  // (ordre non garanti par SQLite sans ORDER BY) — même correctif que la
+  // liste des centres, pour toujours afficher le même gérant "principal".
   const centre = await get(
-    `SELECT ce.*, ctrl.nom AS gerant_nom, ctrl.email AS gerant_email, ctrl.telephone AS gerant_telephone
+    `SELECT ce.*,
+       (SELECT ctrl.nom FROM controleur_centres cc JOIN controleurs ctrl ON ctrl.id = cc.controleur_id
+        WHERE cc.centre_id = ce.id ORDER BY ctrl.id LIMIT 1) AS gerant_nom,
+       (SELECT ctrl.email FROM controleur_centres cc JOIN controleurs ctrl ON ctrl.id = cc.controleur_id
+        WHERE cc.centre_id = ce.id ORDER BY ctrl.id LIMIT 1) AS gerant_email,
+       (SELECT ctrl.telephone FROM controleur_centres cc JOIN controleurs ctrl ON ctrl.id = cc.controleur_id
+        WHERE cc.centre_id = ce.id ORDER BY ctrl.id LIMIT 1) AS gerant_telephone
      FROM centres ce
-     LEFT JOIN controleur_centres cc ON cc.centre_id = ce.id
-     LEFT JOIN controleurs ctrl ON ctrl.id = cc.controleur_id
-     WHERE ce.id = ?
-     LIMIT 1`,
+     WHERE ce.id = ?`,
     [id]
   );
   if (!centre) return jsonError(404, 'Centre introuvable.');

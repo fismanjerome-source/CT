@@ -292,7 +292,12 @@ export default function AdminCentresPage() {
                     <tr key={c.id}>
                       <td>{c.nom}{c.enseigne ? ` (${c.enseigne})` : ''}</td>
                       <td>{c.ville}</td>
-                      <td>{c.gerant_nom || '—'}</td>
+                      <td>
+                        {c.gerant_nom || '—'}
+                        {c.nombre_gerants > 1 && (
+                          <span className="help-text"> (+{c.nombre_gerants - 1} autre{c.nombre_gerants > 2 ? 's' : ''})</span>
+                        )}
+                      </td>
                       <td className="mono">{c.gerant_email || '—'}</td>
                       <td className="mono">{c.gerant_telephone || '—'}</td>
                       <td className="help-text">

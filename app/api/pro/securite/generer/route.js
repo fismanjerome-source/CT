@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import QRCode from 'qrcode';
 import { get, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { genererSecretBase32, construireUriOtpauth } from '@/lib/totp';
@@ -18,7 +19,10 @@ export async function POST() {
   await run('UPDATE controleurs SET totp_secret = ?, totp_actif = 0 WHERE id = ?', [secret, session.controleurId]);
 
   const otpauthUri = construireUriOtpauth(secret, controleur.email);
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(otpauthUri)}`;
+  // Généré localement (jamais envoyé à un service tiers) : l'URI otpauth
+  // contient le secret TOTP en clair, qu'un service de QR code externe
+  // aurait autrement reçu dans l'URL de sa requête.
+  const qrUrl = await QRCode.toDataURL(otpauthUri, { width: 220, margin: 1 });
 
   return NextResponse.json({ secret, otpauth_uri: otpauthUri, qr_url: qrUrl });
 }
