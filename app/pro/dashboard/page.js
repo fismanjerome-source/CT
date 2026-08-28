@@ -351,6 +351,12 @@ function DashboardPageInner() {
           client_telephone: formReservation.telephone.trim(),
           immatriculation: formReservation.immatriculation.trim(),
           type_vehicule: formReservation.type_vehicule,
+          // /api/rdv exige ce champ (case à cocher côté réservation publique) ;
+          // ici c'est le centre qui saisit le RDV lui-même (client au téléphone
+          // ou au comptoir), il n'y a donc pas de case à faire cocher — sans ce
+          // champ, TOUTE réservation manuelle depuis le tableau de bord échouait
+          // avec une erreur 400.
+          cgu_acceptees: true,
         }),
       });
       const data = await res.json();

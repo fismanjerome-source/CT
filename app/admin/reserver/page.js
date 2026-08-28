@@ -104,6 +104,11 @@ export default function AdminReserverPage() {
           client_telephone: form.telephone.trim(),
           immatriculation: form.immatriculation.trim(),
           type_vehicule: typeVehicule,
+          // /api/rdv exige ce champ (case à cocher côté réservation publique) ;
+          // ici c'est l'admin qui saisit le RDV au téléphone avec le client,
+          // il n'y a donc pas de case à faire cocher — sans ce champ, TOUTE
+          // réservation depuis cette page échouait avec une erreur 400.
+          cgu_acceptees: true,
         }),
       });
       const data = await res.json();
