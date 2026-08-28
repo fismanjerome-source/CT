@@ -404,7 +404,7 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
       onClick={() => router.push(hrefCentre)}
       onKeyDown={(e) => { if (e.key === 'Enter') router.push(hrefCentre); }}
     >
-      {centre.a_une_image && (
+      {!!centre.a_une_image && (
         <div className="centre-card-image">
           <img src={`/api/centres/${centre.id}/image`} alt={centre.nom} loading="lazy" />
         </div>
@@ -445,7 +445,7 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
             Voir sur Google Maps
           </a>
         </div>
-        {centre.est_demo && (
+        {!!centre.est_demo && (
           <p className="help-text" style={{ marginTop: 2 }}>
             Fiche d'exemple pour découvrir la recherche — pas un centre partenaire réel pour l'instant.
           </p>

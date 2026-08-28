@@ -155,7 +155,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
           <Link href="/" className="back-link">← Retour à la recherche</Link>
           {centre ? (
             <>
-              {centre.a_une_image && (
+              {!!centre.a_une_image && (
                 <div className="centre-page-image">
                   <img src={`/api/centres/${id}/image`} alt={centre.nom} />
                 </div>
@@ -187,7 +187,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
                   Voir sur Google Maps
                 </a>
               </p>
-              {centre.est_demo && (
+              {!!centre.est_demo && (
                 <p className="help-text">
                   Fiche d'exemple pour découvrir la recherche — pas un centre partenaire réel pour l'instant.
                 </p>
