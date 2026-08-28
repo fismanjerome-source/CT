@@ -163,7 +163,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
               <div className="centre-title-row">
                 <h1 style={{ margin: 0 }}>{centre.nom}</h1>
                 {centre.est_premium ? <span className="premium-badge" title="Centre premium">★ Premium</span> : null}
-                {centre.est_demo ? <span className="demo-badge" title="Centre de démonstration, à titre d'exemple">DÉMO</span> : null}
+                {centre.est_demo ? <span className="demo-badge" title="Fiche d'exemple, pas un centre partenaire réel pour l'instant">EXEMPLE</span> : null}
                 <span
                   className="enseigne-badge"
                   style={
@@ -187,6 +187,11 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
                   Voir sur Google Maps
                 </a>
               </p>
+              {centre.est_demo && (
+                <p className="help-text">
+                  Fiche d'exemple pour découvrir la recherche — pas un centre partenaire réel pour l'instant.
+                </p>
+              )}
               <a href="tel:+33608129145" className="tel-btn-creneau" style={{ marginTop: 10 }}>
                 📞 Prendre RDV par téléphone
               </a>

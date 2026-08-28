@@ -35,7 +35,27 @@ export default async function CentrePage({ params, searchParams }) {
     // l'adresse du centre n'apparaissaient que côté client, invisibles à
     // Google et à tout aperçu de partage sur les réseaux.
     const centre = await get('SELECT * FROM centres WHERE id = ?', [id]);
-    initialCentre = centre || null;
+    // Liste blanche des champs publics uniquement (jamais un simple {...centre}
+    // ni SELECT * transmis tel quel) : "SELECT *" ramène aussi des colonnes
+    // internes (note_interne, commission_taux_fixe, ical_url — le lien
+    // d'agenda PRIVÉ du centre) qui n'ont rien à faire dans une prop envoyée
+    // au navigateur de n'importe quel visiteur, consultable via l'inspecteur
+    // ou le code source. Un objet litéral simple ici règle aussi, en passant,
+    // l'avertissement React "Only plain objects can be passed..." — une ligne
+    // renvoyée par @libsql/client n'étant pas un objet "plain".
+    initialCentre = centre ? {
+      id: centre.id,
+      nom: centre.nom,
+      adresse: centre.adresse,
+      code_postal: centre.code_postal,
+      ville: centre.ville,
+      enseigne: centre.enseigne,
+      types_vehicules_acceptes: centre.types_vehicules_acceptes,
+      image_data: centre.image_data,
+      image_mime: centre.image_mime,
+      est_premium: centre.est_premium,
+      est_demo: centre.est_demo,
+    } : null;
     if (centre) {
       donneesStructurees = {
         '@context': 'https://schema.org',

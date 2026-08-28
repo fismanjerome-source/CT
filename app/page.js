@@ -417,8 +417,8 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
             </span>
           ) : null}
           {centre.est_demo ? (
-            <span className="demo-badge" title="Centre de démonstration, à titre d'exemple">
-              DÉMO
+            <span className="demo-badge" title="Fiche d'exemple, pas un centre partenaire réel pour l'instant">
+              EXEMPLE
             </span>
           ) : null}
           <h3 style={{ margin: 0 }}>{centre.nom}</h3>
@@ -445,6 +445,11 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
             Voir sur Google Maps
           </a>
         </div>
+        {centre.est_demo && (
+          <p className="help-text" style={{ marginTop: 2 }}>
+            Fiche d'exemple pour découvrir la recherche — pas un centre partenaire réel pour l'instant.
+          </p>
+        )}
         <a
           href="tel:+33608129145"
           className="tel-btn-creneau"
