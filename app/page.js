@@ -462,12 +462,14 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
           <p className="help-text" style={{ marginTop: 8 }}>
             {centre.creneau_date_souhaitee
               ? <>✅ Créneau disponible le {formatDateCourte(dateRecherchee)} à <strong>{centre.creneau_date_souhaitee.heure}</strong></>
-              : <>Pas de créneau ce jour-là, prochain disponible : {centre.prochain_creneau ? `${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}` : 'aucun sous 7 jours'}</>}
+              : centre.prochain_creneau
+                ? <>Pas de créneau ce jour-là, prochain disponible : <strong style={{ color: 'var(--color-success)' }}>{formatDateCourte(centre.prochain_creneau.date)} à {centre.prochain_creneau.heure}</strong></>
+                : 'Pas de créneau ce jour-là, prochain disponible : aucun sous 7 jours'}
           </p>
         ) : (
           <p className="help-text" style={{ marginTop: 8 }}>
             {centre.prochain_creneau
-              ? `Prochain créneau : ${formatDateCourte(centre.prochain_creneau.date)} à ${centre.prochain_creneau.heure}`
+              ? <>Prochain créneau : <strong style={{ color: 'var(--color-success)' }}>{formatDateCourte(centre.prochain_creneau.date)} à {centre.prochain_creneau.heure}</strong></>
               : 'Aucun créneau dans les 7 prochains jours'}
           </p>
         )}

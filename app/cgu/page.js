@@ -12,23 +12,61 @@ export const metadata = {
   },
 };
 
+// Analyse ligne par ligne plutôt que bloc par bloc (séparé sur \n\n) :
+// l'ancienne version supposait qu'un titre "## " occupait tout son bloc à
+// lui seul, alors que le contenu saisi enchaîne souvent le titre et son
+// premier paragraphe (voire des puces) sans ligne vide entre les deux —
+// ce qui faisait apparaître le paragraphe suivant en gras à l'intérieur
+// du <h2>, ou aplatissait une liste à puces en une phrase avec des "-"
+// au milieu. Ici, un changement de type de ligne (titre / puce / texte)
+// clôt toujours l'élément en cours, avec ou sans ligne vide.
 function formaterContenu(contenu) {
-  const blocs = contenu.split(/\n\n+/);
-  return blocs.map((bloc, i) => {
-    const texte = bloc.trim();
-    if (texte.startsWith('## ')) {
-      return <h2 key={i}>{texte.slice(3).trim()}</h2>;
+  const elements = [];
+  let paragrapheCourant = [];
+  let listeCourante = [];
+
+  const clorreParagraphe = (cle) => {
+    if (paragrapheCourant.length) {
+      elements.push(<p key={cle}>{paragrapheCourant.join(' ')}</p>);
+      paragrapheCourant = [];
     }
-    if (texte.startsWith('- ')) {
-      const items = texte.split('\n').map((l) => l.replace(/^- /, '').trim());
-      return (
-        <ul key={i}>
-          {items.map((item, j) => <li key={j}>{item}</li>)}
+  };
+  const clorreListe = (cle) => {
+    if (listeCourante.length) {
+      elements.push(
+        <ul key={cle}>
+          {listeCourante.map((item, j) => <li key={`${cle}-${j}`}>{item}</li>)}
         </ul>
       );
+      listeCourante = [];
     }
-    return <p key={i}>{texte}</p>;
+  };
+
+  contenu.split('\n').forEach((ligneBrute, i) => {
+    const ligne = ligneBrute.trim();
+    if (!ligne) {
+      clorreParagraphe(`p-${i}`);
+      clorreListe(`ul-${i}`);
+      return;
+    }
+    if (ligne.startsWith('## ')) {
+      clorreParagraphe(`p-${i}`);
+      clorreListe(`ul-${i}`);
+      elements.push(<h2 key={`h-${i}`}>{ligne.slice(3).trim()}</h2>);
+      return;
+    }
+    if (ligne.startsWith('- ')) {
+      clorreParagraphe(`p-${i}`);
+      listeCourante.push(ligne.slice(2).trim());
+      return;
+    }
+    clorreListe(`ul-${i}`);
+    paragrapheCourant.push(ligne);
   });
+  clorreParagraphe('p-fin');
+  clorreListe('ul-fin');
+
+  return elements;
 }
 
 export default async function CGUPage() {
