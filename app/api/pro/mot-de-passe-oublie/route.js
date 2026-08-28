@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import { get, run } from '@/lib/db';
 import { jsonError } from '@/lib/utils';
+import { verifierLimite, enregistrerEchec, obtenirIp } from '@/lib/rateLimit';
 
 export async function POST(request) {
+  const ip = obtenirIp(request);
+  const cle = `pro-mdp-oublie:${ip}`;
+  const limite = verifierLimite(cle);
+  if (!limite.autorise) {
+    return jsonError(429, `Trop de demandes depuis cette adresse. Réessayez dans ${limite.minutesRestantes} minute(s).`);
+  }
+  enregistrerEchec(cle);
+
   const body = await request.json().catch(() => ({}));
   const { email } = body;
 

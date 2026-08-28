@@ -6,8 +6,21 @@ import { envoyerEmail } from '@/lib/email';
 import { emailBienvenuePro } from '@/lib/emails/templates';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
 import { genererCodeParrainage } from '@/lib/parrainage';
+import { verifierLimite, enregistrerEchec, obtenirIp } from '@/lib/rateLimit';
 
 export async function POST(request) {
+  // Sans compte requis pour appeler cette route : sans limite, un script
+  // pourrait créer des comptes en masse avec des emails de tiers (qui
+  // recevraient alors un email de bienvenue non sollicité), ou saturer la
+  // notification Telegram et la base de données.
+  const ip = obtenirIp(request);
+  const cle = `pro-register:${ip}`;
+  const limite = verifierLimite(cle);
+  if (!limite.autorise) {
+    return jsonError(429, `Trop de créations de compte depuis cette adresse. Réessayez dans ${limite.minutesRestantes} minute(s).`);
+  }
+  enregistrerEchec(cle);
+
   const body = await request.json().catch(() => ({}));
   const { email, password, nom, nom_centre, adresse, code_postal, ville, telephone, cgu_acceptees, code_parrainage } = body;
 
