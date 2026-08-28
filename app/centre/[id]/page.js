@@ -34,15 +34,24 @@ export default async function CentrePage({ params, searchParams }) {
     // (SEO) et pour le rendu initial côté serveur : sans elle, le nom et
     // l'adresse du centre n'apparaissaient que côté client, invisibles à
     // Google et à tout aperçu de partage sur les réseaux.
-    const centre = await get('SELECT * FROM centres WHERE id = ?', [id]);
-    // Liste blanche des champs publics uniquement (jamais un simple {...centre}
-    // ni SELECT * transmis tel quel) : "SELECT *" ramène aussi des colonnes
-    // internes (note_interne, commission_taux_fixe, ical_url — le lien
-    // d'agenda PRIVÉ du centre) qui n'ont rien à faire dans une prop envoyée
-    // au navigateur de n'importe quel visiteur, consultable via l'inspecteur
-    // ou le code source. Un objet litéral simple ici règle aussi, en passant,
-    // l'avertissement React "Only plain objects can be passed..." — une ligne
-    // renvoyée par @libsql/client n'étant pas un objet "plain".
+    // Colonnes explicites plutôt que SELECT * : évite de ramener depuis la
+    // base des colonnes internes (note_interne, commission_taux_fixe,
+    // ical_url — le lien d'agenda PRIVÉ du centre) et surtout la photo
+    // encodée en base64 (jusqu'à ~800 Ko), inutile ici puisqu'elle est
+    // désormais servie à part par /api/centres/[id]/image — sans quoi
+    // chaque chargement de cette page la retéléchargeait intégralement
+    // depuis la base à chaque requête, sans aucune mise en cache.
+    const centre = await get(
+      `SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes,
+         (image_data IS NOT NULL) AS a_une_image, est_premium, est_demo, latitude, longitude
+       FROM centres WHERE id = ?`,
+      [id]
+    );
+    // Liste blanche des champs publics uniquement (jamais un simple
+    // {...centre} transmis tel quel) — voir ci-dessus pour la raison. Un
+    // objet litéral simple ici règle aussi, en passant, l'avertissement
+    // React "Only plain objects can be passed..." — une ligne renvoyée par
+    // @libsql/client n'étant pas un objet "plain".
     initialCentre = centre ? {
       id: centre.id,
       nom: centre.nom,
@@ -51,8 +60,7 @@ export default async function CentrePage({ params, searchParams }) {
       ville: centre.ville,
       enseigne: centre.enseigne,
       types_vehicules_acceptes: centre.types_vehicules_acceptes,
-      image_data: centre.image_data,
-      image_mime: centre.image_mime,
+      a_une_image: centre.a_une_image,
       est_premium: centre.est_premium,
       est_demo: centre.est_demo,
     } : null;

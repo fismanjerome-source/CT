@@ -155,9 +155,9 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
           <Link href="/" className="back-link">← Retour à la recherche</Link>
           {centre ? (
             <>
-              {centre.image_data && (
+              {centre.a_une_image && (
                 <div className="centre-page-image">
-                  <img src={`data:${centre.image_mime};base64,${centre.image_data}`} alt={centre.nom} />
+                  <img src={`/api/centres/${id}/image`} alt={centre.nom} />
                 </div>
               )}
               <div className="centre-title-row">

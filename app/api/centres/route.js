@@ -11,7 +11,12 @@ export async function GET(request) {
   const vehiculeSouhaite = (searchParams.get('vehicule') || '').trim();
   const typeVisite = searchParams.get('type_visite') === 'contre_visite' ? 'contre_visite' : 'normale';
 
-  let sql = `SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes, image_data, image_mime, est_premium, est_demo,
+  // a_une_image (booléen) plutôt que image_data/image_mime : sans ça, une
+  // recherche qui remonte plusieurs centres avec photo ramenait chacune de
+  // leurs images (jusqu'à ~800 Ko en base64 chacune) dans une seule
+  // réponse JSON. L'image elle-même est servie à part par
+  // /api/centres/[id]/image, mise en cache par le navigateur.
+  let sql = `SELECT id, nom, adresse, code_postal, ville, telephone, enseigne, types_vehicules_acceptes, (image_data IS NOT NULL) AS a_une_image, est_premium, est_demo,
     (SELECT ROUND(AVG(note), 1) FROM avis WHERE avis.centre_id = centres.id AND avis.visible = 1) AS note_moyenne,
     (SELECT COUNT(*) FROM avis WHERE avis.centre_id = centres.id AND avis.visible = 1) AS nombre_avis
     FROM centres WHERE 1=1`;

@@ -404,9 +404,9 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
       onClick={() => router.push(hrefCentre)}
       onKeyDown={(e) => { if (e.key === 'Enter') router.push(hrefCentre); }}
     >
-      {centre.image_data && (
+      {centre.a_une_image && (
         <div className="centre-card-image">
-          <img src={`data:${centre.image_mime};base64,${centre.image_data}`} alt={centre.nom} />
+          <img src={`/api/centres/${centre.id}/image`} alt={centre.nom} loading="lazy" />
         </div>
       )}
       <div className="infos">
