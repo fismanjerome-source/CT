@@ -76,13 +76,6 @@ export default function MentionsLegalesPage() {
           estimées à partir de l'adresse IP), sans recours à un cookie de mesure d'audience. L'adresse IP n'est
           jamais conservée telle quelle.
         </p>
-
-        <h2>Médiation de la consommation</h2>
-        <p>
-          Conformément à l'article L. 616-1 du code de la consommation, en cas de litige non résolu directement avec
-          nous, le Client peut recourir gratuitement à un médiateur de la consommation. Les coordonnées du médiateur
-          compétent seront publiées sur cette page dès l'immatriculation de l'activité.
-        </p>
       </section>
 
       <Footer />
