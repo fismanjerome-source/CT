@@ -52,8 +52,8 @@ export default function MentionsLegalesPage() {
         <p>
           L'estimation approximative de la ville et de la région à partir de l'adresse IP (voir « Cookies et mesure
           d'audience » ci-dessous) est réalisée par :<br />
-          ip-api.com<br />
-          <a href="https://ip-api.com" target="_blank" rel="noopener noreferrer">ip-api.com</a>
+          ipwho.is<br />
+          <a href="https://ipwho.is" target="_blank" rel="noopener noreferrer">ipwho.is</a>
         </p>
 
         <h2>Propriété intellectuelle</h2>
