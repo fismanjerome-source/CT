@@ -38,9 +38,19 @@ export async function GET(request) {
     [depuisISO]
   );
 
+  // Exclut les pages d'Avant Mon CT de ce classement : ses chemins (ex.
+  // "/guide") peuvent coïncider avec ceux de Créneau CT et fausseraient le
+  // classement si on les mélangeait — elles ont leur propre classement
+  // juste en dessous.
   const pagesPopulaires = await all(
     `SELECT chemin, COUNT(*) AS total FROM visites
-     WHERE created_at >= ? GROUP BY chemin ORDER BY total DESC LIMIT 10`,
+     WHERE created_at >= ? AND categorie != 'avantmonct' GROUP BY chemin ORDER BY total DESC LIMIT 10`,
+    [depuisISO]
+  );
+
+  const pagesPopulairesAvantMonCt = await all(
+    `SELECT chemin, COUNT(*) AS total FROM visites
+     WHERE created_at >= ? AND categorie = 'avantmonct' GROUP BY chemin ORDER BY total DESC LIMIT 10`,
     [depuisISO]
   );
 
@@ -53,12 +63,22 @@ export async function GET(request) {
     [depuisISO]
   );
 
+  // Visites client sur Créneau CT dont l'origine (utm_source) indique
+  // qu'elles viennent d'un lien posé sur Avant Mon CT.
+  const { total: totalDepuisAvantMonCt } = await get(
+    `SELECT COUNT(*) AS total FROM visites
+     WHERE created_at >= ? AND categorie = 'client' AND origine = 'avant-mon-ct'`,
+    [depuisISO]
+  );
+
   return NextResponse.json({
     totaux,
     par_jour: parJour,
     par_ville: parVille,
     par_region: parRegion,
     pages_populaires: pagesPopulaires,
+    pages_populaires_avant_mon_ct: pagesPopulairesAvantMonCt,
     taux_geolocalisation: totalGeneral > 0 ? Math.round((totalGeolocalisees / totalGeneral) * 100) : 0,
+    visites_depuis_avant_mon_ct: totalDepuisAvantMonCt,
   });
 }

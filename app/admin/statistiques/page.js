@@ -6,8 +6,9 @@ import AdminSidebar from '../../components/AdminSidebar';
 import { SquelletteCarte } from '../../components/Squelette';
 import AlertePaiements from '../../components/AlertePaiements';
 
-const LABELS_CATEGORIE = { client: '👤 Clients', pro: '🏢 Centres', admin: '🔐 Admin' };
-const COULEURS_CATEGORIE = { client: '#1B3A5C', pro: '#C8952A', admin: '#5B665F' };
+const LABELS_CATEGORIE = { client: '👤 Clients', pro: '🏢 Centres', admin: '🔐 Admin', avantmonct: '🔗 Avant Mon CT' };
+const COULEURS_CATEGORIE = { client: '#1B3A5C', pro: '#C8952A', admin: '#5B665F', avantmonct: '#2E7D45' };
+const CATEGORIES = ['client', 'pro', 'admin', 'avantmonct'];
 
 export default function StatistiquesPage() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function StatistiquesPage() {
         ) : (
           <>
             <div className="grid-2" style={{ gap: 16, marginBottom: 24 }}>
-              {['client', 'pro', 'admin'].map((cat) => (
+              {CATEGORIES.map((cat) => (
                 <div key={cat} className="card" style={{ textAlign: 'center' }}>
                   <p className="eyebrow" style={{ marginBottom: 6 }}>{LABELS_CATEGORIE[cat]}</p>
                   <p style={{ fontSize: '2.2rem', fontWeight: 700, margin: 0, color: COULEURS_CATEGORIE[cat] }}>
@@ -84,9 +85,9 @@ export default function StatistiquesPage() {
             </div>
 
             <section className="card" style={{ marginBottom: 20 }}>
-              <div className="card-header"><h2 style={{ margin: 0 }}>Répartition client / centre / admin</h2></div>
+              <div className="card-header"><h2 style={{ margin: 0 }}>Répartition client / centre / admin / Avant Mon CT</h2></div>
               <div style={{ display: 'flex', height: 28, borderRadius: 6, overflow: 'hidden', marginTop: 10 }}>
-                {['client', 'pro', 'admin'].map((cat) => {
+                {CATEGORIES.map((cat) => {
                   const pct = totalGeneral > 0 ? (totalParCategorie(cat) / totalGeneral) * 100 : 0;
                   return pct > 0 ? (
                     <div key={cat} style={{ width: `${pct}%`, background: COULEURS_CATEGORIE[cat] }} title={`${LABELS_CATEGORIE[cat]} : ${Math.round(pct)}%`} />
@@ -94,6 +95,14 @@ export default function StatistiquesPage() {
                 })}
               </div>
             </section>
+
+            {donnees.visites_depuis_avant_mon_ct > 0 && (
+              <div className="message-banner success" style={{ marginBottom: 20 }}>
+                🔗 <strong>{donnees.visites_depuis_avant_mon_ct}</strong> visite{donnees.visites_depuis_avant_mon_ct > 1 ? 's' : ''} sur Créneau CT
+                {' '}{donnees.visites_depuis_avant_mon_ct > 1 ? 'proviennent' : 'provient'} d'un lien posé sur Avant Mon CT
+                {totalParCategorie('client') > 0 ? ` (${Math.round((donnees.visites_depuis_avant_mon_ct / totalParCategorie('client')) * 100)}% des visites clients)` : ''}.
+              </div>
+            )}
 
             <div className="grid-2" style={{ gap: 20 }}>
               <section className="card">
@@ -140,7 +149,7 @@ export default function StatistiquesPage() {
             </div>
 
             <section className="card" style={{ marginTop: 20 }}>
-              <div className="card-header"><h2 style={{ margin: 0 }}>Pages les plus visitées</h2></div>
+              <div className="card-header"><h2 style={{ margin: 0 }}>Pages les plus visitées (Créneau CT)</h2></div>
               {donnees.pages_populaires.length === 0 ? (
                 <div className="empty-state">Pas encore de données.</div>
               ) : (
@@ -148,6 +157,25 @@ export default function StatistiquesPage() {
                   <thead><tr><th>Page</th><th>Visites</th></tr></thead>
                   <tbody>
                     {donnees.pages_populaires.map((p, i) => (
+                      <tr key={i}>
+                        <td className="mono">{p.chemin}</td>
+                        <td className="mono">{p.total}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </section>
+
+            <section className="card" style={{ marginTop: 20 }}>
+              <div className="card-header"><h2 style={{ margin: 0 }}>🔗 Pages les plus visitées (Avant Mon CT)</h2></div>
+              {donnees.pages_populaires_avant_mon_ct.length === 0 ? (
+                <div className="empty-state">Pas encore de données.</div>
+              ) : (
+                <table>
+                  <thead><tr><th>Page</th><th>Visites</th></tr></thead>
+                  <tbody>
+                    {donnees.pages_populaires_avant_mon_ct.map((p, i) => (
                       <tr key={i}>
                         <td className="mono">{p.chemin}</td>
                         <td className="mono">{p.total}</td>
