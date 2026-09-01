@@ -1,9 +1,13 @@
+'use client';
+
 import Link from 'next/link';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 import SideMenu from './SideMenu';
+import { useSite } from './SiteContext';
 
 export default function Header() {
+  const site = useSite();
   return (
     <>
       <header className="site-header">
@@ -13,9 +17,11 @@ export default function Header() {
 
           <Link href="/" className="brand">
             <Logo />
-            Créneau CT
+            {site === 'pl' ? 'Créneau CT PL' : 'Créneau CT'}
           </Link>
-          <p className="brand-tagline">Réservation de contrôle technique en ligne</p>
+          <p className="brand-tagline">
+            {site === 'pl' ? 'Contrôle technique poids lourds et autocars' : 'Réservation de contrôle technique en ligne'}
+          </p>
 
           {/* Navigation bureau : une seule ligne, inchangée */}
           <nav className="nav-desktop">

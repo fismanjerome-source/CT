@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { detecterSite } from '@/lib/site';
 
 // Catégorise la page visitée pour distinguer, dans les statistiques,
 // les visites côté client de celles côté centre (espace pro) et admin.
@@ -6,6 +7,13 @@ function categoriser(pathname) {
   if (pathname.startsWith('/pro')) return 'pro';
   if (pathname.startsWith('/admin')) return 'admin';
   return 'client';
+}
+
+// Seules la home et la fiche centre changent de contenu selon le domaine
+// (voir app/pl/) — le reste (guide, FAQ, CGU, espace pro/admin...) est
+// volontairement identique sur les deux domaines.
+function aUneVersionPl(pathname) {
+  return pathname === '/' || pathname.startsWith('/centre/');
 }
 
 export function middleware(request) {
@@ -27,6 +35,18 @@ export function middleware(request) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chemin: pathname, categorie: categoriser(pathname), ip, origine, cle: process.env.TRACER_SECRET }),
   }).catch(() => {});
+
+  // pl.creneauct.fr sert le même code que creneauct.fr, réécrit en interne
+  // vers app/pl/* pour les pages qui diffèrent (voir aUneVersionPl) — sans
+  // ça, on aurait dû dupliquer tout le code de recherche/réservation dans
+  // un second site, ou rendre TOUT le site non-statique pour pouvoir lire
+  // le domaine dans chaque page (voir app/pl/layout.js).
+  const site = detecterSite(request.headers.get('host'));
+  if (site === 'pl' && aUneVersionPl(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/pl${pathname}`;
+    return NextResponse.rewrite(url);
+  }
 
   return NextResponse.next();
 }

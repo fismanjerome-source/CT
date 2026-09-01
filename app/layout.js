@@ -1,5 +1,6 @@
 import { Outfit, DM_Sans, Fira_Code } from 'next/font/google';
 import Script from 'next/script';
+import { SiteProvider } from './components/SiteContext';
 import './globals.css';
 
 const outfit = Outfit({
@@ -59,6 +60,11 @@ export const viewport = {
   themeColor: '#1B3A5C',
 };
 
+// Site par défaut ("vl") — codé en dur, jamais lu depuis une donnée de
+// requête (headers/cookies) : c'est justement ce qui permet à Next.js de
+// continuer à pré-générer cette page statiquement. Le sous-domaine
+// pl.creneauct.fr est servi par app/pl/*, qui fournit "pl" à la place via
+// son propre layout — voir middleware.js pour la réécriture d'URL.
 export default function RootLayout({ children }) {
   return (
     <html lang="fr" className={`${outfit.variable} ${dmSans.variable} ${firaCode.variable}`}>
@@ -93,7 +99,7 @@ export default function RootLayout({ children }) {
             data-cf-beacon={JSON.stringify({ token: process.env.NEXT_PUBLIC_CF_BEACON_TOKEN })}
           />
         )}
-        {children}
+        <SiteProvider site="vl">{children}</SiteProvider>
       </body>
     </html>
   );

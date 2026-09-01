@@ -74,6 +74,34 @@ export function SuvIcon({ size = 16, color = 'currentColor' }) {
   );
 }
 
+export function CamionIcon({ size = 16, color = 'currentColor' }) {
+  // Camion / poids lourd — cabine + benne, roues doubles à l'arrière
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 8.5h11v8H2z" />
+      <path d="M13 11h4l3 2.5v3H13z" />
+      <circle cx="6" cy="18" r="1.8" />
+      <circle cx="17.5" cy="18" r="1.8" />
+      <line x1="16" y1="13.5" x2="16" y2="16.5" />
+    </svg>
+  );
+}
+
+export function AutocarIcon({ size = 16, color = 'currentColor' }) {
+  // Autocar / autobus — carrosserie longue avec fenêtres en bande
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="5" width="20" height="12" rx="2" />
+      <line x1="2" y1="10" x2="22" y2="10" />
+      <line x1="6.5" y1="7.3" x2="6.5" y2="9.7" />
+      <line x1="11" y1="7.3" x2="11" y2="9.7" />
+      <line x1="15.5" y1="7.3" x2="15.5" y2="9.7" />
+      <circle cx="6.5" cy="19" r="1.6" />
+      <circle cx="17.5" cy="19" r="1.6" />
+    </svg>
+  );
+}
+
 // Icône voiture générique, conservée pour d'éventuels usages neutres
 // (n'est plus utilisée pour représenter un carburant précis).
 export function CarIcon({ size = 16, color = 'currentColor' }) {
@@ -94,6 +122,8 @@ const ICONES = {
   electrique: ElectriqueIcon,
   suv: SuvIcon,
   moto: MotoIcon,
+  camion: CamionIcon,
+  autocar: AutocarIcon,
 };
 
 // Renvoie le bon composant d'icône pour une catégorie de véhicule donnée

@@ -1,6 +1,14 @@
-const SITE_URL = process.env.SITE_URL || 'https://ct-rdv.onrender.com';
+import { headers } from 'next/headers';
+import { detecterSite } from '@/lib/site';
 
-export default function robots() {
+const SITE_URL = process.env.SITE_URL || 'https://ct-rdv.onrender.com';
+const SITE_URL_PL = 'https://pl.creneauct.fr';
+
+export default async function robots() {
+  const host = (await headers()).get('host');
+  const site = detecterSite(host);
+  const baseUrl = site === 'pl' ? SITE_URL_PL : SITE_URL;
+
   return {
     rules: {
       userAgent: '*',
@@ -12,6 +20,6 @@ export default function robots() {
       allow: ['/', '/pro/login', '/pro/register'],
       disallow: ['/pro/', '/admin/', '/api/'],
     },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

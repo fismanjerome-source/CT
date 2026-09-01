@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { all } from '@/lib/db';
 import { todayISO, creneauSuffisammentEloigne } from '@/lib/utils';
-import { parseTypes, creneauCompatible } from '@/lib/vehicules';
+import { parseTypes, creneauCompatible, typesParSite } from '@/lib/vehicules';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -10,6 +10,11 @@ export async function GET(request) {
   const dateSouhaitee = (searchParams.get('date') || '').trim();
   const vehiculeSouhaite = (searchParams.get('vehicule') || '').trim();
   const typeVisite = searchParams.get('type_visite') === 'contre_visite' ? 'contre_visite' : 'normale';
+  // Site courant (pl.creneauct.fr ou creneauct.fr) : un centre n'apparaît
+  // que s'il accepte au moins un véhicule de cette catégorie, indépendamment
+  // du véhicule précis éventuellement choisi ci-dessus.
+  const categorieSite = searchParams.get('categorie') === 'pl' ? 'pl' : 'vl';
+  const valeursSite = typesParSite(categorieSite).map((t) => t.value);
 
   // a_une_image (booléen) plutôt que image_data/image_mime : sans ça, une
   // recherche qui remonte plusieurs centres avec photo ramenait chacune de
@@ -26,6 +31,16 @@ export async function GET(request) {
   sql += ' ORDER BY est_premium DESC, ville, nom';
 
   let centres = await all(sql, args);
+
+  centres = centres.filter((c) => {
+    const typesAcceptes = parseTypes(c.types_vehicules_acceptes);
+    // Un centre qui n'a pas encore renseigné ses véhicules acceptés (ex :
+    // vient de s'inscrire) reste visible côté VL par défaut, comme avant
+    // l'existence de la catégorie PL — jamais masqué silencieusement des
+    // deux recherches faute d'avoir coché quoi que ce soit.
+    if (typesAcceptes.length === 0) return categorieSite === 'vl';
+    return typesAcceptes.some((v) => valeursSite.includes(v));
+  });
 
   if (vehiculeSouhaite) {
     centres = centres.filter((c) => parseTypes(c.types_vehicules_acceptes).includes(vehiculeSouhaite));

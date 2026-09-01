@@ -1,12 +1,18 @@
+'use client';
+
 import Link from 'next/link';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from './ContactIcons';
+import { useSite } from './SiteContext';
 
 export default function Footer() {
+  const site = useSite();
   return (
     <footer className="site-footer">
       <div className="container footer-inner">
         <p style={{ margin: 0 }}>
-          Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.
+          {site === 'pl'
+            ? 'Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique poids lourds et autocars.'
+            : 'Plateforme indépendante de mise en relation pour rendez-vous de contrôle technique.'}
         </p>
         <div className="footer-reseaux">
           <a href="https://instagram.com/creneauct" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-reseau-btn footer-reseau-instagram">
@@ -32,7 +38,7 @@ export default function Footer() {
           <Link href="/cgu">CGU</Link>
           <Link href="/mentions-legales">Mentions légales</Link>
         </nav>
-        <p className="footer-copyright">© {new Date().getFullYear()} Créneau CT. Tous droits réservés.</p>
+        <p className="footer-copyright">© {new Date().getFullYear()} {site === 'pl' ? 'Créneau CT PL' : 'Créneau CT'}. Tous droits réservés.</p>
       </div>
     </footer>
   );

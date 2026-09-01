@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { IconeVehicule } from './components/VehiculeIcons';
-import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
+import { TYPES_VEHICULES, parseTypes, typesParSite } from '@/lib/vehicules';
+import { useSite } from './components/SiteContext';
 import { couleurEnseigne } from '@/lib/enseignes';
 import { PhoneIcon, MailIcon, WhatsAppIcon, SmsIcon } from './components/ContactIcons';
 
@@ -22,6 +23,7 @@ function formatDateLongue(dateStr) {
 
 export default function HomePage() {
   const router = useRouter();
+  const site = useSite();
   const [bandeauProVisible, setBandeauProVisible] = useState(true);
   const [ville, setVille] = useState('');
   const [cp, setCp] = useState('');
@@ -61,6 +63,10 @@ export default function HomePage() {
     if (dateQ) params.set('date', dateQ);
     if (vehiculeQ) params.set('vehicule', vehiculeQ);
     if (typeVisiteQ === 'contre_visite') params.set('type_visite', 'contre_visite');
+    // Ne montre que les centres qui acceptent au moins un véhicule de la
+    // catégorie du site courant (poids lourd sur pl.creneauct.fr, léger
+    // sinon) — indépendamment du véhicule précis choisi ci-dessus.
+    params.set('categorie', site);
     try {
       const res = await fetch(`/api/centres?${params.toString()}`);
       const data = await res.json();
@@ -68,7 +74,7 @@ export default function HomePage() {
     } catch {
       setCentres([]);
     }
-  }, []);
+  }, [site]);
 
   useEffect(() => { rechercher(); }, [rechercher]);
 
@@ -141,16 +147,33 @@ export default function HomePage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">🚗 Réservation en ligne</div>
-          <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
-          <p className="lead">
-            Créneau CT vous permet de réserver facilement votre contrôle technique, où et quand
-            ça vous arrange{' '}
-            <span className="lead-aside">
-              (y compris les disponibilités de{' '}
-              <strong>dernière minute</strong> près de chez vous)
-            </span>.
-          </p>
+          {site === 'pl' ? (
+            <>
+              <div className="eyebrow">🚛 Réservation en ligne — professionnels</div>
+              <h1>Réservez le contrôle technique de vos poids lourds et autocars, sans y passer la journée</h1>
+              <p className="lead">
+                Créneau CT PL vous permet de trouver et réserver un créneau dans un centre agréé pour vos camions,
+                poids lourds et autocars{' '}
+                <span className="lead-aside">
+                  (y compris les disponibilités de{' '}
+                  <strong>dernière minute</strong> pour ne pas immobiliser un véhicule de votre flotte)
+                </span>.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="eyebrow">🚗 Réservation en ligne</div>
+              <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
+              <p className="lead">
+                Créneau CT vous permet de réserver facilement votre contrôle technique, où et quand
+                ça vous arrange{' '}
+                <span className="lead-aside">
+                  (y compris les disponibilités de{' '}
+                  <strong>dernière minute</strong> près de chez vous)
+                </span>.
+              </p>
+            </>
+          )}
 
           <div className="contact-humain">
             <span className="contact-humain-label">Un RDV pour votre contrôle technique ? Une question ? Un vrai contact, toujours disponible :</span>
@@ -273,16 +296,26 @@ export default function HomePage() {
                   style={{ color: vehicule ? 'var(--color-text)' : 'var(--color-text-muted)' }}
                 >
                   <option value="">Tous véhicules</option>
-                  <optgroup label="Voiture">
-                    {TYPES_VEHICULES.filter((t) => t.categorie === 'voiture').map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Moto / sans permis">
-                    {TYPES_VEHICULES.filter((t) => t.categorie === 'moto').map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
-                    ))}
-                  </optgroup>
+                  {site === 'pl' ? (
+                    <optgroup label="Poids lourd">
+                      {typesParSite('pl').map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </optgroup>
+                  ) : (
+                    <>
+                      <optgroup label="Voiture">
+                        {TYPES_VEHICULES.filter((t) => t.categorie === 'voiture').map((t) => (
+                          <option key={t.value} value={t.value}>{t.label}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Moto / sans permis">
+                        {TYPES_VEHICULES.filter((t) => t.categorie === 'moto').map((t) => (
+                          <option key={t.value} value={t.value}>{t.label}</option>
+                        ))}
+                      </optgroup>
+                    </>
+                  )}
                 </select>
               </div>
             </div>
