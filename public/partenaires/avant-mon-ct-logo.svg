@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Avant Mon CT">
+  <circle cx="80" cy="80" r="76" fill="#1B3A5C" />
+  <circle cx="80" cy="80" r="76" fill="none" stroke="#D9A62E" stroke-width="3" />
+  <g stroke="#D9A62E" stroke-width="3" stroke-linecap="round" opacity="0.9">
+    <line x1="80" y1="18" x2="80" y2="9" />
+    <line x1="111" y1="26.31" x2="115.5" y2="18.51" />
+    <line x1="133.69" y1="49" x2="141.49" y2="44.5" />
+    <line x1="142" y1="80" x2="151" y2="80" />
+    <line x1="133.69" y1="111" x2="141.49" y2="115.5" />
+    <line x1="111" y1="133.69" x2="115.5" y2="141.49" />
+    <line x1="80" y1="142" x2="80" y2="151" />
+    <line x1="49" y1="133.69" x2="44.5" y2="141.49" />
+    <line x1="26.31" y1="111" x2="18.51" y2="115.5" />
+    <line x1="18" y1="80" x2="9" y2="80" />
+    <line x1="26.31" y1="49" x2="18.51" y2="44.5" />
+    <line x1="49" y1="26.31" x2="44.5" y2="18.51" />
+  </g>
+  <circle cx="80" cy="80" r="48" fill="#1B3A5C" stroke="#D9A62E" stroke-width="1.5" />
+  <path d="M 58,82 L 73,97 L 104,62" fill="none" stroke="#D9A62E" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

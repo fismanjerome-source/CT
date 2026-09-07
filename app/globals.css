@@ -178,6 +178,18 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
 .brand-tagline { display: none; }
 .mobile-theme-toggle-wrap { display: none; }
 
+/* Nav desktop centrée dans le bandeau, indépendamment de la largeur de la marque
+   à gauche : au-delà de 900px, elle n'est plus un simple enfant flex (ce qui la
+   collait à droite via space-between) mais positionnée au centre du container. */
+@media (min-width: 900px) {
+  .site-header nav.nav-desktop {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
 @media (max-width: 720px) {
   .site-header .container { flex-direction: column; padding-left: 0; }
   .brand { align-self: center; }
@@ -459,6 +471,11 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   letter-spacing: -0.03em;
   line-height: 1.1;
   max-width: 680px;
+  animation: heroTitreApparition 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes heroTitreApparition {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(-14px); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); transform: translateX(0); }
 }
 .hero .eyebrow {
   color: var(--color-accent);
@@ -478,6 +495,33 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   font-weight: 700;
 }
 .hero p.help-text { color: rgba(255,255,255,0.55); }
+
+.checklist-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.checklist-item {
+  opacity: 0;
+  animation: checklistApparition 0.55s ease both;
+}
+.checklist-sep {
+  color: rgba(255,255,255,0.3);
+}
+@keyframes checklistApparition {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero h1, .checklist-item {
+    animation: none;
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+  }
+}
 
 .contact-humain {
   margin-top: 20px;

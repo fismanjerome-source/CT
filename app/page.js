@@ -334,8 +334,14 @@ export default function HomePage() {
             </div>
           </form>
 
-          <p className="help-text" style={{ marginTop: 10 }}>
-            ✓ Gratuit, sans engagement · ✓ Aucune carte bancaire requise · ✓ Vous réglez le centre directement, sur place · ✓ Annulation libre à tout moment
+          <p className="help-text checklist-row" style={{ marginTop: 10 }}>
+            <span className="checklist-item" style={{ animationDelay: '0.1s' }}>✓ Gratuit, sans engagement</span>
+            <span className="checklist-sep">·</span>
+            <span className="checklist-item" style={{ animationDelay: '0.25s' }}>✓ Aucune carte bancaire requise</span>
+            <span className="checklist-sep">·</span>
+            <span className="checklist-item" style={{ animationDelay: '0.4s' }}>✓ Vous réglez le centre directement, sur place</span>
+            <span className="checklist-sep">·</span>
+            <span className="checklist-item" style={{ animationDelay: '0.55s' }}>✓ Annulation libre à tout moment</span>
           </p>
 
           {totalRdv > 0 && (

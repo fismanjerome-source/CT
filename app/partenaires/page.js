@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 
@@ -19,6 +20,20 @@ const partenaires = [
     description:
       "Agence de recrutement spécialisée dans le contrôle technique automobile, moto et poids lourd. Issue d'une communauté de plus de 9 800 professionnels du secteur, elle met en relation les centres de contrôle technique avec des contrôleurs qualifiés partout en France.",
   },
+  {
+    nom: 'Avant Mon CT',
+    url: 'https://avant.creneauct.fr',
+    logo: '/partenaires/avant-mon-ct-logo.svg',
+    description:
+      "Le site gratuit qui prépare les automobilistes et motards avant leur passage au contrôle technique : checklist personnalisée, points de vigilance et conseils, pour arriver au centre avec un véhicule déjà en règle.",
+  },
+  {
+    nom: 'Créneau CT Flotte Pro',
+    url: 'https://flottepro.creneauct.fr',
+    logo: '/partenaires/flottepro-logo.svg',
+    description:
+      "La solution dédiée aux gestionnaires de flotte : suivi des échéances de contrôle technique de tous les véhicules d'une entreprise, alertes avant expiration et vue d'ensemble centralisée.",
+  },
 ];
 
 export default function PartenairesPage() {
@@ -39,7 +54,7 @@ export default function PartenairesPage() {
       <section className="container" style={{ padding: '32px 24px 64px' }}>
         {partenaires.map((p) => (
           <div key={p.nom} className="card">
-            <div className="card-header" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 14 }}>
               {p.logo && (
                 <img
                   src={p.logo}
@@ -57,7 +72,8 @@ export default function PartenairesPage() {
         ))}
 
         <div className="empty-state" style={{ marginTop: 20 }}>
-          Vous représentez une entreprise du secteur et souhaitez devenir partenaire ? Contactez-nous.
+          Vous représentez une entreprise du secteur et souhaitez devenir partenaire ?{' '}
+          <Link href="/contact">Contactez-nous</Link>.
         </div>
       </section>
 
