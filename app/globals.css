@@ -788,13 +788,21 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   flex-direction: column;
   gap: 6px;
   flex: 1;
-  min-width: 160px;
+  /* min-width: 0 (pas 160px) : un enfant de grid/flex garde sinon sa
+     largeur minimale de contenu, et le champ date natif refuse de
+     descendre sous une taille intrinsèque assez large sur mobile — le
+     champ (et toute la boîte de recherche) débordait alors à droite de
+     l'écran sur smartphone. */
+  min-width: 0;
 }
 .date-input-wrap {
   position: relative;
+  min-width: 0;
 }
 .date-input-wrap input {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 .date-placeholder {
   position: absolute;
