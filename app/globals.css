@@ -147,6 +147,19 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   font-weight: 600;
   font-size: 1.25rem;
 }
+.brand-logo-rotatif {
+  display: inline-flex;
+  animation: brandLogoRotation 16s linear infinite;
+  transform-origin: 50% 50%;
+}
+.brand:hover .brand-logo-rotatif { animation-duration: 3s; }
+@keyframes brandLogoRotation {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo-rotatif { animation: none; }
+}
 .brand-mark {
   width: 34px; height: 34px;
   border: 2px solid rgba(255,255,255,0.7);
@@ -472,6 +485,7 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   line-height: 1.1;
   max-width: 680px;
   animation: heroTitreApparition 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.45s;
 }
 @keyframes heroTitreApparition {
   from { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(-14px); }
@@ -480,6 +494,63 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
 .hero .eyebrow {
   color: var(--color-accent);
   opacity: 0.9;
+}
+
+/* Eyebrow "Réservation en ligne" : le mot est révélé par un balayage,
+   comme le passage d'un capteur de contrôle — clin d'œil au métier
+   (le contrôle technique, c'est littéralement une phase de scan) plutôt
+   qu'un simple fondu générique. */
+.eyebrow-reveal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.eyebrow-reveal .eyebrow-icone {
+  display: inline-block;
+  animation: eyebrowIconeApparition 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.eyebrow-reveal .eyebrow-texte {
+  position: relative;
+  display: inline-block;
+  animation: eyebrowTexteApparition 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.22s;
+}
+.eyebrow-reveal .eyebrow-texte::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: 0;
+  width: 2px;
+  background: var(--color-accent);
+  box-shadow: 0 0 7px 1px rgba(200, 149, 42, 0.75);
+  animation: eyebrowBalayage 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.22s;
+}
+@keyframes eyebrowIconeApparition {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes eyebrowTexteApparition {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes eyebrowBalayage {
+  0% { left: 0%; opacity: 1; }
+  85% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow-reveal .eyebrow-icone,
+  .eyebrow-reveal .eyebrow-texte,
+  .eyebrow-reveal .eyebrow-texte::after {
+    animation: none;
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+  }
+  .eyebrow-reveal .eyebrow-texte::after { display: none; }
 }
 .hero p.lead {
   color: rgba(255,255,255,0.72);
@@ -1522,8 +1593,23 @@ td.mono, .mono { font-family: var(--font-mono); }
   flex-direction: column;
   gap: 3px;
   padding: 0 32px 0 0;
+  opacity: 0;
+  transform: translate(-20px, 8px);
 }
 .stat-ligne:first-child { padding-left: 0; }
+/* Apparition déclenchée au scroll (IntersectionObserver dans page.js) plutôt
+   qu'au chargement : cette section est loin sous le pli, une animation au
+   chargement serait déjà terminée bien avant que l'utilisateur ne la voie. */
+.stats-public--visible .stat-ligne {
+  animation: statLigneApparition 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes statLigneApparition {
+  from { opacity: 0; transform: translate(-20px, 8px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat-ligne { animation: none; opacity: 1; transform: none; }
+}
 .stat-val {
   font-family: var(--font-display);
   font-weight: 800;

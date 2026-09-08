@@ -16,7 +16,7 @@ export default function Header() {
           <div className="mobile-theme-toggle-wrap"><ThemeToggle /></div>
 
           <Link href="/" className="brand">
-            <Logo />
+            <span className="brand-logo-rotatif"><Logo /></span>
             {site === 'pl' ? 'Créneau CT PL' : 'Créneau CT'}
           </Link>
           <p className="brand-tagline">

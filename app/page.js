@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from './components/Header';
@@ -51,6 +51,24 @@ export default function HomePage() {
   const [rechercheProche, setRechercheProche] = useState(false);
   const [erreurProche, setErreurProche] = useState(null);
   const [resultatProche, setResultatProche] = useState(null);
+
+  const statsRef = useRef(null);
+  const [statsVisible, setStatsVisible] = useState(false);
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStatsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
@@ -149,7 +167,10 @@ export default function HomePage() {
         <div className="container">
           {site === 'pl' ? (
             <>
-              <div className="eyebrow">🚛 Réservation en ligne — professionnels</div>
+              <div className="eyebrow eyebrow-reveal">
+                <span className="eyebrow-icone">🚛</span>
+                <span className="eyebrow-texte">Réservation en ligne — professionnels</span>
+              </div>
               <h1>Réservez le contrôle technique de vos poids lourds et autocars, sans y passer la journée</h1>
               <p className="lead">
                 Créneau CT PL vous permet de trouver et réserver un créneau dans un centre agréé pour vos camions,
@@ -162,7 +183,10 @@ export default function HomePage() {
             </>
           ) : (
             <>
-              <div className="eyebrow">🚗 Réservation en ligne</div>
+              <div className="eyebrow eyebrow-reveal">
+                <span className="eyebrow-icone">🚗</span>
+                <span className="eyebrow-texte">Réservation en ligne</span>
+              </div>
               <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
               <p className="lead">
                 Créneau CT vous permet de réserver facilement votre contrôle technique, où et quand
@@ -396,24 +420,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="stats-public">
+      <section className={`stats-public${statsVisible ? ' stats-public--visible' : ''}`} ref={statsRef}>
         <div className="container">
           <p className="stats-public-accroche">
             En France, <strong>27,6 millions de contrôles techniques</strong> sont réalisés chaque année, et trouver
             un créneau disponible reste souvent plus compliqué que prévu. Créneau CT est là pour ça.
           </p>
           <div className="stats-public-chiffres">
-            <div className="stat-ligne">
+            <div className="stat-ligne" style={{ animationDelay: '0s' }}>
               <span className="stat-val">6 700</span>
               <span className="stat-sep">centres agréés en France</span>
             </div>
             <div className="stat-sep-vert" />
-            <div className="stat-ligne">
+            <div className="stat-ligne" style={{ animationDelay: '0.15s' }}>
               <span className="stat-val">0 €</span>
               <span className="stat-sep">de frais pour le client</span>
             </div>
             <div className="stat-sep-vert" />
-            <div className="stat-ligne">
+            <div className="stat-ligne" style={{ animationDelay: '0.3s' }}>
               <span className="stat-val">2 min</span>
               <span className="stat-sep">pour réserver en ligne</span>
             </div>
