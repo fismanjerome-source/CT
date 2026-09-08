@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { all, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { resoudreCentreActif } from '@/lib/pro';
+import { resoudreCentreActif, estJourFerieNonDebloque } from '@/lib/pro';
 import { jsonError, todayISO } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
 import { centreEstBloque, preparerCalculTauxLot } from '@/lib/facturation';
@@ -64,12 +64,14 @@ export async function POST(request) {
     return jsonError(403, "Ouverture de créneaux bloquée : une commission Créneau CT est en retard de paiement pour ce centre. Régularisez la situation depuis l'onglet « Paiements » ou contactez-nous.");
   }
 
+  const bloqueFerie = await estJourFerieNonDebloque(centreId, date);
+
   try {
     const result = await run(
-      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
-      [centreId, session.controleurId, date, heure, duree_minutes || 30, type_visite === 'contre_visite' ? 'contre_visite' : 'normale', Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
+      `INSERT INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, bloque_raison, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [centreId, session.controleurId, date, heure, duree_minutes || 30, type_visite === 'contre_visite' ? 'contre_visite' : 'normale', bloqueFerie ? 'bloque' : 'disponible', bloqueFerie ? 'ferie' : null, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)]
     );
-    return NextResponse.json({ id: Number(result.lastInsertRowid) }, { status: 201 });
+    return NextResponse.json({ id: Number(result.lastInsertRowid), bloque_ferie: bloqueFerie }, { status: 201 });
   } catch {
     return jsonError(409, 'Un créneau existe déjà à cette date et heure.');
   }

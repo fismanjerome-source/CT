@@ -5,6 +5,7 @@ import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError } from '@/lib/utils';
 import { serializeTypes } from '@/lib/vehicules';
 import { centreEstBloque } from '@/lib/facturation';
+import { listeJoursFeriesPeriode } from '@/lib/joursFeries';
 
 export async function POST(request) {
   const session = await getSession();
@@ -41,6 +42,18 @@ export async function POST(request) {
   const typeVisiteFinal = type_visite === 'contre_visite' ? 'contre_visite' : 'normale';
   const joursAutorises = Array.isArray(jours_semaine) && jours_semaine.length ? jours_semaine : [1, 2, 3, 4, 5, 6];
 
+  // Jours fériés bloqués par défaut : calcul pur (pas de round-trip DB par
+  // date) puis retrait des dates que ce centre a explicitement débloquées.
+  const joursFeriesPeriode = new Set(listeJoursFeriesPeriode(date_debut, date_fin).map((j) => j.date));
+  let datesDebloquees = new Set();
+  if (joursFeriesPeriode.size > 0) {
+    const ignorees = await all(
+      `SELECT date FROM jours_feries_ignores WHERE centre_id = ? AND date BETWEEN ? AND ?`,
+      [centreId, date_debut, date_fin]
+    );
+    datesDebloquees = new Set(ignorees.map((r) => r.date));
+  }
+
   const cursor = new Date(date_debut + 'T00:00:00Z');
   const finDate = new Date(date_fin + 'T00:00:00Z');
 
@@ -52,9 +65,11 @@ export async function POST(request) {
   // écritures (ex : "Appliquer une promotion") pendant tout ce temps.
   const statements = [];
   const datesHeures = [];
+  const estFerieParStatement = [];
   while (cursor <= finDate) {
     if (joursAutorises.includes(cursor.getUTCDay())) {
       const dateStr = cursor.toISOString().slice(0, 10);
+      const estFerie = joursFeriesPeriode.has(dateStr) && !datesDebloquees.has(dateStr);
 
       for (const plage of plages) {
         const [hDebutH, hDebutM] = plage.heure_debut.split(':').map(Number);
@@ -67,10 +82,11 @@ export async function POST(request) {
           const m = String(minutesCursor % 60).padStart(2, '0');
           const heureStr = `${h}:${m}`;
           statements.push({
-            sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, 'disponible', ?, ?, ?)`,
-            args: [centreId, session.controleurId, dateStr, heureStr, duree, typeVisiteFinal, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
+            sql: `INSERT OR IGNORE INTO creneaux (centre_id, controleur_id, date, heure, duree_minutes, type_visite, statut, bloque_raison, prix, promo_pourcentage, types_vehicules) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [centreId, session.controleurId, dateStr, heureStr, duree, typeVisiteFinal, estFerie ? 'bloque' : 'disponible', estFerie ? 'ferie' : null, Number(prix), promo_pourcentage ? Number(promo_pourcentage) : null, serializeTypes(types_vehicules)],
           });
           datesHeures.push(`${dateStr} ${heureStr}`);
+          estFerieParStatement.push(estFerie);
           minutesCursor += intervalle;
         }
       }
@@ -86,9 +102,15 @@ export async function POST(request) {
   }
 
   let created = 0;
+  let bloquesFeries = 0;
   try {
     const resultats = await db.batch(statements, 'write');
-    created = resultats.filter((r) => r.rowsAffected > 0).length;
+    resultats.forEach((r, i) => {
+      if (r.rowsAffected > 0) {
+        created += 1;
+        if (estFerieParStatement[i]) bloquesFeries += 1;
+      }
+    });
   } catch (e) {
     return jsonError(500, "Erreur lors de l'ouverture des créneaux.");
   }
@@ -97,6 +119,9 @@ export async function POST(request) {
   let message;
   if (created > 0) {
     message = `${created} créneau(x) ouvert(s).`;
+    if (bloquesFeries > 0) {
+      message += ` Dont ${bloquesFeries} bloqué(s) automatiquement car jour(s) férié(s) — gérez-les depuis l'onglet « Jours fériés ».`;
+    }
   } else {
     // Un centre ne peut avoir qu'un seul créneau par horaire (visite normale
     // OU contre-visite, jamais les deux en même temps) — la contrainte porte

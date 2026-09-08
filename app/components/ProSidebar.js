@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Logo from './Logo';
 import Horloge from './Horloge';
 import { InstagramIcon, FacebookIcon, LinkedInIcon } from './ContactIcons';
-import { IconTableauBord, IconVoiture, IconInterdit, IconBatiment, IconRecu, IconEngrenage, IconCadenas, IconMessage, IconBalance, IconPersonnes } from './UISvgIcons';
+import { IconTableauBord, IconVoiture, IconInterdit, IconBatiment, IconRecu, IconEngrenage, IconCadenas, IconMessage, IconBalance, IconPersonnes, IconCalendrier } from './UISvgIcons';
 
 function IconMenuBurger() {
   return (
@@ -83,6 +83,7 @@ export default function ProSidebar({
           <Link href={hrefDashboard} className={pathname === '/pro/dashboard' ? 'active' : ''}><IconTableauBord /> Tableau de bord</Link>
           <Link href={centreId ? `/pro/clients?centre=${centreId}` : '/pro/clients'} className={pathname.startsWith('/pro/clients') ? 'active' : ''}><IconVoiture /> Mes RDV clients</Link>
           <Link href={centreId ? `/pro/absences?centre=${centreId}` : '/pro/absences'} className={pathname.startsWith('/pro/absences') ? 'active' : ''}><IconInterdit /> Client absent</Link>
+          <Link href={centreId ? `/pro/jours-feries?centre=${centreId}` : '/pro/jours-feries'} className={pathname.startsWith('/pro/jours-feries') ? 'active' : ''}><IconCalendrier /> Jours fériés</Link>
           <Link href={centreId ? `/pro/centres?centre=${centreId}` : '/pro/centres'} className={pathname.startsWith('/pro/centres') ? 'active' : ''}><IconBatiment /> Mes centres</Link>
           <Link href={hrefFactures} className={pathname.startsWith('/pro/factures') ? 'active' : ''}><IconRecu /> Mes factures</Link>
           <Link href={centreId ? `/pro/parametres?centre=${centreId}` : '/pro/parametres'} className={pathname.startsWith('/pro/parametres') ? 'active' : ''}><IconEngrenage /> Paramètres</Link>
