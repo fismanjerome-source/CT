@@ -1,23 +1,29 @@
-import { Outfit, DM_Sans, Fira_Code } from 'next/font/google';
+import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import Script from 'next/script';
 import { SiteProvider } from './components/SiteContext';
 import './globals.css';
 
-const outfit = Outfit({
+// Fraunces (titres) + IBM Plex Sans (texte) + IBM Plex Mono (données) :
+// remplace Outfit/DM Sans/Fira Code, des choix "sûrs" très répandus dans les
+// designs génériques — Fraunces apporte un vrai caractère éditorial en
+// display, IBM Plex a été dessinée par IBM spécifiquement pour un usage
+// technique/logiciel, cohérent avec l'identité "instrument de contrôle" du
+// site plutôt qu'une sans-serif géométrique interchangeable.
+const fraunces = Fraunces({
   subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
+  weight: ['600', '700', '800', '900'],
   variable: '--font-display',
   display: 'swap',
 });
 
-const dmSans = DM_Sans({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-body',
   display: 'swap',
 });
 
-const firaCode = Fira_Code({
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
   variable: '--font-mono',
@@ -67,7 +73,7 @@ export const viewport = {
 // son propre layout — voir middleware.js pour la réécriture d'URL.
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" className={`${outfit.variable} ${dmSans.variable} ${firaCode.variable}`}>
+    <html lang="fr" className={`${fraunces.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{

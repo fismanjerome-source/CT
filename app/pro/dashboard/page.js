@@ -7,6 +7,7 @@ import ProSidebar from '../../components/ProSidebar';
 import { IconeVehicule } from '../../components/VehiculeIcons';
 import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit } from '../../components/UISvgIcons';
 import { SquelletteLigne, SquelletteCarte, SquelletteTableau } from '../../components/Squelette';
+import ChevronIcon from '../../components/ChevronIcon';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
 
@@ -580,7 +581,7 @@ function DashboardPageInner() {
       const estContreVisite = singleForm.type_visite === 'contre_visite';
       const prix = estContreVisite ? singleForm.prix_contre_visite : singleForm.prix_normale;
       const promo = estContreVisite ? singleForm.promo_pourcentage_contre_visite : singleForm.promo_pourcentage_normale;
-      await api('/api/pro/creneaux', {
+      const data = await api('/api/pro/creneaux', {
         method: 'POST',
         body: JSON.stringify({
           date: singleForm.date,
@@ -594,7 +595,9 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: 'Créneau ajouté.' });
-      setSingleResultat({ type: 'success', text: `✅ Créneau du ${singleForm.date} à ${singleForm.heure} ajouté (${estContreVisite ? 'contre-visite' : 'visite normale'}).` });
+      setSingleResultat(data.bloque_ferie
+        ? { type: 'success', text: `Créneau du ${singleForm.date} à ${singleForm.heure} ajouté, mais affiché « Bloqué » : cette date est un jour férié. Débloquez-la depuis l'onglet « Jours fériés » si votre centre y travaille.` }
+        : { type: 'success', text: `✅ Créneau du ${singleForm.date} à ${singleForm.heure} ajouté (${estContreVisite ? 'contre-visite' : 'visite normale'}).` });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
@@ -787,7 +790,7 @@ function DashboardPageInner() {
                 Forfait de <strong style={{ color: 'var(--color-accent)' }}>30 € TTC/mois</strong>, facturé comme votre commission.
               </p>
               <Link href={`/pro/premium?centre=${centre.id}`} style={{ display: 'inline-block', marginTop: 8 }}>
-                Voir le détail ou arrêter l'abonnement →
+                Voir le détail ou arrêter l'abonnement
               </Link>
             </div>
           ) : (
@@ -795,10 +798,10 @@ function DashboardPageInner() {
               <strong>★ Passez ce centre en Premium</strong>
               <p className="help-text" style={{ margin: '4px 0 0' }}>
                 Pour <strong style={{ color: 'var(--color-accent)' }}>30 € TTC/mois</strong>, {centre.nom} apparaît en tête des résultats de recherche avec un icône doré
-                visible — plus de visibilité, plus de réservations.
+                visible, pour plus de visibilité et plus de réservations.
               </p>
               <Link href={`/pro/premium?centre=${centre.id}`} style={{ display: 'inline-block', marginTop: 8 }}>
-                Voir les détails et demander l'activation →
+                Voir les détails et demander l'activation
               </Link>
             </div>
           )}
@@ -1466,15 +1469,15 @@ function DashboardPageInner() {
           <div className="card-header"><h2 style={{ margin: 0 }}>Mon planning</h2></div>
 
           <div className="semaine-pagination">
-            <button type="button" className="btn-secondary" onClick={() => setSemaineOffset((s) => Math.max(0, s - 1))} disabled={semaineOffset === 0}>
-              ← Précédente
+            <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => Math.max(0, s - 1))} disabled={semaineOffset === 0}>
+              <ChevronIcon direction="left" /> Précédente
             </button>
             <span className="semaine-label">
               Semaine du {new Date(todayISO(semaineOffset * 7) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               {' '}au {new Date(todayISO(semaineOffset * 7 + 6) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
             </span>
-            <button type="button" className="btn-secondary" onClick={() => setSemaineOffset((s) => s + 1)}>
-              Suivante →
+            <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => s + 1)}>
+              Suivante <ChevronIcon direction="right" />
             </button>
           </div>
           <div className="semaine-numeros">
@@ -1553,7 +1556,7 @@ function DashboardPageInner() {
                         return `${(prixEffectif - c.commission_montant_estime).toFixed(2)} €`;
                       })()}
                     </td>
-                    <td>{c.client_nom ? `${c.client_nom} — ${c.immatriculation}` : '—'}</td>
+                    <td>{c.client_nom ? `${c.client_nom} · ${c.immatriculation}` : '—'}</td>
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 110 }}>
                         {c.statut === 'disponible' && (

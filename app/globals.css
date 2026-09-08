@@ -881,6 +881,7 @@ button:hover, .btn:hover {
   color: var(--color-primary);
 }
 .btn-secondary:hover { background: #EAF0EA; box-shadow: none; }
+.pagination-btn { display: inline-flex; align-items: center; gap: 6px; }
 .btn-danger {
   background: transparent;
   border-color: var(--color-danger);
@@ -1443,7 +1444,31 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg);
+  background: var(--color-primary);
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+.login-shell .login-card { position: relative; z-index: 1; }
+.login-footer-liens {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+.login-liens-secondaires {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 0.82rem;
+}
+.login-liens-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--color-border);
 }
 .login-card {
   background: #fff;
@@ -1477,16 +1502,32 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .table-scroll table { min-width: 640px; }
-th { text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); padding: 8px 10px; border-bottom: 2px solid var(--color-border); }
-td { padding: 10px 10px; border-bottom: 1px solid var(--color-border); }
-td.mono, .mono { font-family: var(--font-mono); }
+th { text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); padding: 12px 14px; border-bottom: 2px solid var(--color-border); }
+td { padding: 14px; border-bottom: 1px solid var(--color-border); }
+tbody tr { transition: background-color 0.12s ease; }
+tbody tr:hover { background: var(--color-bg); }
+td.mono, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+/* Puce de statut + pilule : lecture "chip" plus vive qu'un simple fond de
+   couleur uni, comme les badges de statut des outils modernes (Linear,
+   Notion...) plutôt qu'un badge plat générique. */
 .badge {
-  display: inline-block;
-  padding: 2px 9px;
-  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: var(--radius-pill);
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
 }
 .badge.disponible { background: var(--color-success-bg); color: var(--color-success); }
 .badge.reserve { background: #FFF3DC; color: #8A6416; }

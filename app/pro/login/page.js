@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Logo from '../../components/Logo';
+import HeroGauge from '../../components/HeroGauge';
 
 export default function ProLoginPage() {
   const router = useRouter();
@@ -61,6 +62,7 @@ export default function ProLoginPage() {
 
   return (
     <div className="login-shell">
+      <HeroGauge />
       <div className="login-card">
         <div className="brand" style={{ color: 'var(--color-primary)', marginBottom: 24 }}>
           <Logo size={40} />
@@ -73,7 +75,7 @@ export default function ProLoginPage() {
               Connectez-vous pour gérer vos créneaux et consulter vos rendez-vous.
             </p>
             <p className="help-text" style={{ marginBottom: 20 }}>
-              📱 Accessible depuis votre ordinateur, smartphone ou tablette — rien à installer.
+              📱 Accessible depuis votre ordinateur, smartphone ou tablette, sans rien à installer.
             </p>
           </>
         )}
@@ -113,17 +115,22 @@ export default function ProLoginPage() {
               {envoi ? 'Vérification…' : 'Valider'}
             </button>
             <button type="button" className="btn-secondary" style={{ width: '100%', marginTop: 8 }} onClick={() => { setEtape('identifiants'); setCode(''); setErreur(null); }}>
-              ← Retour
+              Retour
             </button>
           </form>
         )}
 
         {etape === 'identifiants' && (
-          <>
-            <p className="help-text" style={{ marginTop: 20 }}>Pas encore de compte ? <Link href="/pro/register">Créez votre compte centre</Link></p>
-            <p className="help-text"><Link href="/pro/mot-de-passe-oublie">Mot de passe oublié ?</Link></p>
-            <p className="help-text"><Link href="/">← Retour au site public</Link></p>
-          </>
+          <div className="login-footer-liens">
+            <p style={{ margin: '0 0 12px' }}>
+              Pas encore de compte ? <Link href="/pro/register"><strong>Créez votre compte centre</strong></Link>
+            </p>
+            <div className="login-liens-secondaires">
+              <Link href="/pro/mot-de-passe-oublie">Mot de passe oublié ?</Link>
+              <span className="login-liens-sep" />
+              <Link href="/">Retour au site public</Link>
+            </div>
+          </div>
         )}
       </div>
     </div>

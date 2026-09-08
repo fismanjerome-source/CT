@@ -144,7 +144,7 @@ export default function ProRegisterPage() {
         <p className="help-text" style={{ marginTop: 20 }}>
           Déjà un compte ? <Link href="/pro/login">Connectez-vous</Link>
         </p>
-        <p className="help-text"><Link href="/">← Retour au site public</Link></p>
+        <p className="help-text"><Link href="/">Retour au site public</Link></p>
       </div>
     </div>
   );

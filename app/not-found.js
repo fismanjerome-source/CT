@@ -16,7 +16,7 @@ export default function NotFound() {
           Cette page n'existe pas, ou a peut-être été déplacée.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/" className="btn">← Retour à l'accueil</Link>
+          <Link href="/" className="btn">Retour à l'accueil</Link>
           <Link href="/suivi" className="btn-secondary">Suivre un RDV</Link>
         </div>
       </section>

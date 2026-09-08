@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
               {envoi ? 'Vérification…' : 'Valider'}
             </button>
             <button type="button" className="btn-secondary" style={{ width: '100%', marginTop: 8 }} onClick={() => { setEtape('identifiants'); setCode(''); setErreur(null); }}>
-              ← Retour
+              Retour
             </button>
           </form>
         )}

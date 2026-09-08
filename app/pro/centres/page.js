@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
+import ChevronIcon from '../../components/ChevronIcon';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -77,7 +78,7 @@ function MesCentresPageInner() {
                   <strong>{c.nom}</strong>
                   <div className="help-text">{c.adresse}, {c.code_postal} {c.ville}</div>
                 </div>
-                <span className="help-text">Gérer →</span>
+                <span className="help-text" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>Gérer <ChevronIcon direction="right" size={12} /></span>
               </Link>
             ))}
           </div>

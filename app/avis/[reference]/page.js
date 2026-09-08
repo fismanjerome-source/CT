@@ -97,7 +97,7 @@ export default function AvisPage({ params }) {
         )}
 
         <p className="help-text" style={{ marginTop: 24 }}>
-          <Link href="/">← Retour à l'accueil</Link>
+          <Link href="/">Retour à l'accueil</Link>
         </p>
       </section>
       <Footer />

@@ -63,7 +63,7 @@ export default function MotDePasseOubliePage() {
           </>
         )}
 
-        <p className="help-text" style={{ marginTop: 20 }}><Link href="/pro/login">← Retour à la connexion</Link></p>
+        <p className="help-text" style={{ marginTop: 20 }}><Link href="/pro/login">Retour à la connexion</Link></p>
       </div>
     </div>
   );

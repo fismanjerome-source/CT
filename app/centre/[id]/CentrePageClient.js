@@ -139,7 +139,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
     return (
       <div className="container" style={{ padding: 40 }}>
         <div className="message-banner error">Impossible de charger ce centre.</div>
-        <Link href="/" className="back-link">← Retour à la recherche</Link>
+        <Link href="/" className="back-link">Retour à la recherche</Link>
       </div>
     );
   }
@@ -152,7 +152,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
 
       <section className="centre-header">
         <div className="container">
-          <Link href="/" className="back-link">← Retour à la recherche</Link>
+          <Link href="/" className="back-link">Retour à la recherche</Link>
           {centre ? (
             <>
               {!!centre.a_une_image && (
@@ -511,7 +511,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
 
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={() => { setEtape('formulaire'); setCguAcceptees(false); }} disabled={envoi}>
-              ← Modifier
+              Modifier
             </button>
             <button type="button" onClick={handleConfirmerDefinitivement} disabled={envoi || !cguAcceptees}>
               {envoi ? 'Réservation en cours…' : 'Confirmer définitivement'}

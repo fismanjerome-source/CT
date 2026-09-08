@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import ProSidebar from '../../components/ProSidebar';
+import ChevronIcon from '../../components/ChevronIcon';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 function todayISO(offset = 0) {
@@ -104,14 +105,14 @@ function AbsencesPageInner() {
         {message && <div className={`message-banner ${message.type}`} style={{ marginTop: 16 }}>{message.text}</div>}
 
         <div className="semaine-pagination">
-          <button type="button" className="btn-secondary" onClick={() => setSemaineOffset((s) => Math.max(0, s - 1))} disabled={semaineOffset === 0}>
-            ← Précédente
+          <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => Math.max(0, s - 1))} disabled={semaineOffset === 0}>
+            <ChevronIcon direction="left" /> Précédente
           </button>
           <span className="semaine-label">
             Semaine du {formatDate(todayISO(semaineOffset * 7))} au {formatDate(todayISO(semaineOffset * 7 + 6))}
           </span>
-          <button type="button" className="btn-secondary" onClick={() => setSemaineOffset((s) => s + 1)}>
-            Suivante →
+          <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => s + 1)}>
+            Suivante <ChevronIcon direction="right" />
           </button>
         </div>
 
