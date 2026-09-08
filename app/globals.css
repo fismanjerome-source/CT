@@ -429,7 +429,7 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   font-size: 0.82rem;
   text-decoration: none;
   border: 1.5px solid var(--color-primary);
-  border-radius: 20px;
+  border-radius: 3px 14px 14px 3px;
   padding: 4px 12px;
 }
 .bandeau-pro-lien:hover { background: var(--color-primary); color: #fff; }
@@ -631,7 +631,7 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   align-items: center;
   gap: var(--space-2);
   padding: 8px 14px;
-  border-radius: 20px;
+  border-radius: 3px 14px 14px 3px;
   border: 1.5px solid var(--color-primary);
   color: var(--color-primary);
   font-weight: 600;
@@ -850,12 +850,15 @@ input:focus, select:focus, textarea:focus, button:focus, a:focus {
   box-shadow: 0 0 0 3px rgba(46, 80, 119, 0.12);
 }
 
+/* Coin gauche net / droit arrondi : même signature que les cartes
+   (search-box, centre-card...) au lieu de la pilule intégrale
+   (border-radius: 100px) utilisée jusqu'ici sur tous les boutons du site. */
 button, .btn {
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.95rem;
   padding: 10px 22px;
-  border-radius: var(--radius-pill);
+  border-radius: 3px 12px 12px 3px;
   border: 1.5px solid var(--color-primary);
   background: var(--color-primary);
   color: #fff;
@@ -882,7 +885,6 @@ button:hover, .btn:hover {
   background: transparent;
   border-color: var(--color-danger);
   color: var(--color-danger);
-  border-radius: var(--radius-pill);
 }
 .btn-danger:hover { background: var(--color-danger-bg); box-shadow: none; }
 button:active, .btn:active { transform: scale(0.97); }
@@ -935,7 +937,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   font-weight: 600;
   text-decoration: none;
   border: 1px solid var(--color-primary);
-  border-radius: 20px;
+  border-radius: 3px 14px 14px 3px;
   padding: 5px 14px;
   margin-top: 2px;
 }
@@ -1084,7 +1086,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   font-size: 0.85rem;
   font-weight: 600;
   padding: 9px 16px 9px 12px;
-  border-radius: 20px;
+  border-radius: 3px 12px 12px 3px;
   border: 1.5px solid;
   background: #fff;
   cursor: pointer;
@@ -1206,7 +1208,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 }
 .modal {
   background: #fff;
-  border-radius: var(--radius);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 3px var(--radius) var(--radius) 3px;
   padding: 28px;
   max-width: 460px;
   width: 100%;
@@ -1445,7 +1448,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .login-card {
   background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 3px var(--radius) var(--radius) 3px;
   box-shadow: var(--shadow);
   padding: 36px;
   width: 100%;
@@ -1455,7 +1459,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .card {
   background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 3px var(--radius-lg) var(--radius-lg) 3px;
   padding: 22px 24px;
   margin-bottom: 20px;
   box-shadow: 0 1px 4px rgba(27, 58, 92, 0.05);
@@ -1608,7 +1613,11 @@ td.mono, .mono { font-family: var(--font-mono); }
 .stats-public-accroche strong { color: var(--color-text); }
 .stats-public-chiffres {
   display: flex;
-  align-items: flex-start;
+  /* baseline (pas flex-start) : le "0 €" est volontairement plus grand que
+     les deux autres valeurs — flex-start alignait leurs sommets et donc
+     décalait les libellés en dessous ; baseline aligne le bas des chiffres
+     et garde les libellés sur une même ligne quelle que soit leur taille. */
+  align-items: baseline;
   gap: 40px;
   flex-wrap: wrap;
   row-gap: 24px;
@@ -1891,6 +1900,53 @@ td.mono, .mono { font-family: var(--font-mono); }
 .legal-content li { margin-bottom: 6px; }
 .legal-content strong { color: var(--color-text); }
 .legal-content a { color: var(--color-primary); }
+
+/* ---------- FAQ (accordéon natif <details>, zéro JS) ---------- */
+.faq-liste {
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faq-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 3px var(--radius-lg) var(--radius-lg) 3px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+.faq-item[open] { border-color: var(--color-accent); }
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question:hover { color: var(--color-primary); }
+.faq-chevron {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  transition: transform 0.2s ease;
+}
+.faq-item[open] .faq-chevron { transform: rotate(180deg); }
+.faq-reponse {
+  padding: 0 20px 20px;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron { transition: none; }
+}
 
 .guide-card {
   background: var(--color-surface);

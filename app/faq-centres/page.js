@@ -88,15 +88,22 @@ export default function FAQCentresPage() {
         </div>
       </section>
 
-      <section className="container legal-content" style={{ padding: '32px 24px 64px' }}>
-        {questions.map((item) => (
-          <div key={item.q} style={{ marginBottom: 28 }}>
-            <h2>{item.q}</h2>
-            <p>{item.r}</p>
-          </div>
-        ))}
+      <section className="container" style={{ padding: '32px 24px 64px' }}>
+        <div className="faq-liste">
+          {questions.map((item) => (
+            <details key={item.q} className="faq-item">
+              <summary className="faq-question">
+                <span>{item.q}</span>
+                <svg className="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </summary>
+              <p className="faq-reponse">{item.r}</p>
+            </details>
+          ))}
+        </div>
 
-        <div className="empty-state" style={{ marginTop: 20 }}>
+        <div className="empty-state" style={{ marginTop: 20, maxWidth: 760 }}>
           Une autre question ? <Link href="/contact">Contactez-nous</Link>, nous répondons rapidement.
         </div>
       </section>
