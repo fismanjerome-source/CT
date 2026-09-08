@@ -1680,8 +1680,12 @@ td.mono, .mono { font-family: var(--font-mono); }
   opacity: 0.65;
 }
 @media (max-width: 520px) {
-  .stats-public-chiffres { flex-direction: column; gap: 0; }
-  .stat-ligne { padding-bottom: 14px; border-bottom: 1px solid var(--color-border); }
+  /* gap: 0 collait les trois blocs les uns aux autres (14px de padding +
+     une bordure fine ne suffisent pas comme séparation visuelle) — d'où
+     l'effet tassé/désaligné signalé sur mobile. Un vrai espacement vertical
+     avant chaque bloc, en plus du padding/bordure existants. */
+  .stats-public-chiffres { flex-direction: column; gap: 20px; }
+  .stat-ligne { padding-bottom: 16px; border-bottom: 1px solid var(--color-border); }
   .stat-ligne:last-child { border-bottom: none; padding-bottom: 0; }
 }
 
