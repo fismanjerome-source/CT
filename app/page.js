@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import HeroGauge from './components/HeroGauge';
 import { IconeVehicule } from './components/VehiculeIcons';
 import { TYPES_VEHICULES, parseTypes, typesParSite } from '@/lib/vehicules';
 import { useSite } from './components/SiteContext';
@@ -164,6 +165,7 @@ export default function HomePage() {
       <Header />
 
       <section className="hero">
+        <HeroGauge />
         <div className="container">
           {site === 'pl' ? (
             <>
@@ -430,16 +432,17 @@ export default function HomePage() {
             <div className="stat-ligne" style={{ animationDelay: '0s' }}>
               <span className="stat-val">6 700</span>
               <span className="stat-sep">centres agréés en France</span>
+              <span className="stat-graduation" />
             </div>
-            <div className="stat-sep-vert" />
             <div className="stat-ligne" style={{ animationDelay: '0.15s' }}>
-              <span className="stat-val">0 €</span>
+              <span className="stat-val stat-val--emphase">0 €</span>
               <span className="stat-sep">de frais pour le client</span>
+              <span className="stat-graduation" />
             </div>
-            <div className="stat-sep-vert" />
             <div className="stat-ligne" style={{ animationDelay: '0.3s' }}>
               <span className="stat-val">2 min</span>
               <span className="stat-sep">pour réserver en ligne</span>
+              <span className="stat-graduation" />
             </div>
           </div>
         </div>

@@ -460,22 +460,31 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
 .hero {
   padding: 64px 0 52px;
   background: var(--color-primary);
-  background-image:
-    radial-gradient(circle at 72% 60%, rgba(217, 166, 46, 0.10) 0%, transparent 55%),
-    radial-gradient(circle at 18% 30%, rgba(255,255,255,0.04) 0%, transparent 45%);
   border-bottom: none;
   position: relative;
   overflow: hidden;
 }
-.hero::before {
-  content: '';
+/* Motif du cadran (HeroGauge.js) : un demi-cadran à graduations, asymétrique,
+   qui saigne sur le bord droit — remplace les flous radiaux circulaires et
+   le quadrillage de points, le duo le plus reconnaissable des fonds de hero
+   "générés par une IA". */
+.hero-gauge {
   position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 48px 48px;
+  top: 50%;
+  right: -40px;
+  transform: translateY(-50%);
+  width: 260px;
+  height: 520px;
+  color: var(--color-accent);
   pointer-events: none;
+  z-index: 0;
+}
+.hero .container { position: relative; z-index: 1; }
+@media (max-width: 900px) {
+  .hero-gauge { width: 180px; height: 360px; right: -50px; }
+}
+@media (max-width: 560px) {
+  .hero-gauge { display: none; }
 }
 .hero h1 {
   color: #fff;
@@ -599,7 +608,8 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   padding: 14px 18px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 3px var(--radius) var(--radius) 3px;
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -691,11 +701,16 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
 }
 
 /* ---------- Formulaire de recherche ---------- */
+/* Silhouette "panneau" plutôt que carte SaaS uniforme : coins gauches nets,
+   droits arrondis, plus un liseré doré en haut — signature partagée par
+   .search-box / .contact-humain / .centre-card au lieu d'un même
+   border-radius+ombre identique sur toute surface du site. */
 .search-box {
   background: rgba(255,255,255,0.97);
   border: none;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 24px rgba(27, 58, 92, 0.18), 0 1px 4px rgba(27, 58, 92, 0.10);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 3px var(--radius-lg) var(--radius-lg) 3px;
+  box-shadow: 0 3px 16px rgba(27, 58, 92, 0.14), 0 1px 3px rgba(27, 58, 92, 0.08);
   padding: 20px 20px 16px;
   margin-top: 32px;
   max-width: 680px;
@@ -885,7 +900,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .centre-card {
   background: var(--color-surface);
   border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 3px var(--radius-lg) var(--radius-lg) 3px;
   padding: 20px 22px;
   margin-bottom: 14px;
   display: flex;
@@ -904,7 +920,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .centre-card-image {
   width: 72px;
   height: 72px;
-  border-radius: var(--radius);
+  border-radius: 2px 10px 10px 2px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -1237,6 +1253,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 /* ---------- Encart pro (page d'accueil) ---------- */
 .pro-cta {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-top: 3px solid var(--color-accent);
   padding: 40px 0;
 }
 .pro-cta-inner {
@@ -1591,20 +1608,18 @@ td.mono, .mono { font-family: var(--font-mono); }
 .stats-public-accroche strong { color: var(--color-text); }
 .stats-public-chiffres {
   display: flex;
-  align-items: center;
-  gap: 0;
+  align-items: flex-start;
+  gap: 40px;
   flex-wrap: wrap;
-  row-gap: 16px;
+  row-gap: 24px;
 }
 .stat-ligne {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: 0 32px 0 0;
   opacity: 0;
   transform: translate(-20px, 8px);
 }
-.stat-ligne:first-child { padding-left: 0; }
 /* Apparition déclenchée au scroll (IntersectionObserver dans page.js) plutôt
    qu'au chargement : cette section est loin sous le pli, une animation au
    chargement serait déjà terminée bien avant que l'utilisateur ne la voie. */
@@ -1618,30 +1633,47 @@ td.mono, .mono { font-family: var(--font-mono); }
 @media (prefers-reduced-motion: reduce) {
   .stat-ligne { animation: none; opacity: 1; transform: none; }
 }
+/* Chiffres en police mono à chasse fixe : lecture "instrument de mesure"
+   plutôt que titre éditorial — et hiérarchie assumée (le stat du milieu,
+   l'argument commercial le plus fort, est volontairement plus grand) au
+   lieu de trois blocs strictement identiques. */
 .stat-val {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.8rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.7rem;
   color: var(--color-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   line-height: 1;
+}
+.stat-val--emphase {
+  font-size: 2.4rem;
+  color: var(--color-highlight);
 }
 .stat-sep {
   font-size: 0.82rem;
   color: var(--color-text-muted);
 }
-.stat-sep-vert {
-  width: 1px;
-  height: 40px;
-  background: var(--color-border);
-  margin-right: 32px;
-  flex-shrink: 0;
+/* Graduations dorées sous chaque valeur — écho du motif du cadran (voir
+   HeroGauge.js) à la place d'un simple trait vertical entre les chiffres. */
+.stat-graduation {
+  display: block;
+  width: 44px;
+  height: 4px;
+  margin-top: 4px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--color-accent) 0,
+    var(--color-accent) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+  opacity: 0.65;
 }
 @media (max-width: 520px) {
-  .stat-sep-vert { display: none; }
-  .stat-ligne { padding: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 14px; }
-  .stat-ligne:last-child { border-bottom: none; }
   .stats-public-chiffres { flex-direction: column; gap: 0; }
+  .stat-ligne { padding-bottom: 14px; border-bottom: 1px solid var(--color-border); }
+  .stat-ligne:last-child { border-bottom: none; padding-bottom: 0; }
 }
 
 .paiements-banner {
