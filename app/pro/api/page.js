@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import ProSidebar from '../../components/ProSidebar';
 
 function ApiPageInner() {
@@ -70,7 +71,7 @@ function ApiPageInner() {
         <p className="help-text">
           Connectez votre propre logiciel de planning à Créneau CT — récupérez vos créneaux et vos rendez-vous par
           programmation, en lecture seule. Réservé aux centres à l'aise avec ce genre d'intégration technique ;
-          pour un usage simple, la synchronisation d'agenda depuis le tableau de bord suffit généralement.
+          pour un usage simple, la synchronisation d'agenda depuis Configuration du centre suffit généralement.
         </p>
 
         {erreur && <div className="message-banner error" style={{ marginTop: 16 }}>{erreur}</div>}
@@ -134,12 +135,16 @@ function ApiPageInner() {
         </section>
 
         <section className="card" style={{ marginTop: 20, maxWidth: 560 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>Export iCal — abonnement d'agenda</h2></div>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Voir mes RDV Créneau CT dans mon agenda</h2></div>
           <p className="help-text">
             Une alternative plus simple à l'API technique ci-dessus : si votre logiciel de planning propose une
             fonction « S'abonner à un agenda externe » (très courant, y compris sur Google Calendar ou Outlook),
             collez-y ce lien — vos rendez-vous à venir apparaîtront automatiquement, mis à jour tout seul, sans
             aucun développement de votre côté.
+          </p>
+          <p className="help-text">
+            Vous cherchez plutôt à bloquer vos créneaux Créneau CT selon votre propre agenda ? C'est l'inverse,
+            disponible dans <Link href={centreParam ? `/pro/configuration?centre=${centreParam}#agenda` : '/pro/configuration#agenda'}>Configuration du centre</Link>.
           </p>
           {!cles ? (
             <p className="help-text">Chargement…</p>

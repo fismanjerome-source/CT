@@ -1506,7 +1506,7 @@ th { text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: upp
 td { padding: 14px; border-bottom: 1px solid var(--color-border); }
 tbody tr { transition: background-color 0.12s ease; }
 tbody tr:hover { background: var(--color-bg); }
-td.mono, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+td.mono, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* Puce de statut + pilule : lecture "chip" plus vive qu'un simple fond de
    couleur uni, comme les badges de statut des outils modernes (Linear,
    Notion...) plutôt qu'un badge plat générique. */
@@ -1783,6 +1783,19 @@ td.mono, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nu
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--color-primary);
+}
+.planning-aller-a-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+.planning-aller-a-date input {
+  padding: 7px 10px;
+  font-size: 0.85rem;
 }
 .semaine-numeros {
   display: flex;

@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ProSidebar from '../../components/ProSidebar';
 import { IconeVehicule } from '../../components/VehiculeIcons';
-import { IconImage, IconCalendrier, IconVoiture, IconCalendrierPlus, IconTableauBord, IconCoche, IconInterdit } from '../../components/UISvgIcons';
 import { SquelletteLigne, SquelletteCarte, SquelletteTableau } from '../../components/Squelette';
 import ChevronIcon from '../../components/ChevronIcon';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
@@ -50,7 +49,7 @@ function calculerPlages(creneaux) {
 }
 
 // Regroupe par jour puis par type de visite, pour le résumé "Horaires déjà
-// ouverts" au-dessus de "Combler des horaires vides".
+// ouverts" au-dessus des actions groupées.
 function regrouperHorairesOuverts(creneaux) {
   const parJour = {};
   for (const c of creneaux) {
@@ -73,6 +72,17 @@ async function api(path, options = {}) {
     throw err;
   }
   return data;
+}
+
+// Chevron d'accordéon, même marquage que .faq-item (voir globals.css) : la
+// rotation vient de la règle CSS `.faq-item[open] .faq-chevron`, purement
+// déclarative, aucune logique React nécessaire.
+function ChevronAccordeon() {
+  return (
+    <svg className="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
 function DashboardPageInner() {
@@ -132,14 +142,7 @@ function DashboardPageInner() {
   const [centreForm, setCentreForm] = useState(null);
   const [centreEnvoi, setCentreEnvoi] = useState(false);
   const [centreErreur, setCentreErreur] = useState(null);
-  const [icalUrl, setIcalUrl] = useState('');
-  const [agendaEnvoi, setAgendaEnvoi] = useState(false);
-  const [agendaMessage, setAgendaMessage] = useState(null);
-  const [typesVehiculesEnvoi, setTypesVehiculesEnvoi] = useState(false);
   const [semaineOffset, setSemaineOffset] = useState(0);
-  const [imagePreview, setImagePreview] = useState(null); // { data, mime } en attente d'enregistrement
-  const [imageEnvoi, setImageEnvoi] = useState(false);
-  const [imageErreur, setImageErreur] = useState(null);
 
   const chargerPlanning = useCallback(async () => {
     if (!centre) return;
@@ -211,7 +214,6 @@ function DashboardPageInner() {
         setCentre(centre);
         setMesCentres(mesCentres || []);
         setTypesVehiculesCentre(parseTypes(centre.types_vehicules_acceptes));
-        setIcalUrl(centre.ical_url || '');
       } catch (e) {
         router.push('/pro/login');
       }
@@ -227,108 +229,6 @@ function DashboardPageInner() {
       api(`/api/pro/promotion-active?centre=${centre.id}`).then((d) => setPromotionActive(d.promotion)).catch(() => {});
     }
   }, [centre, chargerPlanning, chargerRdvs]);
-
-  function toggleTypeVehiculeCentre(value) {
-    setTypesVehiculesCentre((prev) => {
-      // "Voiture sans permis" appartient à la même catégorie réglementaire (L)
-      // que la moto — un centre qui ne fait pas de moto ne peut pas non plus
-      // faire de voiture sans permis.
-      if (value === 'sans_permis' && !prev.includes('moto')) return prev;
-      if (value === 'moto' && prev.includes('moto')) {
-        return prev.filter((v) => v !== 'moto' && v !== 'sans_permis');
-      }
-      return prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value];
-    });
-  }
-
-  function redimensionnerImage(fichier, dimensionMax = 1200, qualite = 0.82) {
-    return new Promise((resolve, reject) => {
-      const lecteur = new FileReader();
-      lecteur.onload = (e) => {
-        const img = new window.Image();
-        img.onload = () => {
-          let { width, height } = img;
-          if (width > height && width > dimensionMax) {
-            height = Math.round((height * dimensionMax) / width);
-            width = dimensionMax;
-          } else if (height > dimensionMax) {
-            width = Math.round((width * dimensionMax) / height);
-            height = dimensionMax;
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', qualite));
-        };
-        img.onerror = () => reject(new Error("Impossible de lire cette image."));
-        img.src = e.target.result;
-      };
-      lecteur.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
-      lecteur.readAsDataURL(fichier);
-    });
-  }
-
-  async function handleImageChange(e) {
-    const fichier = e.target.files?.[0];
-    if (!fichier) return;
-    setImageErreur(null);
-
-    if (!fichier.type.startsWith('image/')) {
-      setImageErreur('Merci de choisir un fichier image (JPG, PNG, WebP...).');
-      return;
-    }
-
-    try {
-      // Redimensionnée et compressée automatiquement — n'importe quelle
-      // photo (même une photo brute de téléphone) est acceptée, le fichier
-      // final envoyé au serveur reste toujours léger.
-      const dataUrl = await redimensionnerImage(fichier);
-      const [entete, donnees] = dataUrl.split(',');
-      const mime = entete.match(/data:(.*);base64/)?.[1] || 'image/jpeg';
-      setImagePreview({ data: donnees, mime, apercu: dataUrl });
-    } catch {
-      setImageErreur("Impossible de traiter cette image. Essayez-en une autre.");
-    }
-  }
-
-  async function handleSaveImage() {
-    if (!imagePreview) return;
-    setImageEnvoi(true);
-    setImageErreur(null);
-    try {
-      await api('/api/pro/centre', {
-        method: 'PATCH',
-        body: JSON.stringify({ image_data: imagePreview.data, image_mime: imagePreview.mime, centre_id: centre.id }),
-      });
-      setMessage({ type: 'success', text: 'Image du centre mise à jour.' });
-      setImagePreview(null);
-      const { centre: centreMisAJour } = await api(`/api/pro/me?centre=${centre.id}`);
-      setCentre(centreMisAJour);
-    } catch (e) {
-      setImageErreur(e.message);
-    } finally {
-      setImageEnvoi(false);
-    }
-  }
-
-  async function handleRemoveImage() {
-    setImageEnvoi(true);
-    try {
-      await api('/api/pro/centre', {
-        method: 'PATCH',
-        body: JSON.stringify({ image_data: null, image_mime: null, centre_id: centre.id }),
-      });
-      setMessage({ type: 'success', text: 'Image retirée.' });
-      setImagePreview(null);
-      const { centre: centreMisAJour } = await api(`/api/pro/me?centre=${centre.id}`);
-      setCentre(centreMisAJour);
-    } catch (e) {
-      setImageErreur(e.message);
-    } finally {
-      setImageEnvoi(false);
-    }
-  }
 
   function ouvrirReservationManuelle(creneau) {
     setCreneauReservation(creneau);
@@ -372,39 +272,6 @@ function DashboardPageInner() {
     }
   }
 
-  async function handleSaveAgenda() {
-    setAgendaEnvoi(true);
-    setAgendaMessage(null);
-    try {
-      await api('/api/pro/centre', {
-        method: 'PATCH',
-        body: JSON.stringify({ ical_url: icalUrl, centre_id: centre.id }),
-      });
-      setAgendaMessage({ type: 'success', text: 'Lien agenda enregistré.' });
-    } catch (e) {
-      setAgendaMessage({ type: 'error', text: e.message });
-    } finally {
-      setAgendaEnvoi(false);
-    }
-  }
-
-  async function handleSyncAgenda() {
-    setAgendaEnvoi(true);
-    setAgendaMessage(null);
-    try {
-      const data = await api('/api/pro/centre/sync-agenda', {
-        method: 'POST',
-        body: JSON.stringify({ centre_id: centre.id }),
-      });
-      setAgendaMessage({ type: 'success', text: data.message });
-      chargerPlanning();
-    } catch (e) {
-      setAgendaMessage({ type: 'error', text: e.message });
-    } finally {
-      setAgendaEnvoi(false);
-    }
-  }
-
   function ouvrirEditionCentre() {
     setCentreForm({
       nom: centre.nom, adresse: centre.adresse, code_postal: centre.code_postal,
@@ -431,21 +298,6 @@ function DashboardPageInner() {
       setCentreErreur(e.message);
     } finally {
       setCentreEnvoi(false);
-    }
-  }
-
-  async function handleSaveTypesVehicules() {
-    setTypesVehiculesEnvoi(true);
-    try {
-      await api('/api/pro/centre', {
-        method: 'PATCH',
-        body: JSON.stringify({ types_vehicules_acceptes: typesVehiculesCentre, centre_id: centre.id }),
-      });
-      setMessage({ type: 'success', text: 'Types de véhicules mis à jour.' });
-    } catch (e) {
-      setMessage({ type: 'error', text: e.message });
-    } finally {
-      setTypesVehiculesEnvoi(false);
     }
   }
 
@@ -659,17 +511,6 @@ function DashboardPageInner() {
           valeur: centre.id,
           onChange: (id) => router.push(`/pro/dashboard?centre=${id}`),
         } : null}
-        extraNavLinks={
-          <>
-            <a href="#image" className="active"><IconImage /> Image du centre</a>
-            <a href="#agenda"><IconCalendrier /> Mon agenda externe</a>
-            <a href="#vehicules"><IconVoiture /> Véhicules acceptés</a>
-            <a href="#combler"><IconCalendrierPlus /> Combler des horaires vides</a>
-            <a href="#supprimer"><IconInterdit /> Supprimer des créneaux</a>
-            <a href="#planning"><IconTableauBord /> Mon planning</a>
-            <a href="#rdv"><IconCoche /> Mes rendez-vous</a>
-          </>
-        }
       />
 
       <main className="pro-main">
@@ -811,555 +652,136 @@ function DashboardPageInner() {
           <div className={`message-banner ${message.type}`} style={{ marginTop: 16 }}>{message.text}</div>
         )}
 
-        <section id="image" className="card" style={{ marginTop: 24 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>Image de mon centre</h2></div>
-          <p className="help-text">
-            Une photo de votre centre ou le logo de votre enseigne — elle sera mise en avant sur la page d'accueil
-            et partout où votre centre apparaît. Choisissez la photo que vous voulez (JPG, PNG, WebP...), y compris
-            directement depuis votre téléphone : elle est automatiquement redimensionnée et optimisée à l'envoi,
-            aucune limite de taille à surveiller de votre côté.
-          </p>
+        <section id="planning" className="card" style={{ marginTop: 24 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Mon planning</h2></div>
 
-          {imageErreur && <div className="message-banner error">{imageErreur}</div>}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div className="centre-image-apercu">
-              {imagePreview ? (
-                <img src={imagePreview.apercu} alt="Aperçu" />
-              ) : centre.image_data ? (
-                <img src={`data:${centre.image_mime};base64,${centre.image_data}`} alt={centre.nom} />
-              ) : (
-                <span className="help-text" style={{ fontSize: '0.72rem', textAlign: 'center' }}>Aucune image</span>
-              )}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <input type="file" accept="image/*" onChange={handleImageChange} />
-              <div style={{ display: 'flex', gap: 8 }}>
-                {imagePreview && (
-                  <button type="button" onClick={handleSaveImage} disabled={imageEnvoi}>
-                    {imageEnvoi ? 'Enregistrement…' : 'Enregistrer cette image'}
-                  </button>
-                )}
-                {(centre.image_data || imagePreview) && (
-                  <button type="button" className="btn-danger" onClick={handleRemoveImage} disabled={imageEnvoi}>
-                    Retirer l'image
-                  </button>
-                )}
-              </div>
-            </div>
+          <div className="semaine-pagination">
+            <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => Math.max(0, s - 1))} disabled={semaineOffset === 0}>
+              <ChevronIcon direction="left" /> Précédente
+            </button>
+            <span className="semaine-label">
+              Semaine du {new Date(todayISO(semaineOffset * 7) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+              {' '}au {new Date(todayISO(semaineOffset * 7 + 6) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+            </span>
+            <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => s + 1)}>
+              Suivante <ChevronIcon direction="right" />
+            </button>
+            <label className="planning-aller-a-date">
+              Aller à une date
+              <input
+                type="date"
+                min={todayISO()}
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  const jours = Math.round((new Date(e.target.value + 'T00:00:00') - new Date(todayISO() + 'T00:00:00')) / 86400000);
+                  setSemaineOffset(Math.max(0, Math.floor(jours / 7)));
+                }}
+              />
+            </label>
           </div>
+          <div className="semaine-numeros">
+            {[0, 1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={`semaine-numero ${semaineOffset === n ? 'active' : ''}`}
+                onClick={() => setSemaineOffset(n)}
+              >
+                {n + 1}
+              </button>
+            ))}
+          </div>
+
+          {planning === null ? (
+            <SquelletteTableau lignes={6} colonnes={9} />
+          ) : planning.length === 0 ? (
+            <div className="empty-state">Aucun créneau programmé cette semaine-là. Ajoutez-en un ci-dessous, ou ouvrez plusieurs créneaux d'un coup depuis « Actions groupées sur une période ».</div>
+          ) : (
+            <div className="table-scroll">
+            <table>
+              <thead><tr><th>Date &amp; heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Net pour vous</th><th>Client</th><th>Actions</th></tr></thead>
+              <tbody>
+                {planning.map((c) => (
+                  <tr key={c.id}>
+                    <td className="mono">
+                      {formatDate(c.date)} {c.heure}
+                      {c.type_visite === 'contre_visite' && (
+                        <span className="promo-badge-inline" style={{ marginLeft: 6, color: 'var(--color-primary)', background: 'transparent', borderColor: 'var(--color-primary)' }}>
+                          Contre-visite
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>
+                        {c.statut === 'disponible' ? 'Dispo' : c.statut === 'bloque' ? 'Bloqué' : 'Réservé'}
+                      </span>
+                    </td>
+                    <td className="help-text">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
+                    <td>{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
+                    <td className="mono">
+                      {c.prix != null ? (
+                        c.promo_pourcentage ? (
+                          <>
+                            <s className="help-text" style={{ marginRight: 6 }}>{c.prix.toFixed(2)} €</s>
+                            <span style={{ color: 'var(--color-promo)', fontWeight: 700 }}>
+                              {(c.prix * (1 - c.promo_pourcentage / 100)).toFixed(2)} €
+                            </span>
+                          </>
+                        ) : (
+                          `${c.prix.toFixed(2)} €`
+                        )
+                      ) : '—'}
+                    </td>
+                    <td className="mono">
+                      {c.commission_montant_estime != null ? (
+                        c.promo_pourcentage && c.prix != null && c.commission_taux_estime != null ? (
+                          <>
+                            <s className="help-text" style={{ marginRight: 6 }}>
+                              {(c.prix * c.commission_taux_estime / 100).toFixed(2)} €
+                            </s>
+                            <span style={{ color: 'var(--color-promo)', opacity: 0.85, fontWeight: 700 }}>
+                              {c.commission_montant_estime.toFixed(2)} €
+                            </span>
+                          </>
+                        ) : (
+                          `${c.commission_montant_estime.toFixed(2)} €`
+                        )
+                      ) : '—'}
+                    </td>
+                    {/* #8A6416 : même doré foncé que le badge "Réservé" — le doré clair de
+                        var(--color-accent) manque de contraste en texte sur fond blanc. */}
+                    <td className="mono" style={{ color: '#8A6416', fontWeight: 700 }}>
+                      {(() => {
+                        if (c.prix == null || c.commission_montant_estime == null) return '—';
+                        const prixEffectif = c.promo_pourcentage ? c.prix * (1 - c.promo_pourcentage / 100) : c.prix;
+                        return `${(prixEffectif - c.commission_montant_estime).toFixed(2)} €`;
+                      })()}
+                    </td>
+                    <td>{c.client_nom ? `${c.client_nom} · ${c.immatriculation}` : '—'}</td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 110 }}>
+                        {c.statut === 'disponible' && (
+                          <button type="button" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => ouvrirReservationManuelle(c)}>Prendre RDV</button>
+                        )}
+                        {c.statut !== 'reserve' && c.prix != null && (
+                          <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => modifierPromoCreneau(c)}>
+                            {c.promo_pourcentage ? 'Modifier promo' : '+ Promo'}
+                          </button>
+                        )}
+                        {c.statut !== 'reserve' && (
+                          <button className="btn-danger" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => supprimerCreneau(c.id)}>Supprimer</button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </div>
+          )}
         </section>
 
         <section className="card" style={{ marginTop: 24 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>Connecter vos outils existants</h2></div>
-          <p className="help-text">
-            Deux solutions, à choisir selon votre installation. D'abord, une{' '}
-            <Link href={`/pro/api?centre=${centre.id}`}>clé API</Link> : si votre logiciel de planning peut s'y
-            connecter, elle donne un accès en lecture à vos créneaux et vos rendez-vous, ou un simple lien
-            d'abonnement d'agenda à coller dans Google Calendar, Outlook, etc. Sinon, la solution ci-dessous
-            ("Mon agenda externe") : collez le lien de votre agenda déjà en place, sans aucune configuration
-            technique de votre côté.
-          </p>
-        </section>
-
-        <section id="agenda" className="card" style={{ marginTop: 24 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>Mon agenda externe</h2></div>
-          <p className="help-text">
-            Collez ici le lien iCal privé de votre agenda (Google Calendar : Paramètres → Intégrer l'agenda →
-            « Adresse secrète au format iCal ». Outlook : Paramètres → Calendrier → Partager → « Publier un
-            calendrier »). La synchronisation bloque automatiquement vos créneaux Créneau CT qui entrent en
-            conflit avec un événement de votre agenda — lecture seule, rien n'est jamais écrit dans votre
-            calendrier.
-          </p>
-
-          {agendaMessage && <div className={`message-banner ${agendaMessage.type}`}>{agendaMessage.text}</div>}
-
-          <div className="form-row">
-            <label htmlFor="ical_url">Lien iCal privé</label>
-            <input
-              id="ical_url"
-              type="url"
-              placeholder="https://calendar.google.com/calendar/ical/.../private-xxxx/basic.ics"
-              value={icalUrl}
-              onChange={(e) => setIcalUrl(e.target.value)}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button type="button" className="btn-secondary" onClick={handleSaveAgenda} disabled={agendaEnvoi}>
-              Enregistrer le lien
-            </button>
-            <button type="button" onClick={handleSyncAgenda} disabled={agendaEnvoi || !centre.ical_url}>
-              {agendaEnvoi ? 'Synchronisation…' : 'Synchroniser maintenant'}
-            </button>
-          </div>
-          <p className="help-text" style={{ marginTop: 10 }}>
-            ✅ Une fois ce lien enregistré, votre agenda est mis à jour automatiquement à intervalles réguliers
-            (toutes les 15 minutes) — aucun risque qu'un créneau déjà pris de votre côté soit proposé en
-            double sur Créneau CT.
-          </p>
-          <p className="help-text">
-            Une question sur la sécurité de ce lien ? <Link href="/securite" target="_blank">Consultez notre page dédiée</Link>.
-          </p>
-        </section>
-
-        <section id="vehicules" className="card" style={{ marginTop: 24 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>Types de véhicules acceptés</h2></div>
-          <p className="help-text">
-            Cochez ce que votre centre est équipé pour contrôler. Ça détermine les icônes affichées côté client, et
-            les types que vous pourrez proposer lors de l'ouverture de créneaux.
-          </p>
-          <div className="type-vehicule-picker">
-            {TYPES_VEHICULES.map((t) => {
-              const coche = typesVehiculesCentre.includes(t.value);
-              const desactive = t.value === 'sans_permis' && !typesVehiculesCentre.includes('moto');
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  className="type-vehicule-chip"
-                  disabled={desactive}
-                  title={desactive ? "Nécessite d'abord d'accepter les motos/scooters (même catégorie réglementaire)" : undefined}
-                  style={desactive
-                    ? { borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', opacity: 0.5, cursor: 'not-allowed' }
-                    : coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
-                  onClick={() => toggleTypeVehiculeCentre(t.value)}
-                >
-                  <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : (desactive ? 'var(--color-text-muted)' : t.couleur)}`, background: coche ? '#fff' : 'transparent' }}>
-                    {coche && (
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 12l6 6L20 6" />
-                      </svg>
-                    )}
-                  </span>
-                  <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : (desactive ? 'var(--color-text-muted)' : t.couleur)} />
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
-          <button type="button" onClick={handleSaveTypesVehicules} disabled={typesVehiculesEnvoi} style={{ marginTop: 14 }}>
-            {typesVehiculesEnvoi ? 'Enregistrement…' : 'Enregistrer'}
-          </button>
-        </section>
-
-        <section id="combler" className="card">
-          <div className="card-header"><h2 style={{ margin: 0 }}>Combler des horaires vides</h2></div>
-          <p className="help-text">
-            Ouvrez d'un coup tous les créneaux libres sur une plage horaire, pour plusieurs jours —
-            idéal pour publier rapidement les trous de votre planning.
-          </p>
-
-          <div className="portee-ouverture">
-            {porteeOuverture === null ? (
-              <p className="help-text" style={{ margin: 0 }}>Vérification de ce qui est déjà ouvert…</p>
-            ) : (
-              <>
-                <p style={{ margin: 0 }}>
-                  Visite normale :{' '}
-                  {porteeOuverture.normale
-                    ? <>ouverte jusqu'au <strong>{formatDate(porteeOuverture.normale.derniere_date)}</strong> ({porteeOuverture.normale.nombre} créneau(x) à venir)</>
-                    : <span className="help-text">aucun créneau ouvert pour l'instant</span>}
-                </p>
-                <p style={{ margin: '4px 0 0' }}>
-                  Contre-visite :{' '}
-                  {porteeOuverture.contre_visite
-                    ? <>ouverte jusqu'au <strong>{formatDate(porteeOuverture.contre_visite.derniere_date)}</strong> ({porteeOuverture.contre_visite.nombre} créneau(x) à venir)</>
-                    : <span className="help-text">aucun créneau ouvert pour l'instant</span>}
-                </p>
-              </>
-            )}
-          </div>
-
-          <div className="horaires-ouverts">
-            <p className="horaires-ouverts-titre">
-              Horaires déjà ouverts du {formatDate(comblerForm.date_debut)} au {formatDate(comblerForm.date_fin)}
-            </p>
-            {horairesOuverts === null ? (
-              <p className="help-text">Chargement…</p>
-            ) : horairesOuverts.length === 0 ? (
-              <p className="help-text">Rien d'ouvert sur cette période pour l'instant.</p>
-            ) : (
-              <>
-                <div className="horaires-ouverts-liste">
-                  {horairesOuverts.slice(0, 14).map((j) => (
-                    <div key={j.date} className="horaires-ouverts-jour">
-                      <span className="horaires-ouverts-date">{formatDate(j.date)}</span>
-                      <span className="horaires-ouverts-type">
-                        Visite normale : {j.normale.length > 0 ? j.normale.join(', ') : '—'}
-                      </span>
-                      <span className="horaires-ouverts-type">
-                        Contre-visite : {j.contre_visite.length > 0 ? j.contre_visite.join(', ') : '—'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                {horairesOuverts.length > 14 && (
-                  <p className="help-text">+ {horairesOuverts.length - 14} autre(s) jour(s) sur cette période.</p>
-                )}
-              </>
-            )}
-          </div>
-
-          <form onSubmit={handleComblerSubmit}>
-            <div className="grid-2">
-              <div className="form-row">
-                <label htmlFor="date_debut">Du</label>
-                <input id="date_debut" type="date" required value={comblerForm.date_debut}
-                  onChange={(e) => setComblerForm({ ...comblerForm, date_debut: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="date_fin">Au</label>
-                <input id="date_fin" type="date" required value={comblerForm.date_fin}
-                  onChange={(e) => setComblerForm({ ...comblerForm, date_fin: e.target.value })} />
-                <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-                  {[
-                    { label: '1 semaine', jours: 7 },
-                    { label: '2 semaines', jours: 14 },
-                    { label: '3 semaines', jours: 21 },
-                    { label: '1 mois', jours: 30 },
-                    { label: '2 mois', jours: 60 },
-                    { label: '3 mois', jours: 90 },
-                    { label: '6 mois', jours: 182 },
-                    { label: 'Durée illimitée', jours: 730 },
-                  ].map((opt) => (
-                    <button
-                      key={opt.jours}
-                      type="button"
-                      className="btn-secondary"
-                      style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                      onClick={() => {
-                        const debut = comblerForm.date_debut ? new Date(comblerForm.date_debut + 'T00:00:00') : new Date();
-                        debut.setDate(debut.getDate() + opt.jours);
-                        setComblerForm({ ...comblerForm, date_fin: debut.toISOString().slice(0, 10) });
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="form-row" style={{ gridColumn: '1 / -1' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                  <span className={`chip-checkbox ${comblerForm.journeeContinue ? 'coche' : ''}`} style={{ border: `1.5px solid var(--color-primary)`, background: comblerForm.journeeContinue ? 'var(--color-primary)' : 'transparent' }}>
-                    {comblerForm.journeeContinue && (
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 12l6 6L20 6" />
-                      </svg>
-                    )}
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={comblerForm.journeeContinue}
-                    onChange={(e) => setComblerForm({ ...comblerForm, journeeContinue: e.target.checked })}
-                    style={{ display: 'none' }}
-                  />
-                  Journée continue (pas de pause déjeuner)
-                </label>
-              </div>
-
-              {comblerForm.journeeContinue ? (
-                <>
-                  <div className="form-row">
-                    <label htmlFor="heure_debut_continue">Heure de début</label>
-                    <input id="heure_debut_continue" type="time" required value={comblerForm.heure_debut_continue}
-                      onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_continue: e.target.value })} />
-                  </div>
-                  <div className="form-row">
-                    <label htmlFor="heure_fin_continue">Heure de fin</label>
-                    <input id="heure_fin_continue" type="time" required value={comblerForm.heure_fin_continue}
-                      onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_continue: e.target.value })} />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="form-row">
-                    <label htmlFor="heure_debut_matin">Heure de début matin</label>
-                    <input id="heure_debut_matin" type="time" required value={comblerForm.heure_debut_matin}
-                      onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_matin: e.target.value })} />
-                  </div>
-                  <div className="form-row">
-                    <label htmlFor="heure_fin_matin">Heure de fin matin</label>
-                    <input id="heure_fin_matin" type="time" required value={comblerForm.heure_fin_matin}
-                      onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_matin: e.target.value })} />
-                  </div>
-                  <div className="form-row">
-                    <label htmlFor="heure_debut_apresmidi">Heure de début après-midi</label>
-                    <input id="heure_debut_apresmidi" type="time" required value={comblerForm.heure_debut_apresmidi}
-                      onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_apresmidi: e.target.value })} />
-                  </div>
-                  <div className="form-row">
-                    <label htmlFor="heure_fin_apresmidi">Heure de fin après-midi</label>
-                    <input id="heure_fin_apresmidi" type="time" required value={comblerForm.heure_fin_apresmidi}
-                      onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_apresmidi: e.target.value })} />
-                  </div>
-                </>
-              )}
-
-              <div className="form-row" style={{ gridColumn: '1 / -1' }}>
-                <label>Type de visite</label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    type="button"
-                    className={comblerForm.type_visite === 'normale' ? '' : 'btn-secondary'}
-                    onClick={() => setComblerForm({ ...comblerForm, type_visite: 'normale', duree_minutes: 30 })}
-                  >
-                    Visite normale
-                  </button>
-                  <button
-                    type="button"
-                    className={comblerForm.type_visite === 'contre_visite' ? '' : 'btn-secondary'}
-                    onClick={() => setComblerForm({ ...comblerForm, type_visite: 'contre_visite', duree_minutes: 15 })}
-                  >
-                    Contre-visite
-                  </button>
-                </div>
-                <p className="help-text" style={{ margin: '6px 0 0' }}>
-                  Impossible d'ouvrir une visite normale et une contre-visite au même horaire : un centre n'a qu'un
-                  seul créneau par horaire, tous types confondus. Les deux types peuvent être ouverts en parallèle,
-                  mais sur des horaires différents (ex : contre-visite à la pause déjeuner ou en fin de journée) —
-                  voir le résumé ci-dessus pour ce qui est déjà pris.
-                </p>
-              </div>
-              <div className="form-row">
-                <label htmlFor="intervalle">Intervalle entre créneaux (min)</label>
-                <select id="intervalle" value={comblerForm.intervalle_minutes}
-                  onChange={(e) => setComblerForm({ ...comblerForm, intervalle_minutes: e.target.value })}>
-                  <option value="15">15</option>
-                  <option value="30">30</option>
-                  <option value="45">45</option>
-                  <option value="60">60</option>
-                </select>
-              </div>
-              <div className="form-row">
-                <label htmlFor="duree">Durée d'une visite (minutes, libre)</label>
-                <input id="duree" type="number" min="5" max="120" step="5" required value={comblerForm.duree_minutes}
-                  onChange={(e) => setComblerForm({ ...comblerForm, duree_minutes: Number(e.target.value) })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="combler_prix">
-                  {comblerForm.type_visite === 'contre_visite' ? 'Prix de la contre-visite (€ TTC, 0 si gratuite)' : 'Prix du contrôle technique (€ TTC)'}
-                </label>
-                <input
-                  id="combler_prix" type="number" min="0" step="0.01" required placeholder="ex: 78"
-                  value={comblerForm.type_visite === 'contre_visite' ? comblerForm.prix_contre_visite : comblerForm.prix_normale}
-                  onChange={(e) => setComblerForm({
-                    ...comblerForm,
-                    [comblerForm.type_visite === 'contre_visite' ? 'prix_contre_visite' : 'prix_normale']: e.target.value,
-                  })}
-                />
-                <p className="help-text" style={{ margin: '4px 0 0' }}>
-                  Prix propre à ce type de visite — changer de type ci-dessus ne modifie pas l'autre prix.
-                </p>
-              </div>
-              <div className="form-row">
-                <label htmlFor="combler_promo">Remise client (optionnel, en %)</label>
-                <input
-                  id="combler_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide"
-                  value={comblerForm.type_visite === 'contre_visite' ? comblerForm.promo_pourcentage_contre_visite : comblerForm.promo_pourcentage_normale}
-                  onChange={(e) => setComblerForm({
-                    ...comblerForm,
-                    [comblerForm.type_visite === 'contre_visite' ? 'promo_pourcentage_contre_visite' : 'promo_pourcentage_normale']: e.target.value,
-                  })}
-                />
-              </div>
-              <div className="form-row" style={{ gridColumn: '1 / -1' }}>
-                <label>Réserver ce lot à certains véhicules (optionnel)</label>
-                <div className="type-vehicule-picker">
-                  {TYPES_VEHICULES.filter((t) => typesVehiculesCentre.includes(t.value)).map((t) => {
-                    const coche = comblerForm.types_vehicules.includes(t.value);
-                    return (
-                      <button
-                        key={t.value}
-                        type="button"
-                        className="type-vehicule-chip"
-                        style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
-                        onClick={() => setComblerForm({
-                          ...comblerForm,
-                          types_vehicules: coche
-                            ? comblerForm.types_vehicules.filter((v) => v !== t.value)
-                            : [...comblerForm.types_vehicules, t.value],
-                        })}
-                      >
-                        <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : t.couleur}`, background: coche ? '#fff' : 'transparent' }}>
-                          {coche && (
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M4 12l6 6L20 6" />
-                            </svg>
-                          )}
-                        </span>
-                        <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : t.couleur}`, background: coche ? '#fff' : 'transparent' }}>
-                        {coche && (
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M4 12l6 6L20 6" />
-                          </svg>
-                        )}
-                      </span>
-                      <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
-                        {t.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="help-text">Rien de coché = ouvert à tous les véhicules acceptés par votre centre.</p>
-              </div>
-            </div>
-            <p className="help-text">
-              Les créneaux existants ne sont jamais dupliqués ni écrasés — seuls les horaires encore vides sont ouverts.
-              La remise est entièrement à votre choix : si vous la laissez vide, le client paie le prix plein.
-            </p>
-            <p className="help-text">
-              Pour rappel (information interne, jamais affichée au client) : la commission Créneau CT est calculée
-              automatiquement sur le prix payé par le client, selon le délai de réservation (25% sous 7 jours, 20%
-              entre 7 et 14 jours, 15% au-delà) — vous la retrouverez dans le tableau ci-dessous.
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture en cours…' : 'Ouvrir les créneaux'}</button>
-              {comblerEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
-              {!comblerEnvoi && comblerResultat && (
-                <span className={comblerResultat.type === 'error' ? 'help-text' : 'help-text'} style={{ color: comblerResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
-                  {comblerResultat.text}
-                </span>
-              )}
-            </div>
-          </form>
-        </section>
-
-        <section className="card">
-          <div className="card-header"><h2 style={{ margin: 0 }}>Appliquer une promotion sur une période</h2></div>
-          <p className="help-text">
-            Contrairement à « Combler des horaires vides » (qui crée de nouveaux créneaux), cet outil modifie
-            directement les créneaux disponibles déjà ouverts. Vous pouvez l'utiliser plusieurs fois de suite avec
-            des périodes et des taux différents — par exemple 20 % sur la semaine du 3 au 9, puis 25 % sur celle
-            du 10 au 16, chaque période reste indépendante.
-          </p>
-          <form onSubmit={handleAppliquerPromoSubmit}>
-            <div className="grid-2">
-              <div className="form-row">
-                <label htmlFor="promo_date_debut">Du</label>
-                <input id="promo_date_debut" type="date" required value={promoPeriodeForm.date_debut}
-                  onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, date_debut: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="promo_date_fin">Au</label>
-                <input id="promo_date_fin" type="date" required value={promoPeriodeForm.date_fin}
-                  onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, date_fin: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="promo_periode_pourcentage">Remise à appliquer (%, vide pour la retirer)</label>
-                <input id="promo_periode_pourcentage" type="number" min="1" max="90" placeholder="ex: 20"
-                  value={promoPeriodeForm.promo_pourcentage}
-                  onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, promo_pourcentage: e.target.value })} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <button type="submit" disabled={promoPeriodeEnvoi}>
-                {promoPeriodeEnvoi ? 'Application en cours…' : 'Appliquer à cette période'}
-              </button>
-              {promoPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
-              {!promoPeriodeEnvoi && promoPeriodeResultat && (
-                <span className="help-text" style={{ color: promoPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
-                  {promoPeriodeResultat.text}
-                </span>
-              )}
-            </div>
-          </form>
-        </section>
-
-        <section className="card">
-          <div className="card-header"><h2 style={{ margin: 0 }}>Modifier le prix sur une période</h2></div>
-          <p className="help-text">
-            Change le prix des créneaux <strong>encore disponibles</strong> d'une période déjà ouverte (jamais un
-            créneau déjà réservé, qui garde son prix). C'est l'outil à utiliser pour corriger un prix — rouvrir la
-            même période avec « Combler des horaires vides » ne change rien au prix déjà en place, puisque cet
-            outil ne touche jamais un créneau existant (pour ne jamais créer de doublon).
-          </p>
-          <form onSubmit={handlePrixPeriodeSubmit}>
-            <div className="grid-2">
-              <div className="form-row">
-                <label htmlFor="prix_date_debut">Du</label>
-                <input id="prix_date_debut" type="date" required value={prixPeriodeForm.date_debut}
-                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, date_debut: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="prix_date_fin">Au</label>
-                <input id="prix_date_fin" type="date" required value={prixPeriodeForm.date_fin}
-                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, date_fin: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="prix_periode_montant">Nouveau prix (€ TTC)</label>
-                <input id="prix_periode_montant" type="number" min="0" step="0.01" required placeholder="ex: 80"
-                  value={prixPeriodeForm.prix}
-                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, prix: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="prix_periode_type">Type de visite</label>
-                <select id="prix_periode_type" value={prixPeriodeForm.type_visite}
-                  onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, type_visite: e.target.value })}>
-                  <option value="">Tous types confondus</option>
-                  <option value="normale">Visite normale uniquement</option>
-                  <option value="contre_visite">Contre-visite uniquement</option>
-                </select>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <button type="submit" disabled={prixPeriodeEnvoi}>
-                {prixPeriodeEnvoi ? 'Modification en cours…' : 'Modifier le prix de cette période'}
-              </button>
-              {prixPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
-              {!prixPeriodeEnvoi && prixPeriodeResultat && (
-                <span className="help-text" style={{ color: prixPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
-                  {prixPeriodeResultat.text}
-                </span>
-              )}
-            </div>
-          </form>
-        </section>
-
-        <section id="supprimer" className="card">
-          <div className="card-header"><h2 style={{ margin: 0 }}>Supprimer des créneaux sur une période</h2></div>
-          <p className="help-text">
-            Supprime en une fois tous les créneaux <strong>encore disponibles</strong> (jamais un créneau déjà
-            réservé) sur la période choisie — utile par exemple si un lot a été ouvert avec le mauvais type de
-            visite ou le mauvais prix via « Combler des horaires vides », pour repartir de zéro sans tout supprimer
-            un par un.
-          </p>
-          <form onSubmit={handleSupprimerPeriodeSubmit}>
-            <div className="grid-2">
-              <div className="form-row">
-                <label htmlFor="suppr_date_debut">Du</label>
-                <input id="suppr_date_debut" type="date" required value={supprimerPeriodeForm.date_debut}
-                  onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, date_debut: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="suppr_date_fin">Au</label>
-                <input id="suppr_date_fin" type="date" required value={supprimerPeriodeForm.date_fin}
-                  onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, date_fin: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <label htmlFor="suppr_type_visite">Type de visite à supprimer</label>
-                <select id="suppr_type_visite" value={supprimerPeriodeForm.type_visite}
-                  onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, type_visite: e.target.value })}>
-                  <option value="">Tous types confondus</option>
-                  <option value="normale">Visite normale uniquement</option>
-                  <option value="contre_visite">Contre-visite uniquement</option>
-                </select>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <button type="submit" className="btn-secondary" disabled={supprimerPeriodeEnvoi} style={{ borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
-                {supprimerPeriodeEnvoi ? 'Suppression en cours…' : 'Supprimer les créneaux disponibles de cette période'}
-              </button>
-              {supprimerPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
-              {!supprimerPeriodeEnvoi && supprimerPeriodeResultat && (
-                <span className="help-text" style={{ color: supprimerPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
-                  {supprimerPeriodeResultat.text}
-                </span>
-              )}
-            </div>
-          </form>
-        </section>
-
-        <section className="card">
           <div className="card-header"><h2 style={{ margin: 0 }}>Ajouter un créneau ponctuel</h2></div>
           <form className="grid-2" onSubmit={handleSingleSubmit}>
             <div className="form-row" style={{ gridColumn: '1 / -1' }}>
@@ -1465,122 +887,7 @@ function DashboardPageInner() {
           </form>
         </section>
 
-        <section id="planning" className="card">
-          <div className="card-header"><h2 style={{ margin: 0 }}>Mon planning</h2></div>
-
-          <div className="semaine-pagination">
-            <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => Math.max(0, s - 1))} disabled={semaineOffset === 0}>
-              <ChevronIcon direction="left" /> Précédente
-            </button>
-            <span className="semaine-label">
-              Semaine du {new Date(todayISO(semaineOffset * 7) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-              {' '}au {new Date(todayISO(semaineOffset * 7 + 6) + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-            </span>
-            <button type="button" className="btn-secondary pagination-btn" onClick={() => setSemaineOffset((s) => s + 1)}>
-              Suivante <ChevronIcon direction="right" />
-            </button>
-          </div>
-          <div className="semaine-numeros">
-            {[0, 1, 2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                type="button"
-                className={`semaine-numero ${semaineOffset === n ? 'active' : ''}`}
-                onClick={() => setSemaineOffset(n)}
-              >
-                {n + 1}
-              </button>
-            ))}
-          </div>
-
-          {planning === null ? (
-            <SquelletteTableau lignes={6} colonnes={9} />
-          ) : planning.length === 0 ? (
-            <div className="empty-state">Aucun créneau programmé cette semaine-là. Utilisez le formulaire ci-dessus pour en ouvrir.</div>
-          ) : (
-            <div className="table-scroll">
-            <table>
-              <thead><tr><th>Date &amp; heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Net pour vous</th><th>Client</th><th>Actions</th></tr></thead>
-              <tbody>
-                {planning.map((c) => (
-                  <tr key={c.id}>
-                    <td className="mono">
-                      {formatDate(c.date)} {c.heure}
-                      {c.type_visite === 'contre_visite' && (
-                        <span className="promo-badge-inline" style={{ marginLeft: 6, color: 'var(--color-primary)', background: 'transparent', borderColor: 'var(--color-primary)' }}>
-                          Contre-visite
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <span className={`badge ${c.statut === 'disponible' ? 'disponible' : 'reserve'}`}>
-                        {c.statut === 'disponible' ? 'Dispo' : c.statut === 'bloque' ? 'Bloqué' : 'Réservé'}
-                      </span>
-                    </td>
-                    <td className="help-text">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
-                    <td>{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
-                    <td className="mono">
-                      {c.prix != null ? (
-                        c.promo_pourcentage ? (
-                          <>
-                            <s className="help-text" style={{ marginRight: 6 }}>{c.prix.toFixed(2)} €</s>
-                            <span style={{ color: 'var(--color-promo)', fontWeight: 700 }}>
-                              {(c.prix * (1 - c.promo_pourcentage / 100)).toFixed(2)} €
-                            </span>
-                          </>
-                        ) : (
-                          `${c.prix.toFixed(2)} €`
-                        )
-                      ) : '—'}
-                    </td>
-                    <td className="mono">
-                      {c.commission_montant_estime != null ? (
-                        c.promo_pourcentage && c.prix != null && c.commission_taux_estime != null ? (
-                          <>
-                            <s className="help-text" style={{ marginRight: 6 }}>
-                              {(c.prix * c.commission_taux_estime / 100).toFixed(2)} €
-                            </s>
-                            <span style={{ color: 'var(--color-promo)', opacity: 0.85, fontWeight: 700 }}>
-                              {c.commission_montant_estime.toFixed(2)} €
-                            </span>
-                          </>
-                        ) : (
-                          `${c.commission_montant_estime.toFixed(2)} €`
-                        )
-                      ) : '—'}
-                    </td>
-                    <td className="mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
-                      {(() => {
-                        if (c.prix == null || c.commission_montant_estime == null) return '—';
-                        const prixEffectif = c.promo_pourcentage ? c.prix * (1 - c.promo_pourcentage / 100) : c.prix;
-                        return `${(prixEffectif - c.commission_montant_estime).toFixed(2)} €`;
-                      })()}
-                    </td>
-                    <td>{c.client_nom ? `${c.client_nom} · ${c.immatriculation}` : '—'}</td>
-                    <td>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 110 }}>
-                        {c.statut === 'disponible' && (
-                          <button type="button" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => ouvrirReservationManuelle(c)}>Prendre RDV</button>
-                        )}
-                        {c.statut !== 'reserve' && c.prix != null && (
-                          <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => modifierPromoCreneau(c)}>
-                            {c.promo_pourcentage ? 'Modifier promo' : '+ Promo'}
-                          </button>
-                        )}
-                        {c.statut !== 'reserve' && (
-                          <button className="btn-danger" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => supprimerCreneau(c.id)}>Supprimer</button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
-          )}
-        </section>
-
-        <section id="rdv" className="card">
+        <section id="rdv" className="card" style={{ marginTop: 24 }}>
           <div className="card-header"><h2 style={{ margin: 0 }}>Mes rendez-vous confirmés</h2></div>
           {rdvs === null ? (
             <p className="help-text">Chargement…</p>
@@ -1616,6 +923,453 @@ function DashboardPageInner() {
             </table>
             </div>
           )}
+        </section>
+
+        <section className="card" style={{ marginTop: 24 }}>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Actions groupées sur une période</h2></div>
+          <p className="help-text">
+            Ouvrir, tarifer, remiser ou fermer plusieurs créneaux d'un coup sur une période donnée — dépliez
+            l'outil dont vous avez besoin.
+          </p>
+
+          <div className="portee-ouverture">
+            {porteeOuverture === null ? (
+              <p className="help-text" style={{ margin: 0 }}>Vérification de ce qui est déjà ouvert…</p>
+            ) : (
+              <>
+                <p style={{ margin: 0 }}>
+                  Visite normale :{' '}
+                  {porteeOuverture.normale
+                    ? <>ouverte jusqu'au <strong>{formatDate(porteeOuverture.normale.derniere_date)}</strong> ({porteeOuverture.normale.nombre} créneau(x) à venir)</>
+                    : <span className="help-text">aucun créneau ouvert pour l'instant</span>}
+                </p>
+                <p style={{ margin: '4px 0 0' }}>
+                  Contre-visite :{' '}
+                  {porteeOuverture.contre_visite
+                    ? <>ouverte jusqu'au <strong>{formatDate(porteeOuverture.contre_visite.derniere_date)}</strong> ({porteeOuverture.contre_visite.nombre} créneau(x) à venir)</>
+                    : <span className="help-text">aucun créneau ouvert pour l'instant</span>}
+                </p>
+              </>
+            )}
+          </div>
+
+          <div className="horaires-ouverts">
+            <p className="horaires-ouverts-titre">
+              Horaires déjà ouverts du {formatDate(comblerForm.date_debut)} au {formatDate(comblerForm.date_fin)}
+            </p>
+            {horairesOuverts === null ? (
+              <p className="help-text">Chargement…</p>
+            ) : horairesOuverts.length === 0 ? (
+              <p className="help-text">Rien d'ouvert sur cette période pour l'instant.</p>
+            ) : (
+              <>
+                <div className="horaires-ouverts-liste">
+                  {horairesOuverts.slice(0, 14).map((j) => (
+                    <div key={j.date} className="horaires-ouverts-jour">
+                      <span className="horaires-ouverts-date">{formatDate(j.date)}</span>
+                      <span className="horaires-ouverts-type">
+                        Visite normale : {j.normale.length > 0 ? j.normale.join(', ') : '—'}
+                      </span>
+                      <span className="horaires-ouverts-type">
+                        Contre-visite : {j.contre_visite.length > 0 ? j.contre_visite.join(', ') : '—'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {horairesOuverts.length > 14 && (
+                  <p className="help-text">+ {horairesOuverts.length - 14} autre(s) jour(s) sur cette période.</p>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="faq-liste" style={{ maxWidth: 'none', marginTop: 16 }}>
+            <details className="faq-item">
+              <summary className="faq-question"><span>Combler des horaires vides</span><ChevronAccordeon /></summary>
+              <div style={{ padding: '0 20px 20px' }}>
+                <p className="help-text">
+                  Ouvrez d'un coup tous les créneaux libres sur une plage horaire, pour plusieurs jours —
+                  idéal pour publier rapidement les trous de votre planning.
+                </p>
+                <form onSubmit={handleComblerSubmit}>
+                  <div className="grid-2">
+                    <div className="form-row">
+                      <label htmlFor="date_debut">Du</label>
+                      <input id="date_debut" type="date" required value={comblerForm.date_debut}
+                        onChange={(e) => setComblerForm({ ...comblerForm, date_debut: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="date_fin">Au</label>
+                      <input id="date_fin" type="date" required value={comblerForm.date_fin}
+                        onChange={(e) => setComblerForm({ ...comblerForm, date_fin: e.target.value })} />
+                      <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+                        {[
+                          { label: '1 semaine', jours: 7 },
+                          { label: '2 semaines', jours: 14 },
+                          { label: '3 semaines', jours: 21 },
+                          { label: '1 mois', jours: 30 },
+                          { label: '2 mois', jours: 60 },
+                          { label: '3 mois', jours: 90 },
+                          { label: '6 mois', jours: 182 },
+                          { label: 'Durée illimitée', jours: 730 },
+                        ].map((opt) => (
+                          <button
+                            key={opt.jours}
+                            type="button"
+                            className="btn-secondary"
+                            style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                            onClick={() => {
+                              // "Durée illimitée" (et tout préréglage trop large) plantait
+                              // avec "trop de créneaux en une seule fois" : un bouton
+                              // fixait toujours +730 jours sans tenir compte du nombre de
+                              // créneaux/jour réellement configuré (créneaux/jour × jours
+                              // dépasse vite la limite de sécurité de 3000 par envoi).
+                              // On calcule ici la durée max réellement faisable avec la
+                              // config actuelle, et on ne dépasse jamais ce plafond.
+                              const plagesActuelles = comblerForm.journeeContinue
+                                ? [[comblerForm.heure_debut_continue, comblerForm.heure_fin_continue]]
+                                : [[comblerForm.heure_debut_matin, comblerForm.heure_fin_matin], [comblerForm.heure_debut_apresmidi, comblerForm.heure_fin_apresmidi]];
+                              const intervalle = Number(comblerForm.intervalle_minutes) || 30;
+                              const slotsParJour = plagesActuelles.reduce((total, [d, f]) => {
+                                const [hD, mD] = d.split(':').map(Number);
+                                const [hF, mF] = f.split(':').map(Number);
+                                const minutes = (hF * 60 + mF) - (hD * 60 + mD);
+                                return total + (minutes > 0 ? Math.ceil(minutes / intervalle) : 0);
+                              }, 0) || 1;
+                              // 6 jours ouvrés sur 7 par défaut (pas de sélecteur de jours
+                              // ici) ; marge de sécurité à 2800 (limite serveur : 3000).
+                              const joursMaxSurs = Math.max(7, Math.floor((2800 / slotsParJour) * (7 / 6)));
+                              const debut = comblerForm.date_debut ? new Date(comblerForm.date_debut + 'T00:00:00') : new Date();
+                              debut.setDate(debut.getDate() + Math.min(opt.jours, joursMaxSurs));
+                              setComblerForm({ ...comblerForm, date_fin: debut.toISOString().slice(0, 10) });
+                            }}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                        <span className={`chip-checkbox ${comblerForm.journeeContinue ? 'coche' : ''}`} style={{ border: `1.5px solid var(--color-primary)`, background: comblerForm.journeeContinue ? 'var(--color-primary)' : 'transparent' }}>
+                          {comblerForm.journeeContinue && (
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 12l6 6L20 6" />
+                            </svg>
+                          )}
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={comblerForm.journeeContinue}
+                          onChange={(e) => setComblerForm({ ...comblerForm, journeeContinue: e.target.checked })}
+                          style={{ display: 'none' }}
+                        />
+                        Journée continue (pas de pause déjeuner)
+                      </label>
+                    </div>
+
+                    {comblerForm.journeeContinue ? (
+                      <>
+                        <div className="form-row">
+                          <label htmlFor="heure_debut_continue">Heure de début</label>
+                          <input id="heure_debut_continue" type="time" required value={comblerForm.heure_debut_continue}
+                            onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_continue: e.target.value })} />
+                        </div>
+                        <div className="form-row">
+                          <label htmlFor="heure_fin_continue">Heure de fin</label>
+                          <input id="heure_fin_continue" type="time" required value={comblerForm.heure_fin_continue}
+                            onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_continue: e.target.value })} />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="form-row">
+                          <label htmlFor="heure_debut_matin">Heure de début matin</label>
+                          <input id="heure_debut_matin" type="time" required value={comblerForm.heure_debut_matin}
+                            onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_matin: e.target.value })} />
+                        </div>
+                        <div className="form-row">
+                          <label htmlFor="heure_fin_matin">Heure de fin matin</label>
+                          <input id="heure_fin_matin" type="time" required value={comblerForm.heure_fin_matin}
+                            onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_matin: e.target.value })} />
+                        </div>
+                        <div className="form-row">
+                          <label htmlFor="heure_debut_apresmidi">Heure de début après-midi</label>
+                          <input id="heure_debut_apresmidi" type="time" required value={comblerForm.heure_debut_apresmidi}
+                            onChange={(e) => setComblerForm({ ...comblerForm, heure_debut_apresmidi: e.target.value })} />
+                        </div>
+                        <div className="form-row">
+                          <label htmlFor="heure_fin_apresmidi">Heure de fin après-midi</label>
+                          <input id="heure_fin_apresmidi" type="time" required value={comblerForm.heure_fin_apresmidi}
+                            onChange={(e) => setComblerForm({ ...comblerForm, heure_fin_apresmidi: e.target.value })} />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                      <label>Type de visite</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className={comblerForm.type_visite === 'normale' ? '' : 'btn-secondary'}
+                          onClick={() => setComblerForm({ ...comblerForm, type_visite: 'normale', duree_minutes: 30 })}
+                        >
+                          Visite normale
+                        </button>
+                        <button
+                          type="button"
+                          className={comblerForm.type_visite === 'contre_visite' ? '' : 'btn-secondary'}
+                          onClick={() => setComblerForm({ ...comblerForm, type_visite: 'contre_visite', duree_minutes: 15 })}
+                        >
+                          Contre-visite
+                        </button>
+                      </div>
+                      <p className="help-text" style={{ margin: '6px 0 0' }}>
+                        Impossible d'ouvrir une visite normale et une contre-visite au même horaire : un centre n'a qu'un
+                        seul créneau par horaire, tous types confondus. Les deux types peuvent être ouverts en parallèle,
+                        mais sur des horaires différents (ex : contre-visite à la pause déjeuner ou en fin de journée) —
+                        voir le résumé ci-dessus pour ce qui est déjà pris.
+                      </p>
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="intervalle">Intervalle entre créneaux (min)</label>
+                      <select id="intervalle" value={comblerForm.intervalle_minutes}
+                        onChange={(e) => setComblerForm({ ...comblerForm, intervalle_minutes: e.target.value })}>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                        <option value="60">60</option>
+                      </select>
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="duree">Durée d'une visite (minutes, libre)</label>
+                      <input id="duree" type="number" min="5" max="120" step="5" required value={comblerForm.duree_minutes}
+                        onChange={(e) => setComblerForm({ ...comblerForm, duree_minutes: Number(e.target.value) })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="combler_prix">
+                        {comblerForm.type_visite === 'contre_visite' ? 'Prix de la contre-visite (€ TTC, 0 si gratuite)' : 'Prix du contrôle technique (€ TTC)'}
+                      </label>
+                      <input
+                        id="combler_prix" type="number" min="0" step="0.01" required placeholder="ex: 78"
+                        value={comblerForm.type_visite === 'contre_visite' ? comblerForm.prix_contre_visite : comblerForm.prix_normale}
+                        onChange={(e) => setComblerForm({
+                          ...comblerForm,
+                          [comblerForm.type_visite === 'contre_visite' ? 'prix_contre_visite' : 'prix_normale']: e.target.value,
+                        })}
+                      />
+                      <p className="help-text" style={{ margin: '4px 0 0' }}>
+                        Prix propre à ce type de visite — changer de type ci-dessus ne modifie pas l'autre prix.
+                      </p>
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="combler_promo">Remise client (optionnel, en %)</label>
+                      <input
+                        id="combler_promo" type="number" min="1" max="90" placeholder="Aucune remise si vide"
+                        value={comblerForm.type_visite === 'contre_visite' ? comblerForm.promo_pourcentage_contre_visite : comblerForm.promo_pourcentage_normale}
+                        onChange={(e) => setComblerForm({
+                          ...comblerForm,
+                          [comblerForm.type_visite === 'contre_visite' ? 'promo_pourcentage_contre_visite' : 'promo_pourcentage_normale']: e.target.value,
+                        })}
+                      />
+                    </div>
+                    <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                      <label>Réserver ce lot à certains véhicules (optionnel)</label>
+                      <div className="type-vehicule-picker">
+                        {TYPES_VEHICULES.filter((t) => typesVehiculesCentre.includes(t.value)).map((t) => {
+                          const coche = comblerForm.types_vehicules.includes(t.value);
+                          return (
+                            <button
+                              key={t.value}
+                              type="button"
+                              className="type-vehicule-chip"
+                              style={coche ? { borderColor: t.couleur, background: t.couleur, color: '#fff' } : { borderColor: t.couleur, color: t.couleur }}
+                              onClick={() => setComblerForm({
+                                ...comblerForm,
+                                types_vehicules: coche
+                                  ? comblerForm.types_vehicules.filter((v) => v !== t.value)
+                                  : [...comblerForm.types_vehicules, t.value],
+                              })}
+                            >
+                              <span className="chip-checkbox" style={{ border: `1.5px solid ${coche ? '#fff' : t.couleur}`, background: coche ? '#fff' : 'transparent' }}>
+                                {coche && (
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.couleur} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M4 12l6 6L20 6" />
+                                  </svg>
+                                )}
+                              </span>
+                              <IconeVehicule icone={t.icone} size={16} color={coche ? '#fff' : t.couleur} />
+                              {t.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="help-text">Rien de coché = ouvert à tous les véhicules acceptés par votre centre.</p>
+                    </div>
+                  </div>
+                  <p className="help-text">
+                    Les créneaux existants ne sont jamais dupliqués ni écrasés — seuls les horaires encore vides sont ouverts.
+                    La remise est entièrement à votre choix : si vous la laissez vide, le client paie le prix plein.
+                  </p>
+                  <p className="help-text">
+                    Pour rappel (information interne, jamais affichée au client) : la commission Créneau CT est calculée
+                    automatiquement sur le prix payé par le client, selon le délai de réservation (25% sous 7 jours, 20%
+                    entre 7 et 14 jours, 15% au-delà) — vous la retrouverez dans le tableau ci-dessous.
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture en cours…' : 'Ouvrir les créneaux'}</button>
+                    {comblerEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {!comblerEnvoi && comblerResultat && (
+                      <span className="help-text" style={{ color: comblerResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                        {comblerResultat.text}
+                      </span>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </details>
+
+            <details className="faq-item">
+              <summary className="faq-question"><span>Appliquer une promotion sur une période</span><ChevronAccordeon /></summary>
+              <div style={{ padding: '0 20px 20px' }}>
+                <p className="help-text">
+                  Contrairement à « Combler des horaires vides » (qui crée de nouveaux créneaux), cet outil modifie
+                  directement les créneaux disponibles déjà ouverts. Vous pouvez l'utiliser plusieurs fois de suite avec
+                  des périodes et des taux différents — par exemple 20 % sur la semaine du 3 au 9, puis 25 % sur celle
+                  du 10 au 16, chaque période reste indépendante.
+                </p>
+                <form onSubmit={handleAppliquerPromoSubmit}>
+                  <div className="grid-2">
+                    <div className="form-row">
+                      <label htmlFor="promo_date_debut">Du</label>
+                      <input id="promo_date_debut" type="date" required value={promoPeriodeForm.date_debut}
+                        onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, date_debut: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="promo_date_fin">Au</label>
+                      <input id="promo_date_fin" type="date" required value={promoPeriodeForm.date_fin}
+                        onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, date_fin: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="promo_periode_pourcentage">Remise à appliquer (%, vide pour la retirer)</label>
+                      <input id="promo_periode_pourcentage" type="number" min="1" max="90" placeholder="ex: 20"
+                        value={promoPeriodeForm.promo_pourcentage}
+                        onChange={(e) => setPromoPeriodeForm({ ...promoPeriodeForm, promo_pourcentage: e.target.value })} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <button type="submit" disabled={promoPeriodeEnvoi}>
+                      {promoPeriodeEnvoi ? 'Application en cours…' : 'Appliquer à cette période'}
+                    </button>
+                    {promoPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {!promoPeriodeEnvoi && promoPeriodeResultat && (
+                      <span className="help-text" style={{ color: promoPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                        {promoPeriodeResultat.text}
+                      </span>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </details>
+
+            <details className="faq-item">
+              <summary className="faq-question"><span>Modifier le prix sur une période</span><ChevronAccordeon /></summary>
+              <div style={{ padding: '0 20px 20px' }}>
+                <p className="help-text">
+                  Change le prix des créneaux <strong>encore disponibles</strong> d'une période déjà ouverte (jamais un
+                  créneau déjà réservé, qui garde son prix). C'est l'outil à utiliser pour corriger un prix — rouvrir la
+                  même période avec « Combler des horaires vides » ne change rien au prix déjà en place, puisque cet
+                  outil ne touche jamais un créneau existant (pour ne jamais créer de doublon).
+                </p>
+                <form onSubmit={handlePrixPeriodeSubmit}>
+                  <div className="grid-2">
+                    <div className="form-row">
+                      <label htmlFor="prix_date_debut">Du</label>
+                      <input id="prix_date_debut" type="date" required value={prixPeriodeForm.date_debut}
+                        onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, date_debut: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="prix_date_fin">Au</label>
+                      <input id="prix_date_fin" type="date" required value={prixPeriodeForm.date_fin}
+                        onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, date_fin: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="prix_periode_montant">Nouveau prix (€ TTC)</label>
+                      <input id="prix_periode_montant" type="number" min="0" step="0.01" required placeholder="ex: 80"
+                        value={prixPeriodeForm.prix}
+                        onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, prix: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="prix_periode_type">Type de visite</label>
+                      <select id="prix_periode_type" value={prixPeriodeForm.type_visite}
+                        onChange={(e) => setPrixPeriodeForm({ ...prixPeriodeForm, type_visite: e.target.value })}>
+                        <option value="">Tous types confondus</option>
+                        <option value="normale">Visite normale uniquement</option>
+                        <option value="contre_visite">Contre-visite uniquement</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <button type="submit" disabled={prixPeriodeEnvoi}>
+                      {prixPeriodeEnvoi ? 'Modification en cours…' : 'Modifier le prix de cette période'}
+                    </button>
+                    {prixPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {!prixPeriodeEnvoi && prixPeriodeResultat && (
+                      <span className="help-text" style={{ color: prixPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                        {prixPeriodeResultat.text}
+                      </span>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </details>
+
+            <details className="faq-item">
+              <summary className="faq-question"><span>Supprimer des créneaux sur une période</span><ChevronAccordeon /></summary>
+              <div style={{ padding: '0 20px 20px' }}>
+                <p className="help-text">
+                  Supprime en une fois tous les créneaux <strong>encore disponibles</strong> (jamais un créneau déjà
+                  réservé) sur la période choisie — utile par exemple si un lot a été ouvert avec le mauvais type de
+                  visite ou le mauvais prix via « Combler des horaires vides », pour repartir de zéro sans tout supprimer
+                  un par un.
+                </p>
+                <form onSubmit={handleSupprimerPeriodeSubmit}>
+                  <div className="grid-2">
+                    <div className="form-row">
+                      <label htmlFor="suppr_date_debut">Du</label>
+                      <input id="suppr_date_debut" type="date" required value={supprimerPeriodeForm.date_debut}
+                        onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, date_debut: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="suppr_date_fin">Au</label>
+                      <input id="suppr_date_fin" type="date" required value={supprimerPeriodeForm.date_fin}
+                        onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, date_fin: e.target.value })} />
+                    </div>
+                    <div className="form-row">
+                      <label htmlFor="suppr_type_visite">Type de visite à supprimer</label>
+                      <select id="suppr_type_visite" value={supprimerPeriodeForm.type_visite}
+                        onChange={(e) => setSupprimerPeriodeForm({ ...supprimerPeriodeForm, type_visite: e.target.value })}>
+                        <option value="">Tous types confondus</option>
+                        <option value="normale">Visite normale uniquement</option>
+                        <option value="contre_visite">Contre-visite uniquement</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <button type="submit" className="btn-secondary" disabled={supprimerPeriodeEnvoi} style={{ borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
+                      {supprimerPeriodeEnvoi ? 'Suppression en cours…' : 'Supprimer les créneaux disponibles de cette période'}
+                    </button>
+                    {supprimerPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {!supprimerPeriodeEnvoi && supprimerPeriodeResultat && (
+                      <span className="help-text" style={{ color: supprimerPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                        {supprimerPeriodeResultat.text}
+                      </span>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </details>
+          </div>
         </section>
       </main>
 

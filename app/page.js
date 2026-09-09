@@ -48,6 +48,7 @@ export default function HomePage() {
   }, []);
   const [centres, setCentres] = useState(null); // null = chargement initial
   const [totalRdv, setTotalRdv] = useState(null);
+  const [totalNetCentres, setTotalNetCentres] = useState(null);
 
   const [rechercheProche, setRechercheProche] = useState(false);
   const [erreurProche, setErreurProche] = useState(null);
@@ -72,7 +73,7 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/stats').then((r) => r.json()).then((d) => setTotalRdv(d.total_rdv)).catch(() => {});
+    fetch('/api/stats').then((r) => r.json()).then((d) => { setTotalRdv(d.total_rdv); setTotalNetCentres(d.total_net_centres); }).catch(() => {});
   }, []);
 
   const rechercher = useCallback(async (villeQ = '', cpQ = '', dateQ = '', vehiculeQ = '', typeVisiteQ = 'normale') => {
@@ -410,6 +411,12 @@ export default function HomePage() {
               Créneau CT connecte votre planning à des automobilistes prêts à réserver dès aujourd'hui. Vous gardez
               la main sur vos prix, vos disponibilités et vos remises, sans engagement ni abonnement.
             </p>
+            {totalNetCentres > 0 && (
+              <div className="rdv-counter">
+                <span className="rdv-counter-nb">{totalNetCentres.toLocaleString('fr-FR')} €</span>
+                <span className="rdv-counter-label">déjà reversés aux centres partenaires (hors commission)</span>
+              </div>
+            )}
           </div>
           <div className="pro-cta-boutons">
             <Link href="/pro/register" className="btn" style={{ background: '#fff', color: 'var(--color-primary)', borderColor: '#fff', whiteSpace: 'nowrap' }}>

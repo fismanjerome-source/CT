@@ -3,7 +3,7 @@ import { all, run } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { resoudreCentreActif } from '@/lib/pro';
 import { jsonError, todayISO } from '@/lib/utils';
-import { listeJoursFeriesPeriode, joursFeriesFrance, FENETRE_JOURS } from '@/lib/joursFeries';
+import { listeJoursFeriesPeriode, joursFeriesFrance, finAnneesAVenir } from '@/lib/joursFeries';
 
 export async function GET(request) {
   const session = await getSession();
@@ -14,7 +14,7 @@ export async function GET(request) {
   if (!centreId) return jsonError(403, 'Centre introuvable ou non autorisé.');
 
   const debut = todayISO();
-  const fin = todayISO(FENETRE_JOURS);
+  const fin = finAnneesAVenir(2);
   const joursFeries = listeJoursFeriesPeriode(debut, fin);
 
   const [ignorees, bloques, reserves] = await Promise.all([
