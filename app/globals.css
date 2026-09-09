@@ -1507,6 +1507,30 @@ td { padding: 14px; border-bottom: 1px solid var(--color-border); }
 tbody tr { transition: background-color 0.12s ease; }
 tbody tr:hover { background: var(--color-bg); }
 td.mono, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Tableau compact (Mon planning) : ce tableau peut afficher des dizaines de
+   lignes d'un coup, un padding réduit limite la hauteur totale pour que les
+   sections suivantes du tableau de bord restent atteignables sans scroller
+   à l'infini. */
+.table-compact th, .table-compact td { padding: 8px 10px; }
+/* Colonne Actions (Mon planning) : assez large pour que RDV/Promo/Suppr.
+   tiennent sur une seule ligne en desktop — sans ce plancher, l'auto-layout
+   du tableau resserre la colonne sous ce besoin et les 3 boutons ré-empilent
+   verticalement, ce qui était la cause principale de lignes trop hautes. */
+.col-actions { min-width: 190px; }
+.th-court { display: none; }
+/* Colonnes secondaires (Véhicules, Promo, Client) : masquées sur petit écran
+   pour que Prix/Commission/Net restent visibles sans scroll horizontal. */
+@media (max-width: 640px) {
+  .col-optional { display: none; }
+  .table-compact table { min-width: 0; font-size: 0.72rem; }
+  .table-compact th, .table-compact td { padding: 6px 3px; }
+  .table-compact td.mono { letter-spacing: -0.02em; }
+  .table-compact .badge { padding: 2px 6px 2px 5px; gap: 3px; font-size: 0.66rem; }
+  .table-compact .badge::before { width: 5px; height: 5px; }
+  .col-actions { min-width: 70px; }
+  .th-long { display: none; }
+  .th-court { display: inline; }
+}
 /* Puce de statut + pilule : lecture "chip" plus vive qu'un simple fond de
    couleur uni, comme les badges de statut des outils modernes (Linear,
    Notion...) plutôt qu'un badge plat générique. */

@@ -21,6 +21,22 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+// Format compact pour la colonne "Date & heure" de Mon planning (ex: "09/09,
+// 9h" au lieu de "mer. 9 sept. 09:00") : ce tableau affiche potentiellement
+// des dizaines de lignes, la version longue de formatDate() y prend trop de
+// place en largeur comme en lisibilité.
+function formatDateCourte(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+}
+
+function formatHeureCourte(heure) {
+  if (!heure) return '';
+  const [h, m] = heure.split(':');
+  const hNum = parseInt(h, 10);
+  return m && m !== '00' ? `${hNum}h${m}` : `${hNum}h`;
+}
+
 function minutesVersHeure(minutes) {
   const h = String(Math.floor(minutes / 60)).padStart(2, '0');
   const m = String(minutes % 60).padStart(2, '0');
@@ -697,14 +713,22 @@ function DashboardPageInner() {
           ) : planning.length === 0 ? (
             <div className="empty-state">Aucun créneau programmé cette semaine-là. Ajoutez-en un ci-dessous, ou ouvrez plusieurs créneaux d'un coup depuis « Actions groupées sur une période ».</div>
           ) : (
-            <div className="table-scroll">
+            <div className="table-scroll table-compact">
             <table>
-              <thead><tr><th>Date &amp; heure</th><th>Statut</th><th>Véhicules</th><th>Promo</th><th>Prix client TTC</th><th>Commission CT</th><th>Net pour vous</th><th>Client</th><th>Actions</th></tr></thead>
+              <thead>
+                <tr>
+                  <th><span className="th-long">Date &amp; heure</span><span className="th-court">Date</span></th>
+                  <th>Statut</th><th className="col-optional">Véhicules</th><th className="col-optional">Promo</th>
+                  <th>Prix client TTC</th>
+                  <th><span className="th-long">Commission CT</span><span className="th-court">Comm.</span></th>
+                  <th>Net pour vous</th><th className="col-optional">Client</th><th>Actions</th>
+                </tr>
+              </thead>
               <tbody>
                 {planning.map((c) => (
                   <tr key={c.id}>
                     <td className="mono">
-                      {formatDate(c.date)} {c.heure}
+                      {formatDateCourte(c.date)}, {formatHeureCourte(c.heure)}
                       {c.type_visite === 'contre_visite' && (
                         <span className="promo-badge-inline" style={{ marginLeft: 6, color: 'var(--color-primary)', background: 'transparent', borderColor: 'var(--color-primary)' }}>
                           Contre-visite
@@ -716,8 +740,8 @@ function DashboardPageInner() {
                         {c.statut === 'disponible' ? 'Dispo' : c.statut === 'bloque' ? 'Bloqué' : 'Réservé'}
                       </span>
                     </td>
-                    <td className="help-text">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
-                    <td>{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
+                    <td className="help-text col-optional">{c.types_vehicules ? parseTypes(c.types_vehicules).map((v) => TYPES_VEHICULES.find((t) => t.value === v)?.label).join(', ') : 'Tous'}</td>
+                    <td className="col-optional">{c.promo_pourcentage ? <span className="promo-badge-inline">-{c.promo_pourcentage}%</span> : '—'}</td>
                     <td className="mono">
                       {c.prix != null ? (
                         c.promo_pourcentage ? (
@@ -757,19 +781,28 @@ function DashboardPageInner() {
                         return `${(prixEffectif - c.commission_montant_estime).toFixed(2)} €`;
                       })()}
                     </td>
-                    <td>{c.client_nom ? `${c.client_nom} · ${c.immatriculation}` : '—'}</td>
-                    <td>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 110 }}>
+                    <td className="col-optional">{c.client_nom ? `${c.client_nom} · ${c.immatriculation}` : '—'}</td>
+                    <td className="col-actions">
+                      {/* Boutons en ligne plutôt qu'empilés verticalement, avec des libellés
+                          courts : avec plusieurs dizaines de créneaux par semaine, 3 boutons
+                          empilés (ou trop larges pour tenir sur une ligne) gonflaient la
+                          hauteur du tableau au point de repousser "Ajouter un créneau
+                          ponctuel" hors d'atteinte sans scroller longuement. Le min-width
+                          (voir .col-actions) empêche le tableau de resserrer cette colonne
+                          sous ce dont les 3 boutons ont besoin pour tenir sur une seule ligne
+                          — réduit sur mobile où on laisse les boutons ré-empiler pour rendre
+                          la place à Prix/Commission/Net, l'essentiel demandé sans scroll. */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                         {c.statut === 'disponible' && (
-                          <button type="button" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => ouvrirReservationManuelle(c)}>Prendre RDV</button>
+                          <button type="button" style={{ padding: '3px 7px', fontSize: '0.74rem' }} onClick={() => ouvrirReservationManuelle(c)}>RDV</button>
                         )}
                         {c.statut !== 'reserve' && c.prix != null && (
-                          <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => modifierPromoCreneau(c)}>
-                            {c.promo_pourcentage ? 'Modifier promo' : '+ Promo'}
+                          <button type="button" className="btn-secondary" style={{ padding: '3px 7px', fontSize: '0.74rem' }} onClick={() => modifierPromoCreneau(c)}>
+                            {c.promo_pourcentage ? 'Promo' : '+ Promo'}
                           </button>
                         )}
                         {c.statut !== 'reserve' && (
-                          <button className="btn-danger" style={{ padding: '4px 8px', fontSize: '0.76rem' }} onClick={() => supprimerCreneau(c.id)}>Supprimer</button>
+                          <button className="btn-danger" style={{ padding: '3px 7px', fontSize: '0.74rem' }} onClick={() => supprimerCreneau(c.id)}>Suppr.</button>
                         )}
                       </div>
                     </td>
