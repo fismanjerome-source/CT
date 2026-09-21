@@ -389,12 +389,16 @@ a { color: var(--color-primary); transition: color 0.15s ease, opacity 0.15s eas
   margin-bottom: 8px;
 }
 .side-menu-panel .side-menu-section a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: var(--color-text);
   text-decoration: none;
   padding: 9px 4px;
   border-radius: 6px;
   font-size: 0.95rem;
 }
+.side-menu-panel .side-menu-section a svg { flex-shrink: 0; color: var(--color-primary); }
 .side-menu-panel .side-menu-section a:hover { background: var(--color-bg); }
 
 /* ---------- Bandeau centres pro ---------- */
@@ -2050,3 +2054,6 @@ td.mono, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nu
 .guide-card.accent-succes { border-left-color: var(--color-success); }
 .guide-card.accent-danger { border-left-color: var(--color-danger); }
 .guide-card.accent-promo { border-left-color: var(--color-promo); }
+
+/* Icônes SVG insérées dans du texte (remplacent les émojis) : alignées sur la ligne de base du texte. */
+.help-text svg, .message-banner svg, .guide-card svg, .tel-btn-creneau svg { vertical-align: -0.22em; margin-right: 2px; }

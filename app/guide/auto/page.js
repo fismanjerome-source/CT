@@ -31,7 +31,7 @@ export default function GuideAutoPage() {
       <section className="container legal-content" style={{ padding: '32px 24px 64px' }}>
 
         <div className="guide-card">
-          <h2>🚘 Qui doit passer le contrôle technique ?</h2>
+          <h2>Qui doit passer le contrôle technique ?</h2>
           <p>
             Toute voiture particulière ou camping-car dont le poids total autorisé en charge ne dépasse pas 3,5
             tonnes (catégorie M1 sur la carte grise) doit passer un contrôle technique, quelle que soit son
@@ -41,7 +41,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>📅 Quand faire son premier contrôle technique ?</h2>
+          <h2>Quand faire son premier contrôle technique ?</h2>
           <p>
             Pour un véhicule neuf, le premier contrôle doit être réalisé dans les <strong>6 mois précédant le
             4ᵉ anniversaire</strong> de sa première mise en circulation. Par exemple, un véhicule mis en
@@ -51,7 +51,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>🔁 À quelle fréquence renouveler le contrôle ?</h2>
+          <h2>À quelle fréquence renouveler le contrôle ?</h2>
           <p>
             Si le résultat est favorable, le contrôle technique est valable <strong>2 ans</strong>. La date
             limite est indiquée par un timbre apposé sur la carte grise. Un contrôle réalisé le 14 mai 2025 avec
@@ -60,7 +60,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>🔍 Les 136 points de contrôle</h2>
+          <h2>Les 136 points de contrôle</h2>
           <p>
             Le contrôleur examine <strong>136 points répartis en 9 grandes familles</strong>, définies par
             arrêté ministériel :
@@ -85,7 +85,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>✅ Le résultat du contrôle</h2>
+          <h2>Le résultat du contrôle</h2>
           <p>Trois issues sont possibles, selon la gravité des défaillances relevées :</p>
           <ul>
             <li><strong>Favorable</strong> : aucune défaillance majeure ni critique. Rien à faire avant le prochain contrôle dans 2 ans.</li>
@@ -95,7 +95,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card accent-danger">
-          <h2>⚠️ Le vrai risque : la contre-visite</h2>
+          <h2>Le vrai risque : la contre-visite</h2>
           <p>
             C'est le point à ne surtout pas négliger. Dès qu'une défaillance majeure ou critique est constatée,
             vous devez faire réparer le véhicule <strong>et repasser une contre-visite dans un délai de 2
@@ -112,7 +112,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card accent-succes">
-          <h2>💡 Nos conseils avant de passer le contrôle technique</h2>
+          <h2>Nos conseils avant de passer le contrôle technique</h2>
           <p>Quelques vérifications simples permettent souvent d'éviter une contre-visite :</p>
           <ul>
             <li>Contrôlez l'état et la profondeur de vos <strong>pneus</strong> (usure, pression, absence de hernie)</li>
@@ -127,7 +127,7 @@ export default function GuideAutoPage() {
         </div>
 
         <div className="guide-card accent-promo">
-          <h2>💶 Combien ça coûte, et que risque-t-on sans contrôle valide ?</h2>
+          <h2>Combien ça coûte, et que risque-t-on sans contrôle valide ?</h2>
           <p>
             Le prix est <strong>libre</strong> et fixé par chaque centre. C'est justement tout l'intérêt de
             comparer les centres disponibles près de chez vous. Rouler avec un contrôle technique expiré expose

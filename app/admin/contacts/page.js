@@ -64,13 +64,13 @@ export default function AdminContactsPage() {
                     <h2 style={{ margin: 0 }}>
                       {c.nom}
                       {c.type === 'reinitialisation_mdp' && (
-                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle' }}>🔑 Mot de passe oublié</span>
+                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle' }}>Mot de passe oublié</span>
                       )}
                       {c.type === 'message_pro' && (
-                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle', background: 'var(--color-success-bg)', color: 'var(--color-success)' }}>💬 Message d'un centre</span>
+                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle', background: 'var(--color-success-bg)', color: 'var(--color-success)' }}>Message d'un centre</span>
                       )}
                       {c.type === 'question_client' && (
-                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle', background: 'var(--color-primary-light)', color: '#fff' }}>❓ Question client</span>
+                        <span className="promo-badge-inline" style={{ marginLeft: 8, verticalAlign: 'middle', background: 'var(--color-primary-light)', color: '#fff' }}>Question client</span>
                       )}
                     </h2>
                     <p className="help-text" style={{ margin: 0 }}>
@@ -84,7 +84,7 @@ export default function AdminContactsPage() {
                 </div>
                 <p>{c.message}</p>
                 {c.type === 'reinitialisation_mdp' && (
-                  <p className="help-text">Réinitialisez ce compte depuis l'onglet <Link href="/admin/centres">🏢 Centres & utilisateurs</Link>.</p>
+                  <p className="help-text">Réinitialisez ce compte depuis l'onglet <Link href="/admin/centres">Centres & utilisateurs</Link>.</p>
                 )}
                 <p className="help-text mono">{formatDate(c.created_at)}</p>
                 <button className="btn-secondary" onClick={() => marquerTraite(c.id, c.statut)}>

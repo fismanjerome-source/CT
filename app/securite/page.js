@@ -18,7 +18,7 @@ export default function SecuritePage() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">🔒 Confiance</div>
+          <div className="eyebrow">Confiance</div>
           <h1>Sécurité et confidentialité</h1>
           <p className="lead">
             Une question légitime, surtout quand il s'agit de relier votre agenda. Voici, en toute transparence,
@@ -29,7 +29,7 @@ export default function SecuritePage() {
 
       <section className="container legal-content" style={{ padding: '40px 24px 64px' }}>
 
-        <h2>🔌 Accès par API pour les centres équipés</h2>
+        <h2>Accès par API pour les centres équipés</h2>
         <p>
           Si votre centre utilise déjà un logiciel de planning, vous pouvez générer une <strong>clé API</strong> en
           lecture seule depuis votre espace professionnel (onglet « Clés API ») pour récupérer automatiquement vos
@@ -47,7 +47,7 @@ export default function SecuritePage() {
           synchronisation d'agenda décrite ci-dessous suffit largement.
         </p>
 
-        <h2>🗓️ Le lien de votre agenda externe</h2>
+        <h2>Le lien de votre agenda externe</h2>
         <p>
           Le lien que vous nous transmettez pour synchroniser votre agenda (Google Calendar, Outlook...)
           <strong> n'est jamais un accès à votre compte</strong> : c'est un lien de lecture seule que votre propre
@@ -60,7 +60,7 @@ export default function SecuritePage() {
           <li>Vous pouvez le <strong>révoquer à tout moment</strong>, directement depuis les paramètres de votre propre agenda, sans même nous prévenir : l'ancien lien cesse alors immédiatement de fonctionner</li>
         </ul>
 
-        <h2>🔐 Ce qui protège vos données au quotidien</h2>
+        <h2>Ce qui protège vos données au quotidien</h2>
         <ul>
           <li>Les mots de passe ne sont <strong>jamais stockés en clair</strong> : ils sont chiffrés (hachés) avec un algorithme moderne (scrypt), impossible à retrouver même en cas d'accès à la base de données. Les clés API subissent le même traitement</li>
           <li>Toutes les connexions au site passent par <strong>HTTPS</strong>, avec redirection forcée et mémorisation par le navigateur (HSTS) pour empêcher tout downgrade vers une connexion non chiffrée</li>
@@ -72,7 +72,7 @@ export default function SecuritePage() {
           <li>Nos dépendances logicielles sont tenues à jour pour corriger les failles connues dès qu'elles sont publiées</li>
         </ul>
 
-        <h2>🛡️ Vous avez trouvé une faille ?</h2>
+        <h2>Vous avez trouvé une faille ?</h2>
         <p>
           Nous n'avons pas encore de programme de récompense formel, mais tout signalement responsable est le
           bienvenu et traité sérieusement : écrivez-nous à{' '}
@@ -82,7 +82,7 @@ export default function SecuritePage() {
           corriger.
         </p>
 
-        <h2>🎯 Ce que nous ne prétendons pas être</h2>
+        <h2>Ce que nous ne prétendons pas être</h2>
         <p>
           Créneau CT est une plateforme jeune, en développement actif. Nous n'avons pas encore fait auditer notre
           sécurité par un organisme externe (audit de sécurité, certification type ISO 27001 ou SOC2), une étape

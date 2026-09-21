@@ -6,7 +6,7 @@ import AdminSidebar from '../../components/AdminSidebar';
 import { SquelletteCarte } from '../../components/Squelette';
 import AlertePaiements from '../../components/AlertePaiements';
 
-const LABELS_CATEGORIE = { client: '👤 Clients', pro: '🏢 Centres', admin: '🔐 Admin', avantmonct: '🔗 Avant Mon CT' };
+const LABELS_CATEGORIE = { client: 'Clients', pro: 'Centres', admin: 'Admin', avantmonct: 'Avant Mon CT' };
 const COULEURS_CATEGORIE = { client: '#1B3A5C', pro: '#C8952A', admin: '#5B665F', avantmonct: '#2E7D45' };
 const CATEGORIES = ['client', 'pro', 'admin', 'avantmonct'];
 
@@ -98,7 +98,7 @@ export default function StatistiquesPage() {
 
             {donnees.visites_depuis_avant_mon_ct > 0 && (
               <div className="message-banner success" style={{ marginBottom: 20 }}>
-                🔗 <strong>{donnees.visites_depuis_avant_mon_ct}</strong> visite{donnees.visites_depuis_avant_mon_ct > 1 ? 's' : ''} sur Créneau CT
+                <strong>{donnees.visites_depuis_avant_mon_ct}</strong> visite{donnees.visites_depuis_avant_mon_ct > 1 ? 's' : ''} sur Créneau CT
                 {' '}{donnees.visites_depuis_avant_mon_ct > 1 ? 'proviennent' : 'provient'} d'un lien posé sur Avant Mon CT
                 {totalParCategorie('client') > 0 ? ` (${Math.round((donnees.visites_depuis_avant_mon_ct / totalParCategorie('client')) * 100)}% des visites clients)` : ''}.
               </div>
@@ -106,7 +106,7 @@ export default function StatistiquesPage() {
 
             <div className="grid-2" style={{ gap: 20 }}>
               <section className="card">
-                <div className="card-header"><h2 style={{ margin: 0 }}>📍 Villes les plus actives</h2></div>
+                <div className="card-header"><h2 style={{ margin: 0 }}>Villes les plus actives</h2></div>
                 {donnees.par_ville.length === 0 ? (
                   <div className="empty-state">Pas encore assez de données géolocalisées.</div>
                 ) : (
@@ -129,7 +129,7 @@ export default function StatistiquesPage() {
               </section>
 
               <section className="card">
-                <div className="card-header"><h2 style={{ margin: 0 }}>🗺️ Régions les plus actives</h2></div>
+                <div className="card-header"><h2 style={{ margin: 0 }}>Régions les plus actives</h2></div>
                 {donnees.par_region.length === 0 ? (
                   <div className="empty-state">Pas encore assez de données géolocalisées.</div>
                 ) : (
@@ -168,7 +168,7 @@ export default function StatistiquesPage() {
             </section>
 
             <section className="card" style={{ marginTop: 20 }}>
-              <div className="card-header"><h2 style={{ margin: 0 }}>🔗 Pages les plus visitées (Avant Mon CT)</h2></div>
+              <div className="card-header"><h2 style={{ margin: 0 }}>Pages les plus visitées (Avant Mon CT)</h2></div>
               {donnees.pages_populaires_avant_mon_ct.length === 0 ? (
                 <div className="empty-state">Pas encore de données.</div>
               ) : (

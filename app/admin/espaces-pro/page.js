@@ -135,9 +135,9 @@ export default function EspacesProPage() {
                           <div>
                             <p className="eyebrow" style={{ marginBottom: 4 }}>Configuration</p>
                             <p style={{ margin: 0 }}>
-                              {apercu.centre.a_une_image ? '✅ Image ajoutée' : '⚠️ Aucune image'}
+                              {apercu.centre.a_une_image ? 'Image ajoutée' : 'Aucune image'}
                               {' · '}
-                              {apercu.centre.a_un_agenda ? '✅ Agenda relié' : '⚠️ Aucun agenda relié'}
+                              {apercu.centre.a_un_agenda ? 'Agenda relié' : 'Aucun agenda relié'}
                             </p>
                           </div>
                         </div>

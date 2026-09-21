@@ -31,7 +31,7 @@ export default function GuideMotoPage() {
       <section className="container legal-content" style={{ padding: '32px 24px 64px' }}>
 
         <div className="guide-card">
-          <h2>🏍️ Qui doit passer le contrôle technique ?</h2>
+          <h2>Qui doit passer le contrôle technique ?</h2>
           <p>
             Tous les véhicules motorisés à 2 ou 3 roues et les quadricycles à moteur sont concernés (catégorie L
             sur la carte grise) : motos, scooters, tricycles, quads routiers... Cela couvre aussi bien les
@@ -41,7 +41,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>📅 Quand faire son premier contrôle technique ?</h2>
+          <h2>Quand faire son premier contrôle technique ?</h2>
           <p>La date du premier contrôle dépend de l'année de première mise en circulation :</p>
           <ul>
             <li>
@@ -61,7 +61,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>🔁 À quelle fréquence renouveler le contrôle ?</h2>
+          <h2>À quelle fréquence renouveler le contrôle ?</h2>
           <p>
             Si le résultat est favorable, le contrôle technique moto est valable <strong>3 ans</strong> (contre
             2 ans pour une voiture). Un contrôle réalisé le 14 mai 2025 avec un résultat favorable reste valable
@@ -70,7 +70,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>🔍 Les 80 points de contrôle</h2>
+          <h2>Les 80 points de contrôle</h2>
           <p>
             Le contrôleur vérifie <strong>80 points</strong>, répartis en familles proches de celles d'une
             voiture, adaptées aux spécificités d'un deux-roues :
@@ -89,7 +89,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="guide-card">
-          <h2>✅ Le résultat du contrôle</h2>
+          <h2>Le résultat du contrôle</h2>
           <p>Comme pour une voiture, trois résultats sont possibles :</p>
           <ul>
             <li><strong>Favorable</strong> : aucune défaillance majeure ni critique. Rendez-vous dans 3 ans.</li>
@@ -99,7 +99,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="guide-card accent-danger">
-          <h2>⚠️ Le vrai risque : la contre-visite</h2>
+          <h2>Le vrai risque : la contre-visite</h2>
           <p>
             Exactement comme pour une voiture, une défaillance majeure ou critique impose une contre-visite dans
             un <strong>délai de 2 mois</strong>, dans n'importe quel centre agréé. Si elle est favorable, elle
@@ -110,7 +110,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="guide-card accent-succes">
-          <h2>💡 Nos conseils avant de passer le contrôle technique moto</h2>
+          <h2>Nos conseils avant de passer le contrôle technique moto</h2>
           <p>Quelques points à vérifier vous-même avant de prendre rendez-vous :</p>
           <ul>
             <li>Vérifiez l'<strong>usure et la pression de vos pneus</strong></li>
@@ -125,7 +125,7 @@ export default function GuideMotoPage() {
         </div>
 
         <div className="guide-card accent-promo">
-          <h2>💶 Combien ça coûte, et que risque-t-on sans contrôle valide ?</h2>
+          <h2>Combien ça coûte, et que risque-t-on sans contrôle valide ?</h2>
           <p>
             Le prix est <strong>libre</strong>, fixé par chaque centre, ce qui justifie de comparer les
             disponibilités et tarifs autour de vous. Rouler avec un contrôle expiré expose à une amende pouvant

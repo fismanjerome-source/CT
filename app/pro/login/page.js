@@ -75,7 +75,7 @@ export default function ProLoginPage() {
               Connectez-vous pour gérer vos créneaux et consulter vos rendez-vous.
             </p>
             <p className="help-text" style={{ marginBottom: 20 }}>
-              📱 Accessible depuis votre ordinateur, smartphone ou tablette, sans rien à installer.
+              Accessible depuis votre ordinateur, smartphone ou tablette, sans rien à installer.
             </p>
           </>
         )}

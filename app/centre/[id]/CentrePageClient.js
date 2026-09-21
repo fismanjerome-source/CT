@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
 import { IconeVehicule } from '../../components/VehiculeIcons';
+import { PhoneIcon } from '../../components/ContactIcons';
+import { IconAlerte, IconEnveloppe } from '../../components/UISvgIcons';
 import { TYPES_VEHICULES, parseTypes } from '@/lib/vehicules';
 import { couleurEnseigne } from '@/lib/enseignes';
 
@@ -193,7 +195,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
                 </p>
               )}
               <a href="tel:+33608129145" className="tel-btn-creneau" style={{ marginTop: 10 }}>
-                📞 Prendre RDV par téléphone
+                <PhoneIcon size={15} /> Prendre RDV par téléphone
               </a>
             </>
           ) : (
@@ -281,7 +283,7 @@ export default function CentrePageClient({ id, initialTypeVisite, initialCentre 
               fontWeight: 600,
             }}
           >
-            👆 Choisissez d'abord votre type de véhicule ci-dessus pour voir les créneaux disponibles.
+            Choisissez d'abord votre type de véhicule ci-dessus pour voir les créneaux disponibles.
           </div>
         ) : chargementCreneaux ? (
           <p className="help-text">Chargement des créneaux…</p>
@@ -461,7 +463,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
 
           {estAujourdhui && (
             <div className="message-banner error" style={{ fontWeight: 700, textAlign: 'center' }}>
-              ⏰ ATTENTION : ce créneau est <strong>AUJOURD'HUI</strong> à {creneau.heure} !
+              <IconAlerte size={16} /> ATTENTION : ce créneau est <strong>AUJOURD'HUI</strong> à {creneau.heure} !
             </div>
           )}
 
@@ -490,7 +492,7 @@ function ReservationModal({ centre, creneau, dateSelectionnee, typeVehicule, onC
           )}
 
           <div className="message-banner success" style={{ marginTop: 14 }}>
-            📧 Vous allez recevoir un email de confirmation à <strong>{email}</strong>. Vérifiez bien que cette
+            <IconEnveloppe size={16} /> Vous allez recevoir un email de confirmation à <strong>{email}</strong>. Vérifiez bien que cette
             adresse est correcte avant de valider.
           </div>
 

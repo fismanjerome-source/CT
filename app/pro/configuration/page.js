@@ -350,7 +350,7 @@ function ConfigurationPageInner() {
             </button>
           </div>
           <p className="help-text" style={{ marginTop: 10 }}>
-            ✅ Une fois ce lien enregistré, votre agenda est mis à jour automatiquement à intervalles réguliers
+            Une fois ce lien enregistré, votre agenda est mis à jour automatiquement à intervalles réguliers
             (toutes les 15 minutes) — aucun risque qu'un créneau déjà pris de votre côté soit proposé en
             double sur Créneau CT.
           </p>

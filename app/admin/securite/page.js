@@ -160,7 +160,7 @@ export default function AdminSecuritePage() {
             <p className="help-text">Chargement…</p>
           ) : statut.totp_actif ? (
             <>
-              <div className="message-banner success">✅ Double authentification activée sur ce compte.</div>
+              <div className="message-banner success">Double authentification activée sur ce compte.</div>
               <form onSubmit={desactiver} style={{ marginTop: 12 }}>
                 <div className="form-row">
                   <label htmlFor="mdp_desactivation">Mot de passe (pour désactiver)</label>

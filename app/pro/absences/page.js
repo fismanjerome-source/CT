@@ -94,7 +94,7 @@ function AbsencesPageInner() {
         </p>
 
         <div className="guide-card accent-danger" style={{ marginTop: 16 }}>
-          ⚖️ Si vous signalez un client absent, il recevra <strong>automatiquement un email dans l'heure</strong>{' '}
+          Si vous signalez un client absent, il recevra <strong>automatiquement un email dans l'heure</strong>{' '}
           l'informant que son rendez-vous n'a pas été honoré. Chaque client reçoit par ailleurs un email après
           son rendez-vous lui demandant si tout s'est bien déroulé, et Créneau CT se réserve le droit de
           vérifier à tout moment auprès du client qu'un rendez-vous signalé absent ne s'est effectivement pas

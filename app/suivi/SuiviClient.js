@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { IconAlerte, IconRecu } from '../components/UISvgIcons';
 
 function todayISO(offset = 0) {
   const d = new Date();
@@ -144,7 +145,7 @@ export default function SuiviClient() {
 
       <section className="hero">
         <div className="container">
-          <div className="eyebrow">🔎 Espace client</div>
+          <div className="eyebrow">Espace client</div>
           <h1>Retrouvez votre rendez-vous</h1>
           <p className="lead">
             Renseignez votre référence de réservation (format CT-XXXXXX) et l'email utilisé lors de la prise de
@@ -200,9 +201,9 @@ export default function SuiviClient() {
 
             {rdv.statut !== 'annule' && (
               <div className="guide-card accent-danger" style={{ marginTop: 16 }}>
-                ⚠️ Arrivez <strong>10 minutes avant l'heure</strong> : tout retard peut entraîner un refus de
+                <IconAlerte size={15} /> Arrivez <strong>10 minutes avant l'heure</strong> : tout retard peut entraîner un refus de
                 prise en charge par le centre.<br />
-                📄 N'oubliez pas votre <strong>carte grise</strong> (certificat d'immatriculation) : le contrôle
+                <IconRecu size={15} /> N'oubliez pas votre <strong>carte grise</strong> (certificat d'immatriculation) : le contrôle
                 ne peut pas être réalisé sans ce document.
               </div>
             )}

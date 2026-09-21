@@ -32,7 +32,7 @@ export default function GuidePage() {
       <section className="container" style={{ padding: '32px 24px 64px', maxWidth: 760 }}>
         <div className="card">
           <div className="card-header">
-            <h2 style={{ margin: 0 }}>🚗 Contrôle technique automobile</h2>
+            <h2 style={{ margin: 0 }}>Contrôle technique automobile</h2>
           </div>
           <p>
             Périodicité, 136 points de contrôle, contre-visite, sanctions : le guide complet pour les voitures
@@ -43,7 +43,7 @@ export default function GuidePage() {
 
         <div className="card">
           <div className="card-header">
-            <h2 style={{ margin: 0 }}>🏍️ Contrôle technique moto</h2>
+            <h2 style={{ margin: 0 }}>Contrôle technique moto</h2>
           </div>
           <p>
             Motos, scooters, quads, tricycles : une obligation récente avec ses propres règles de périodicité
@@ -54,7 +54,7 @@ export default function GuidePage() {
 
         <div className="card">
           <div className="card-header">
-            <h2 style={{ margin: 0 }}>✅ Checklist avant d'y aller</h2>
+            <h2 style={{ margin: 0 }}>Checklist avant d'y aller</h2>
           </div>
           <p>
             Vérifiez chez vous, en 10 minutes, les points responsables de la

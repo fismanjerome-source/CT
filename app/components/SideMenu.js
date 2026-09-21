@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { IconCalendrier, IconLoupe, IconVoiture, IconAide, IconCoche, IconBatiment, IconPersonnes, IconMessage, IconCadenas, IconRecu, IconBalance } from './UISvgIcons';
 
 function HamburgerIcon() {
   return (
@@ -59,33 +60,33 @@ export default function SideMenu() {
 
             <div className="side-menu-section">
               <span className="side-menu-section-titre">Vous êtes client</span>
-              <Link href="/" onClick={() => setOuvert(false)}>📅 Réserver un RDV</Link>
-              <Link href="/suivi" onClick={() => setOuvert(false)}>🔎 Suivre mon RDV</Link>
-              <Link href="/guide" onClick={() => setOuvert(false)}>🚗 Guide du contrôle technique</Link>
-              <Link href="/faq-clients" onClick={() => setOuvert(false)}>❓ FAQ Clients</Link>
+              <Link href="/" onClick={() => setOuvert(false)}><IconCalendrier /> Réserver un RDV</Link>
+              <Link href="/suivi" onClick={() => setOuvert(false)}><IconLoupe /> Suivre mon RDV</Link>
+              <Link href="/guide" onClick={() => setOuvert(false)}><IconVoiture /> Guide du contrôle technique</Link>
+              <Link href="/faq-clients" onClick={() => setOuvert(false)}><IconAide /> FAQ Clients</Link>
               <a
                 href="https://avant.creneauct.fr/checklist?utm_source=creneau-ct&utm_medium=website&utm_campaign=side-menu"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setOuvert(false)}
               >
-                ✅ Checklist gratuite avant le CT
+                <IconCoche /> Checklist gratuite avant le CT
               </a>
             </div>
 
             <div className="side-menu-section">
               <span className="side-menu-section-titre">Vous êtes un centre</span>
-              <Link href="/pro/login" onClick={() => setOuvert(false)}>🏢 Espace professionnel</Link>
-              <Link href="/faq-centres" onClick={() => setOuvert(false)}>❓ FAQ Centres</Link>
-              <Link href="/partenaires" onClick={() => setOuvert(false)}>🤝 Partenaires</Link>
+              <Link href="/pro/login" onClick={() => setOuvert(false)}><IconBatiment /> Espace professionnel</Link>
+              <Link href="/faq-centres" onClick={() => setOuvert(false)}><IconAide /> FAQ Centres</Link>
+              <Link href="/partenaires" onClick={() => setOuvert(false)}><IconPersonnes /> Partenaires</Link>
             </div>
 
             <div className="side-menu-section">
               <span className="side-menu-section-titre">Informations</span>
-              <Link href="/contact" onClick={() => setOuvert(false)}>💬 Contact</Link>
-              <Link href="/securite" onClick={() => setOuvert(false)}>🔒 Sécurité et confidentialité</Link>
-              <Link href="/cgu" onClick={() => setOuvert(false)}>📄 Conditions générales d'utilisation</Link>
-              <Link href="/mentions-legales" onClick={() => setOuvert(false)}>⚖️ Mentions légales</Link>
+              <Link href="/contact" onClick={() => setOuvert(false)}><IconMessage /> Contact</Link>
+              <Link href="/securite" onClick={() => setOuvert(false)}><IconCadenas /> Sécurité et confidentialité</Link>
+              <Link href="/cgu" onClick={() => setOuvert(false)}><IconRecu /> Conditions générales d'utilisation</Link>
+              <Link href="/mentions-legales" onClick={() => setOuvert(false)}><IconBalance /> Mentions légales</Link>
             </div>
           </div>
         </div>

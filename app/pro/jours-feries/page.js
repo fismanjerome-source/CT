@@ -84,7 +84,7 @@ function JoursFeriesPageInner() {
         </p>
 
         <div className="guide-card" style={{ marginTop: 16 }}>
-          📅 Un jour débloqué le reste pour toutes vos futures ouvertures de créneaux, jusqu'à ce que vous le
+          Un jour débloqué le reste pour toutes vos futures ouvertures de créneaux, jusqu'à ce que vous le
           rebloquiez ici. Les rendez-vous déjà réservés ne sont jamais annulés ni modifiés, quel que soit le
           statut du jour.
         </div>

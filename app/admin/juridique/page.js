@@ -151,7 +151,7 @@ export default function JuridiqueAdminPage() {
               <p style={{ whiteSpace: 'pre-line' }}>{f.contenu}</p>
               {f.lien_externe && (
                 <a href={f.lien_externe} target="_blank" rel="noopener noreferrer">
-                  {f.lien_libelle || 'En savoir plus'} ↗
+                  {f.lien_libelle || 'En savoir plus'}
                 </a>
               )}
             </section>

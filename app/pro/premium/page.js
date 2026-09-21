@@ -170,7 +170,7 @@ function PremiumPageInner() {
         )}
 
         <section className="card" style={{ marginTop: 20, maxWidth: 560, borderColor: 'var(--color-accent)' }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>🎁 Parrainez un autre centre</h2></div>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Parrainez un autre centre</h2></div>
           <p>
             Un autre centre s'inscrit avec votre code, et honore son premier rendez-vous ? Vous recevez
             automatiquement <strong>2 mois de statut Premium offerts</strong>, sans rien avoir à demander.

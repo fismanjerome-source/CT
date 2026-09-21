@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HeroGauge from './components/HeroGauge';
-import { IconeVehicule } from './components/VehiculeIcons';
+import { IconeVehicule, CarIcon, CamionIcon } from './components/VehiculeIcons';
+import { IconPin, IconCoche } from './components/UISvgIcons';
 import { TYPES_VEHICULES, parseTypes, typesParSite } from '@/lib/vehicules';
 import { useSite } from './components/SiteContext';
 import { couleurEnseigne } from '@/lib/enseignes';
@@ -144,13 +145,13 @@ export default function HomePage() {
         <div className="bandeau-pro">
           <div className="container bandeau-pro-inner">
             <span className="bandeau-pro-texte">
-              🔧 Vous êtes un centre de contrôle technique ? <strong>Inscription gratuite, sans abonnement.</strong>
+              Vous êtes un centre de contrôle technique ? <strong>Inscription gratuite, sans abonnement.</strong>
             </span>
             <div className="bandeau-pro-actions">
               <Link href="/pro/register" className="bandeau-pro-lien">Créer mon compte</Link>
               <span>Une question ?</span>
-              <a href="tel:+33608129145" className="bandeau-pro-lien">📞 06 08 12 91 45</a>
-              <a href="mailto:contact@creneauct.fr" className="bandeau-pro-lien">✉️ contact@creneauct.fr</a>
+              <a href="tel:+33608129145" className="bandeau-pro-lien"><PhoneIcon size={14} /> 06 08 12 91 45</a>
+              <a href="mailto:contact@creneauct.fr" className="bandeau-pro-lien"><MailIcon size={14} /> contact@creneauct.fr</a>
             </div>
             <button
               type="button"
@@ -171,7 +172,7 @@ export default function HomePage() {
           {site === 'pl' ? (
             <>
               <div className="eyebrow eyebrow-reveal">
-                <span className="eyebrow-icone">🚛</span>
+                <span className="eyebrow-icone"><CamionIcon size={18} /></span>
                 <span className="eyebrow-texte">Réservation en ligne — professionnels</span>
               </div>
               <h1>Réservez le contrôle technique de vos poids lourds et autocars, sans y passer la journée</h1>
@@ -187,7 +188,7 @@ export default function HomePage() {
           ) : (
             <>
               <div className="eyebrow eyebrow-reveal">
-                <span className="eyebrow-icone">🚗</span>
+                <span className="eyebrow-icone"><CarIcon size={18} /></span>
                 <span className="eyebrow-texte">Réservation en ligne</span>
               </div>
               <h1>Trouvez votre créneau de contrôle technique, à votre convenance, en toute simplicité</h1>
@@ -228,9 +229,9 @@ export default function HomePage() {
             type="button"
             onClick={trouverProche}
             disabled={rechercheProche}
-            style={{ marginTop: 16, marginBottom: 8, background: 'var(--color-highlight)', borderColor: 'var(--color-highlight)' }}
+            style={{ marginTop: 16, marginBottom: 8, background: 'var(--color-highlight)', borderColor: 'var(--color-highlight)', display: 'inline-flex', alignItems: 'center', gap: 8 }}
           >
-            {rechercheProche ? 'Recherche en cours…' : '📍 Prochain RDV disponible près de chez moi'}
+            {rechercheProche ? 'Recherche en cours…' : <><IconPin size={16} /> Prochain RDV disponible près de chez moi</>}
           </button>
 
           {erreurProche && <div className="message-banner error" style={{ marginTop: 10, maxWidth: 480 }}>{erreurProche}</div>}
@@ -405,7 +406,7 @@ export default function HomePage() {
       <section className="pro-cta">
         <div className="container pro-cta-inner">
           <div>
-            <p className="eyebrow" style={{ color: '#E8ECE6' }}>🔧 Vous êtes un centre de contrôle technique ?</p>
+            <p className="eyebrow" style={{ color: '#E8ECE6' }}>Vous êtes un centre de contrôle technique ?</p>
             <h2 style={{ color: '#fff', margin: '6px 0 8px 0' }}>Comblez vos créneaux vides, sans effort et sans abonnement</h2>
             <p style={{ color: '#cfe0d2', margin: 0, maxWidth: 520 }}>
               Créneau CT connecte votre planning à des automobilistes prêts à réserver dès aujourd'hui. Vous gardez
@@ -528,13 +529,13 @@ function CentreCard({ centre, dateRecherchee, typeVisite }) {
           className="tel-btn-creneau"
           onClick={(e) => e.stopPropagation()}
         >
-          📞 Prendre RDV par téléphone
+          <PhoneIcon size={15} /> Prendre RDV par téléphone
         </a>
 
         {dateRecherchee ? (
           <p className="help-text" style={{ marginTop: 8 }}>
             {centre.creneau_date_souhaitee
-              ? <>✅ Créneau disponible le {formatDateCourte(dateRecherchee)} à <strong>{centre.creneau_date_souhaitee.heure}</strong></>
+              ? <><IconCoche size={15} /> Créneau disponible le {formatDateCourte(dateRecherchee)} à <strong>{centre.creneau_date_souhaitee.heure}</strong></>
               : centre.prochain_creneau
                 ? <>Pas de créneau ce jour-là, prochain disponible : <strong style={{ color: 'var(--color-success)' }}>{formatDateCourte(centre.prochain_creneau.date)} à {centre.prochain_creneau.heure}</strong></>
                 : 'Pas de créneau ce jour-là, prochain disponible : aucun sous 7 jours'}

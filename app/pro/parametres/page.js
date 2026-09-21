@@ -205,7 +205,7 @@ function ProParametresPageInner() {
         </section>
 
         <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>🔐 Double authentification</h2></div>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Double authentification</h2></div>
           <p className="help-text">
             Ajoute un code à 6 chiffres (généré par une application comme Google Authenticator) en plus de votre
             mot de passe — un vrai plus de sécurité, notamment si le service informatique de votre centre le
@@ -219,7 +219,7 @@ function ProParametresPageInner() {
             <p className="help-text">Chargement…</p>
           ) : statutTotp.totp_actif ? (
             <>
-              <div className="message-banner success">✅ Double authentification activée sur ce compte.</div>
+              <div className="message-banner success">Double authentification activée sur ce compte.</div>
               <form onSubmit={desactiverTotp} style={{ marginTop: 12 }}>
                 <div className="form-row">
                   <label htmlFor="mdp_desactivation">Mot de passe (pour désactiver)</label>
@@ -278,7 +278,7 @@ function ProParametresPageInner() {
         </p>
 
         <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>📱 Installer l'application sur votre téléphone</h2></div>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Installer l'application sur votre téléphone</h2></div>
           <p className="help-text">
             Créneau CT peut s'installer comme une vraie application, avec sa propre icône sur votre écran d'accueil
             — pratique pour y accéder en un geste, sans passer par un navigateur.

@@ -218,7 +218,7 @@ export default function AdminCentresPage() {
         <p className="help-text">Tous les centres inscrits sur la plateforme, avec les coordonnées de leur gérant.</p>
 
         <div className="message-banner" style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)', marginTop: 12 }}>
-          📱 <strong>À rappeler aux centres si besoin :</strong> leur espace professionnel fonctionne aussi bien
+          <strong>À rappeler aux centres si besoin :</strong> leur espace professionnel fonctionne aussi bien
           depuis un smartphone ou une tablette que depuis un ordinateur — aucune application à installer, il leur
           suffit d'ouvrir creneauct.fr/pro/login dans leur navigateur habituel, où qu'ils soient.
         </div>
@@ -377,7 +377,7 @@ export default function AdminCentresPage() {
                         {c.est_premium ? 'Retirer le premium' : '★ Passer en premium'}
                       </button>
                       <button type="button" className="btn-secondary" onClick={() => basculerPremiumOffert(c.id, c.premium_offert)} disabled={s.enCours}>
-                        {c.premium_offert ? 'Retirer le premium offert' : '🎁 Offrir le premium'}
+                        {c.premium_offert ? 'Retirer le premium offert' : 'Offrir le premium'}
                       </button>
                       <button type="button" className="btn-secondary" onClick={() => basculerDemo(c.id, c.est_demo)} disabled={s.enCours}>
                         {c.est_demo ? 'Retirer "démo"' : 'Marquer comme démo'}

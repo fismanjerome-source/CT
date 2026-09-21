@@ -75,7 +75,7 @@ function RecrutementInner() {
           className="btn"
           style={{ display: 'inline-block', marginTop: 20 }}
         >
-          Voir toutes les offres sur ct-en-folie.com ↗
+          Voir toutes les offres sur ct-en-folie.com
         </a>
       </main>
     </div>

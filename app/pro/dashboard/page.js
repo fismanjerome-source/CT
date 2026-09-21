@@ -347,7 +347,7 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: data.message });
-      setComblerResultat({ type: 'success', text: `${data.nombre_crees > 0 ? '✅' : 'ℹ️'} ${data.message}` });
+      setComblerResultat({ type: 'success', text: data.message });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
@@ -372,7 +372,7 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: data.message });
-      setPromoPeriodeResultat({ type: 'success', text: `✅ ${data.message}` });
+      setPromoPeriodeResultat({ type: 'success', text: data.message });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
@@ -398,7 +398,7 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: data.message });
-      setPrixPeriodeResultat({ type: 'success', text: `✅ ${data.message}` });
+      setPrixPeriodeResultat({ type: 'success', text: data.message });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
@@ -431,7 +431,7 @@ function DashboardPageInner() {
         }),
       });
       setMessage({ type: 'success', text: data.message });
-      setSupprimerPeriodeResultat({ type: 'success', text: `✅ ${data.message}` });
+      setSupprimerPeriodeResultat({ type: 'success', text: data.message });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
@@ -465,7 +465,7 @@ function DashboardPageInner() {
       setMessage({ type: 'success', text: 'Créneau ajouté.' });
       setSingleResultat(data.bloque_ferie
         ? { type: 'success', text: `Créneau du ${singleForm.date} à ${singleForm.heure} ajouté, mais affiché « Bloqué » : cette date est un jour férié. Débloquez-la depuis l'onglet « Jours fériés » si votre centre y travaille.` }
-        : { type: 'success', text: `✅ Créneau du ${singleForm.date} à ${singleForm.heure} ajouté (${estContreVisite ? 'contre-visite' : 'visite normale'}).` });
+        : { type: 'success', text: `Créneau du ${singleForm.date} à ${singleForm.heure} ajouté (${estContreVisite ? 'contre-visite' : 'visite normale'}).` });
       chargerPlanning();
     } catch (e) {
       setMessage({ type: 'error', text: e.message });
@@ -617,7 +617,7 @@ function DashboardPageInner() {
               )}
             </div>
             <p className="help-text" style={{ marginTop: 8, marginBottom: 0 }}>
-              💶 Rappel : la prise de rendez-vous via Créneau CT n'entraîne aucun paiement en ligne — le client
+              Rappel : la prise de rendez-vous via Créneau CT n'entraîne aucun paiement en ligne — le client
               vous règle directement le prix affiché par vos soins après son contrôle technique.
             </p>
           </div>
@@ -626,7 +626,7 @@ function DashboardPageInner() {
         {promotionActive && (
           <div className="paiements-banner ok" style={{ marginTop: 16, borderColor: 'var(--color-accent)', background: 'var(--color-promo-bg)', color: 'var(--color-promo)' }}>
             <div>
-              🎉 <strong>Promotion en cours : {promotionActive.nom}</strong>
+              <strong>Promotion en cours : {promotionActive.nom}</strong>
               <span className="mono" style={{ display: 'block', marginTop: 4 }}>
                 Taux réduits : {promotionActive.taux_semaine1}% / {promotionActive.taux_semaine2}% / {promotionActive.taux_semaine3}%
                 (au lieu de 25% / 20% / 15%)
@@ -910,7 +910,7 @@ function DashboardPageInner() {
             </div>
             <div className="form-row" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <button type="submit" disabled={singleEnvoi}>{singleEnvoi ? 'Ajout en cours…' : 'Ajouter ce créneau'}</button>
-              {singleEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+              {singleEnvoi && <span className="help-text">Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
               {!singleEnvoi && singleResultat && (
                 <span className="help-text" style={{ color: singleResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
                   {singleResultat.text}
@@ -1251,7 +1251,7 @@ function DashboardPageInner() {
                   </p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <button type="submit" disabled={comblerEnvoi}>{comblerEnvoi ? 'Ouverture en cours…' : 'Ouvrir les créneaux'}</button>
-                    {comblerEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {comblerEnvoi && <span className="help-text">Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
                     {!comblerEnvoi && comblerResultat && (
                       <span className="help-text" style={{ color: comblerResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
                         {comblerResultat.text}
@@ -1294,7 +1294,7 @@ function DashboardPageInner() {
                     <button type="submit" disabled={promoPeriodeEnvoi}>
                       {promoPeriodeEnvoi ? 'Application en cours…' : 'Appliquer à cette période'}
                     </button>
-                    {promoPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {promoPeriodeEnvoi && <span className="help-text">Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
                     {!promoPeriodeEnvoi && promoPeriodeResultat && (
                       <span className="help-text" style={{ color: promoPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
                         {promoPeriodeResultat.text}
@@ -1346,7 +1346,7 @@ function DashboardPageInner() {
                     <button type="submit" disabled={prixPeriodeEnvoi}>
                       {prixPeriodeEnvoi ? 'Modification en cours…' : 'Modifier le prix de cette période'}
                     </button>
-                    {prixPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {prixPeriodeEnvoi && <span className="help-text">Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
                     {!prixPeriodeEnvoi && prixPeriodeResultat && (
                       <span className="help-text" style={{ color: prixPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
                         {prixPeriodeResultat.text}
@@ -1392,7 +1392,7 @@ function DashboardPageInner() {
                     <button type="submit" className="btn-secondary" disabled={supprimerPeriodeEnvoi} style={{ borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
                       {supprimerPeriodeEnvoi ? 'Suppression en cours…' : 'Supprimer les créneaux disponibles de cette période'}
                     </button>
-                    {supprimerPeriodeEnvoi && <span className="help-text">⏳ Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
+                    {supprimerPeriodeEnvoi && <span className="help-text">Votre demande a bien été reçue, ne cliquez pas plusieurs fois.</span>}
                     {!supprimerPeriodeEnvoi && supprimerPeriodeResultat && (
                       <span className="help-text" style={{ color: supprimerPeriodeResultat.type === 'error' ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
                         {supprimerPeriodeResultat.text}

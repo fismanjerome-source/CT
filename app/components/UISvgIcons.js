@@ -163,3 +163,45 @@ export function IconCalendrierPlus({ size = 16 }) {
     </svg>
   );
 }
+export function IconLoupe({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <circle cx="10.5" cy="10.5" r="6.5" /><line x1="15.5" y1="15.5" x2="20.5" y2="20.5" />
+    </svg>
+  );
+}
+export function IconAide({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <circle cx="12" cy="12" r="8.5" /><path d="M9.6 9.6a2.5 2.5 0 0 1 4.8.9c0 1.6-2.4 2-2.4 3.5" /><circle cx="12" cy="16.9" r="0.6" fill="currentColor" />
+    </svg>
+  );
+}
+export function IconBouclier({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <path d="M12 3 5 6v5.5c0 4.4 3 8 7 9.5 4-1.5 7-5.1 7-9.5V6l-7-3Z" /><path d="m9 12 2.2 2.2L15.2 10" />
+    </svg>
+  );
+}
+export function IconPin({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <path d="M12 21s6.5-5.7 6.5-11A6.5 6.5 0 0 0 5.5 10c0 5.3 6.5 11 6.5 11Z" /><circle cx="12" cy="10" r="2.3" />
+    </svg>
+  );
+}
+export function IconAlerte({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <path d="M12 4 2.8 19.5h18.4L12 4Z" /><line x1="12" y1="10" x2="12" y2="14.5" /><circle cx="12" cy="17" r="0.6" fill="currentColor" />
+    </svg>
+  );
+}
+export function IconHorloge({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" />
+    </svg>
+  );
+}

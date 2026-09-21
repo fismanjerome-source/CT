@@ -47,7 +47,7 @@ function ProFacturesPageInner() {
         </p>
 
         <section className="card" style={{ marginTop: 20, maxWidth: 460 }}>
-          <div className="card-header"><h2 style={{ margin: 0 }}>💶 Taux de commission</h2></div>
+          <div className="card-header"><h2 style={{ margin: 0 }}>Taux de commission</h2></div>
           <p className="help-text">
             Calculée automatiquement sur le prix effectivement payé par le client, uniquement sur les rendez-vous
             honorés — jamais sur une absence signalée.
