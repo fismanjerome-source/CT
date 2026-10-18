@@ -8,8 +8,10 @@ import { genererICSRendezVous } from '@/lib/ics';
 import { envoyerNotificationTelegram } from '@/lib/telegram';
 import { libelleType } from '@/lib/vehicules';
 import { verifierLimite, enregistrerEchec, obtenirIp } from '@/lib/rateLimit';
+import { RESERVATIONS_SUSPENDUES, MESSAGE_SUSPENSION } from '@/lib/suspension';
 
 export async function POST(request) {
+  if (RESERVATIONS_SUSPENDUES) return jsonError(503, MESSAGE_SUSPENSION);
   const ip = obtenirIp(request);
   const cle = `rdv:${ip}`;
   const limite = verifierLimite(cle);
