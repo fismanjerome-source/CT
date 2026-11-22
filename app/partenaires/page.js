@@ -18,7 +18,7 @@ const partenaires = [
     url: 'https://ct-en-folie.com',
     logo: '/partenaires/ct-en-folie-logo.jpg',
     description:
-      "Agence de recrutement spécialisée dans le contrôle technique automobile, moto et poids lourd. Issue d'une communauté de plus de 9 800 professionnels du secteur, elle met en relation les centres de contrôle technique avec des contrôleurs qualifiés partout en France.",
+      "Agence de recrutement spécialisée dans le contrôle technique automobile, moto et poids lourd. Issue d'une communauté de plus de 10 000 professionnels du secteur, elle met en relation les centres de contrôle technique avec des contrôleurs qualifiés partout en France.",
   },
   {
     nom: 'Avant Mon CT',
